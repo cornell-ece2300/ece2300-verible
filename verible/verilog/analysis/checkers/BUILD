@@ -34,6 +34,7 @@ cc_library(
         ":explicit-task-lifetime-rule",
         ":forbid-consecutive-null-statements-rule",
         ":forbid-defparam-rule",
+        ":forbid-generic-always-rule",
         ":forbid-line-continuations-rule",
         ":forbid-negative-array-dim",
         ":forbidden-anonymous-enums-rule",
@@ -1032,6 +1033,40 @@ cc_test(
     srcs = ["create-object-name-match-rule_test.cc"],
     deps = [
         ":create-object-name-match-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "forbid-generic-always-rule",
+    srcs = ["forbid-generic-always-rule.cc"],
+    hdrs = ["forbid-generic-always-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+        "//verible/verilog/parser:verilog-token-enum",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-generic-always-rule_test",
+    srcs = ["forbid-generic-always-rule_test.cc"],
+    deps = [
+        ":forbid-generic-always-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",
