@@ -32,6 +32,7 @@ cc_library(
         ":explicit-function-task-parameter-type-rule",
         ":explicit-parameter-storage-type-rule",
         ":explicit-task-lifetime-rule",
+        ":forbid-async-reset-rule",
         ":forbid-consecutive-null-statements-rule",
         ":forbid-defparam-rule",
         ":forbid-generic-always-rule",
@@ -1102,6 +1103,40 @@ cc_test(
     srcs = ["forbid-negedge-rule_test.cc"],
     deps = [
         ":forbid-negedge-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "forbid-async-reset-rule",
+    srcs = ["forbid-async-reset-rule.cc"],
+    hdrs = ["forbid-async-reset-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+        "//verible/verilog/parser:verilog-token-enum",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-async-reset-rule_test",
+    srcs = ["forbid-async-reset-rule_test.cc"],
+    deps = [
+        ":forbid-async-reset-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",

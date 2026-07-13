@@ -14,7 +14,7 @@ Status legend: ✅ done · 🟡 in progress · ⬜ not started · ➖ dropped
 > For a narrative explanation of how a rule works, how testing works, and how to run
 > everything (professor-facing overview), see [`HOW_IT_WORKS.md`](./HOW_IT_WORKS.md).
 
-_Last updated: 2026-07-12. Next up: **R305 ASYNCRESET** (same always_ff sensitivity-list territory as R306)._
+_Last updated: 2026-07-12. Next up: gate-level cluster (**R401 / R407**) or **R102 ASSIGNORDER**._
 
 ---
 
@@ -22,10 +22,10 @@ _Last updated: 2026-07-12. Next up: **R305 ASYNCRESET** (same always_ff sensitiv
 
 | Bucket | Count | Rules |
 |---|---|---|
-| ✅ Done (custom) | 3 | R301, R302, R306 |
+| ✅ Done (custom) | 4 | R301, R302, R305, R306 |
 | Enable built-in (no code) | 3 | R201, R303, R304 |
 | ➖ Dropped | 2 | R204, R205 |
-| ⬜ To implement (custom) | 12 | R101, R102, R202, R203, R305, R401–R408 |
+| ⬜ To implement (custom) | 11 | R101, R102, R202, R203, R401–R408 |
 
 ---
 
@@ -36,6 +36,7 @@ _Last updated: 2026-07-12. Next up: **R305 ASYNCRESET** (same always_ff sensitiv
 | R301 | ALWAYSFF | `forbid-always-ff-rule.{h,cc}` | `forbid-always-ff` | ⬜ (add `_test.cc`) |
 | R302 | ALWAYSSTAR | `forbid-generic-always-rule.{h,cc}` | `forbid-generic-always` | `_test.cc` ✅ |
 | R306 | NEGEDGE | `forbid-negedge-rule.{h,cc}` | `forbid-negedge` | `_test.cc` ✅ |
+| R305 | ASYNCRESET | `forbid-async-reset-rule.{h,cc}` | `forbid-async-reset` | `_test.cc` ✅ |
 
 ## 2. Covered by Verible built-ins — enable in config, no code
 
@@ -57,7 +58,6 @@ _Last updated: 2026-07-12. Next up: **R305 ASYNCRESET** (same always_ff sensitiv
 ### Medium (shape/pattern check on one construct)
 | ID | Name | Check | Status |
 |---|---|---|---|
-| R305 | ASYNCRESET | `always_ff` sensitivity list must be only `posedge clk` | ⬜ |
 | R408 | LOGICINPORT | Port-connection expr contains no operators (`~ & ^ …`) | ⬜ |
 | R407 | NOMODULE | No module instantiation in a gate-level module | ⬜ |
 | R406 | PRIMONLY | Only `and/or/xor/not` (+variants) as gate primitives | ⬜ |
