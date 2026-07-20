@@ -12,10 +12,10 @@ built-in, or by a custom C++ rule compiled into our Verible fork.
 > For a narrative explanation of how a rule works, how testing works, and how to run
 > everything (professor-facing overview), see [`HOW_IT_WORKS.md`](./HOW_IT_WORKS.md).
 
-_Last updated: 2026-07-19. Next up: **R204 IFFINALELSE** (scaffolded), then **R202
-DEFAULTXONLY** / **R205 ELSEXONLY** (share an "is this body all `'x`?" helper)._
+_Last updated: 2026-07-20. Next up: **R202 DEFAULTXONLY** / **R205 ELSEXONLY**
+(share an "is this body all `'x`?" helper)._
 
-**Status: 7 of 22 done.**
+**Status: 8 of 22 done.**
 
 ---
 
@@ -39,7 +39,7 @@ The case side and if side mirror one-for-one: *fallback exists → fallback is a
 | R201 | CASEDEFAULT | Every `case` statement has a `default` case | built-in `case-missing-default` | ✅ |
 | R202 | DEFAULTXONLY | The `default` case assigns only `'x` values | — | ⬜ |
 | R203 | XASSIGN | Every signal assigned anywhere in the case is assigned `'x` in `default` | — | ⬜ |
-| R204 | IFFINALELSE | Every if/else chain ends in a plain final `else` | `if-missing-final-else-rule.{h,cc}` (scaffolded, logic pending) | ⬜ |
+| R204 | IFFINALELSE | Every if/else chain ends in a plain final `else` | `if-missing-final-else` (custom) | ✅ |
 | R205 | ELSEXONLY | The final `else` clause assigns only `'x` values | — | ⬜ |
 | R206 | IFXASSIGN | Every signal assigned anywhere in the if/else chain is assigned `'x` in the final `else` | — | ⬜ |
 

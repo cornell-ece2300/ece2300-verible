@@ -23,6 +23,7 @@
 #include "verible/common/text/symbol.h"
 #include "verible/common/text/syntax-tree-context.h"
 #include "verible/common/text/tree-utils.h"
+#include "verible/verilog/CST/statement.h"
 #include "verible/verilog/CST/verilog-nonterminals.h"
 #include "verible/verilog/analysis/descriptions.h"
 #include "verible/verilog/analysis/lint-rule-registry.h"
@@ -56,234 +57,17 @@ const LintRuleDescriptor &IfMissingFinalElseRule::GetDescriptor() {
 //
 //   kConditionalStatement          <- one link in the chain
 //     kIfClause
-//       kIfHeader                  <- the `if (cond)` part
+//       kIfHeader                  <- the if's condition 
 //       kIfBody
-//     kElseClause                  <- ABSENT entirely when there is no else
+//     kElseClause                  <- missing when there is no "else" or "else if"
 //       kElseBody
-//         kConditionalStatement    <- present when this is an `else if`
-//                                     (the chain nests to the right)
+//         kConditionalStatement    <- present when node is an "else if"
 //
-// So an if/else chain is a right-leaning nest. To decide whether it terminates
-// in a plain `else`, walk down: at each kConditionalStatement, look for a
-// kElseClause child.
-//   - no kElseClause          -> chain ends without an else  => VIOLATION
-//   - kElseClause whose body is another kConditionalStatement -> `else if`,
-//                                keep walking down that one
-//   - kElseClause whose body is NOT a kConditionalStatement   -> plain final
-//                                else => OK
-//
-// Two things to watch:
-//   1. Only evaluate the OUTERMOST kConditionalStatement of a chain, otherwise
-//      each nested `else if` gets reported separately for the same chain.
-//      `context.IsInside(NodeEnum::kElseBody)` is one way to skip inner links.
-//   2. Anchor the violation somewhere useful for the student -- the leftmost
-//      leaf of the outermost statement is the `if` keyword.
+// So if the tree doesn't have an kElseClause it means it neither has "else" or "else if"
+// it's a direct violation. If tree has kElseClause, check if kElseBody has kConditionalStatement as an immediate child which
+// signifies that it's an "else if" and not an "else" or an "else" with another nested "if".
+//  If kElseClause doesn't have a grandchild kConditionalStatement, it's an "else" statement.
 
-/*
-                    Leaf @1 (#"if" @152-154: "if")
-                    Node @2 (tag: kParenGroup) {
-                      Leaf @0 (#'(' @155-156: "(")
-                      Node @1 (tag: kExpression) {
-                        Node @0 (tag: kFunctionCall) {
-                          Node @0 (tag: kReference) {
-                            Node @0 (tag: kLocalRoot) {
-                              Node @0 (tag: kUnqualifiedId) {
-                                Leaf @0 (#SymbolIdentifier @157-160: "rst")
-                              }
-                            }
-                          }
-                        }
-                      }
-                      Leaf @2 (#')' @161-162: ")")
-                    }
-                  }
-                  Node @1 (tag: kIfBody) {
-                    Node @0 (tag: kNonblockingAssignmentStatement) {
-                      Node @0 (tag: kLPValue) {
-                        Node @0 (tag: kReference) {
-                          Node @0 (tag: kLocalRoot) {
-                            Node @0 (tag: kUnqualifiedId) {
-                              Leaf @0 (#SymbolIdentifier @169-170: "q")
-                            }
-                          }
-                        }
-                      }
-                      Leaf @1 (#"<=" @171-173: "<=")
-                      Node @3 (tag: kExpression) {
-                        Node @0 (tag: kNumber) {
-                          Leaf @0 (#TK_DecNumber @174-175: "1")
-                          Node @1 (tag: kBaseDigits) {
-                            Leaf @0 (#TK_BinBase @175-177: "\'b")
-                            Leaf @1 (#TK_BinDigits @177-178: "0")
-                          }
-                        }
-                      }
-                      Leaf @4 (#';' @178-179: ";")
-                    }
-                  }
-                }
-                Node @1 (tag: kElseClause) {
-                  Leaf @0 (#"else" @184-188: "else")
-                  Node @1 (tag: kElseBody) {
-                    Node @0 (tag: kConditionalStatement) {
-                      Node @0 (tag: kIfClause) {
-                        Node @0 (tag: kIfHeader) {
-                          Leaf @1 (#"if" @189-191: "if")
-                          Node @2 (tag: kParenGroup) {
-                            Leaf @0 (#'(' @192-193: "(")
-                            Node @1 (tag: kExpression) {
-                              Node @0 (tag: kBinaryExpression) {
-                                Node @0 (tag: kUnaryPrefixExpression) {
-                                  Leaf @0 (#'!' @194-195: "!")
-                                  Node @1 (tag: kFunctionCall) {
-                                    Node @0 (tag: kReference) {
-                                      Node @0 (tag: kLocalRoot) {
-                                        Node @0 (tag: kUnqualifiedId) {
-                                          Leaf @0 (#SymbolIdentifier @195-198: "rst")
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                                Leaf @1 (#"&&" @199-201: "&&")
-                                Node @2 (tag: kFunctionCall) {
-                                  Node @0 (tag: kReference) {
-                                    Node @0 (tag: kLocalRoot) {
-                                      Node @0 (tag: kUnqualifiedId) {
-                                        Leaf @0 (#SymbolIdentifier @202-204: "en")
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                            Leaf @2 (#')' @205-206: ")")
-                          }
-                        }
-                        Node @1 (tag: kIfBody) {
-                          Node @0 (tag: kNonblockingAssignmentStatement) {
-                            Node @0 (tag: kLPValue) {
-                              Node @0 (tag: kReference) {
-                                Node @0 (tag: kLocalRoot) {
-                                  Node @0 (tag: kUnqualifiedId) {
-                                    Leaf @0 (#SymbolIdentifier @213-214: "q")
-                                  }
-                                }
-                              }
-                            }
-                            Leaf @1 (#"<=" @215-217: "<=")
-                            Node @3 (tag: kExpression) {
-                              Node @0 (tag: kFunctionCall) {
-                                Node @0 (tag: kReference) {
-                                  Node @0 (tag: kLocalRoot) {
-                                    Node @0 (tag: kUnqualifiedId) {
-                                      Leaf @0 (#SymbolIdentifier @218-219: "d")
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                            Leaf @4 (#';' @219-220: ";")
-                          }
-                        }
-                      }
-                      Node @1 (tag: kElseClause) {
-                        Leaf @0 (#"else" @225-229: "else")
-                        Node @1 (tag: kElseBody) {
-                          Node @0 (tag: kConditionalStatement) {
-                            Node @0 (tag: kIfClause) {
-                              Node @0 (tag: kIfHeader) {
-                                Leaf @1 (#"if" @230-232: "if")
-                                Node @2 (tag: kParenGroup) {
-                                  Leaf @0 (#'(' @233-234: "(")
-                                  Node @1 (tag: kExpression) {
-                                    Node @0 (tag: kBinaryExpression) {
-                                      Node @0 (tag: kUnaryPrefixExpression) {
-                                        Leaf @0 (#'!' @235-236: "!")
-                                        Node @1 (tag: kFunctionCall) {
-                                          Node @0 (tag: kReference) {
-                                            Node @0 (tag: kLocalRoot) {
-                                              Node @0 (tag: kUnqualifiedId) {
-                                                Leaf @0 (#SymbolIdentifier @236-239: "rst")
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                      Leaf @1 (#"&&" @240-242: "&&")
-                                      Node @2 (tag: kUnaryPrefixExpression) {
-                                        Leaf @0 (#'!' @243-244: "!")
-                                        Node @1 (tag: kFunctionCall) {
-                                          Node @0 (tag: kReference) {
-                                            Node @0 (tag: kLocalRoot) {
-                                              Node @0 (tag: kUnqualifiedId) {
-                                                Leaf @0 (#SymbolIdentifier @244-246: "en")
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                  Leaf @2 (#')' @247-248: ")")
-                                }
-                              }
-                              Node @1 (tag: kIfBody) {
-                                Node @0 (tag: kNonblockingAssignmentStatement) {
-                                  Node @0 (tag: kLPValue) {
-                                    Node @0 (tag: kReference) {
-                                      Node @0 (tag: kLocalRoot) {
-                                        Node @0 (tag: kUnqualifiedId) {
-                                          Leaf @0 (#SymbolIdentifier @255-256: "q")
-                                        }
-                                      }
-                                    }
-                                  }
-                                  Leaf @1 (#"<=" @257-259: "<=")
-                                  Node @3 (tag: kExpression) {
-                                    Node @0 (tag: kFunctionCall) {
-                                      Node @0 (tag: kReference) {
-                                        Node @0 (tag: kLocalRoot) {
-                                          Node @0 (tag: kUnqualifiedId) {
-                                            Leaf @0 (#SymbolIdentifier @260-261: "q")
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                  Leaf @4 (#';' @261-262: ";")
-                                }
-                              }
-                            }
-                            Node @1 (tag: kElseClause) {
-                              Leaf @0 (#"else" @267-271: "else")
-                              Node @1 (tag: kElseBody) {
-                                Node @0 (tag: kNonblockingAssignmentStatement) {
-                                  Node @0 (tag: kLPValue) {
-                                    Node @0 (tag: kReference) {
-                                      Node @0 (tag: kLocalRoot) {
-                                        Node @0 (tag: kUnqualifiedId) {
-                                          Leaf @0 (#SymbolIdentifier @278-279: "q")
-                                        }
-                                      }
-                                    }
-                                  }
-                                  Leaf @1 (#"<=" @280-282: "<=")
-                                  Node @3 (tag: kExpression) {
-                                    Node @0 (tag: kNumber) {
-                                      Leaf @0 (#TK_UnBasedNumber @283-285: "\'x")
-                                    }
-                                  }
-                                  Leaf @4 (#';' @285-286: ";")
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-
-*/
 // -----------------------------------------------------------------------------
 void IfMissingFinalElseRule::HandleSymbol(const verible::Symbol &symbol,
                                           const SyntaxTreeContext &context) {
@@ -292,7 +76,15 @@ void IfMissingFinalElseRule::HandleSymbol(const verible::Symbol &symbol,
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
   if (!node.MatchesTag(NodeEnum::kConditionalStatement)) return;
 
-  // TODO: walk the chain and report when it does not end in a plain else.
+  // Finds else clause of a conditional statement node
+  const verible::SyntaxTreeNode *else_clause =
+      GetConditionalStatementElseClause(symbol);
+  // Return violation if no else clause exists, GetConditionalStatementElseClause
+  // returns nullptr when none exist
+  if (else_clause == nullptr) {
+     violations_.insert(verible::LintViolation(symbol, kMessage, context));
+     return;
+  }
 }
 
 LintRuleStatus IfMissingFinalElseRule::Report() const {

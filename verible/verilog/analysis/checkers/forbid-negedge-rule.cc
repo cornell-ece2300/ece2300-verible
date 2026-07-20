@@ -53,17 +53,17 @@ const LintRuleDescriptor &ForbidNegedgeRule::GetDescriptor() {
   return d;
 }
 
-// Recursively collect every `negedge` leaf under `symbol`.
+// Recursively collect every "negedge" leaf under "symbol"
 static void FindNegedgeLeaves(
     const verible::Symbol &symbol,
     std::vector<const verible::SyntaxTreeLeaf *> *found) {
-  // Base case: a leaf — check its token, then stop.
+  // Leaf Base case: check its token, then stop
   if (symbol.Kind() == verible::SymbolKind::kLeaf) {
     const verible::SyntaxTreeLeaf &leaf = verible::SymbolCastToLeaf(symbol);
     if (leaf.get().token_enum() == TK_negedge) found->push_back(&leaf);
     return;
   }
-  // Recursive case: a node — descend into each child.
+  // Recursive case: a node — check each child
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
   for (const auto &child : node.children()) {
     if (child != nullptr) FindNegedgeLeaves(*child, found);  // skip empty slots
