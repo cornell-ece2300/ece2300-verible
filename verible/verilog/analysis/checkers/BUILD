@@ -39,6 +39,7 @@ cc_library(
         ":forbid-line-continuations-rule",
         ":forbid-negative-array-dim",
         ":forbid-negedge-rule",
+        ":final-else-x-only-rule",
         ":forbidden-anonymous-enums-rule",
         ":forbidden-anonymous-structs-unions-rule",
         ":forbidden-macro-rule",
@@ -1173,6 +1174,41 @@ cc_test(
     srcs = ["if-missing-final-else-rule_test.cc"],
     deps = [
         ":if-missing-final-else-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "final-else-x-only-rule",
+    srcs = ["final-else-x-only-rule.cc"],
+    hdrs = ["final-else-x-only-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:statement",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+        "//verible/verilog/parser:verilog-token-enum",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "final-else-x-only-rule_test",
+    srcs = ["final-else-x-only-rule_test.cc"],
+    deps = [
+        ":final-else-x-only-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",
