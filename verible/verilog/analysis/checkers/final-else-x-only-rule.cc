@@ -51,10 +51,6 @@ const LintRuleDescriptor &FinalElseXOnlyRule::GetDescriptor() {
   };
   return d;
 }
-// STEP 4 — flag each assignment whose RHS is not 'x. Anchor the violation on
-//   the assignment node (or its LHS identifier) so the caret lands on the
-//   offending statement rather than the whole else clause.
-// -----------------------------------------------------------------------------
 
 // Recursively collect every assignment node under 
 static void FindAssignments(

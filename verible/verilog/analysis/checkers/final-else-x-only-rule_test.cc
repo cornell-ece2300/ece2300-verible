@@ -200,6 +200,19 @@ TEST(FinalElseXOnlyRuleTests, Various) {
        " <= 4'b010x;\n"
        "  end\n"
        "endmodule\n"},
+
+      {"module m; logic q, y, a, b; always_comb begin\n"
+       "  if (a) begin\n"
+       "    q = a;\n"
+       "    y = b;\n"
+       "  end else if (b) begin\n"
+       "    q = b;\n"
+       "    y = a;\n"
+       "  end else begin\n"
+       "    q = 'x;\n"
+       "    y = 'x;\n"
+       "  end\n"
+       "end endmodule"},
   };
 
   RunLintTestCases<VerilogAnalyzer, FinalElseXOnlyRule>(kTestCases);
