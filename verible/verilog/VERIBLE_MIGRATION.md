@@ -12,10 +12,10 @@ built-in, or by a custom C++ rule compiled into our Verible fork.
 > For a narrative explanation of how a rule works, how testing works, and how to run
 > everything (professor-facing overview), see [`HOW_IT_WORKS.md`](./HOW_IT_WORKS.md).
 
-_Last updated: 2026-07-20. Next up: **R404 PRIMONLY** (pairs naturally with R405 —
-both inspect instantiations)._
+_Last updated: 2026-07-20. The R4xx gate-level cluster is complete. Next up:
+**R202 DEFAULTXONLY** / **R205 ELSEXONLY** (share an "is this body all `'x`?" helper)._
 
-**Status: 10 of 20 done.**
+**Status: 13 of 19 done.**
 
 ---
 
@@ -58,17 +58,16 @@ The case side and if side mirror one-for-one: *fallback exists → fallback is a
 
 Two rulesets share these rules (see **Ruleset selection** in Notes):
 
-- **`Struct`** = R401–R404, R406 — hierarchical modules; submodule instantiation **allowed**
-- **`GL`** = `Struct` + **R405** — leaf modules; gate primitives only, **no** submodules
+- **`Struct`** = R401–R403, R405 — hierarchical modules; submodule instantiation **allowed**
+- **`GL`** = `Struct` + **R404** — leaf modules; gate primitives only, **no** submodules
 
 | ID | Name | What it checks | Implementation | Status |
 |---|---|---|---|---|
 | R401 | NOSPBLK | No `always`/`initial`/`function`/`task`/`generate`/system task call | `forbid-special-blocks` | ✅ |
-| R402 | COMPLEXLHS | `assign` LHS is an identifier, `id[k]`, `id[msb:lsb]`, or a concatenation of those | — | ⬜ |
-| R403 | COMPLEXRHS | `assign` RHS is the R402 set, or a simple literal | — | ✅ |
-| R404 | PRIMONLY | Instantiated primitive is one of `and, or, not, xor, nand, nor, xnor` | — | ✅ |
-| R405 | NOMODULE | No submodule instantiation — **`GL` ruleset only** | `forbid-module-instantiation`  | ✅ |
-| R406 | LOGICINPORT | Port connections contain no operators (`~ & ^ …`); concatenations are fine | — | ✅ |
+| R402 | COMPLEXRHS | `assign` RHS is an identifier, `id[k]`, `id[msb:lsb]`, a simple literal, or a concatenation of those | `restrict-assign-rhs` | ✅ |
+| R403 | PRIMONLY | Instantiated primitive is one of `and, or, not, xor, nand, nor, xnor` | `restrict-gate-primitives` | ✅ |
+| R404 | NOMODULE | No submodule instantiation — **`GL` ruleset only** | `forbid-module-instantiation` | ✅ |
+| R405 | LOGICINPORT | Port connections contain no operators (`~ & ^ …`); concatenations are fine | `restrict-port-connections` | ✅ |
 
 ---
 
