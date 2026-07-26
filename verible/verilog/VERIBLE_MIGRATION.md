@@ -13,9 +13,9 @@ built-in, or by a custom C++ rule compiled into our Verible fork.
 > everything (professor-facing overview), see [`HOW_IT_WORKS.md`](./HOW_IT_WORKS.md).
 
 _Last updated: 2026-07-20. Next up: **R404 PRIMONLY** (pairs naturally with R405 —
-both inspect instantiations), then **R401 NOSPBLK**._
+both inspect instantiations)._
 
-**Status: 9 of 20 done.**
+**Status: 10 of 20 done.**
 
 ---
 
@@ -63,7 +63,7 @@ Two rulesets share these rules (see **Ruleset selection** in Notes):
 
 | ID | Name | What it checks | Implementation | Status |
 |---|---|---|---|---|
-| R401 | NOSPBLK | No `always`/`initial`/`function`/`task`/`generate`/system call as a direct module item | — | ⬜ |
+| R401 | NOSPBLK | No `always`/`initial`/`function`/`task`/`generate`/system task call | `forbid-special-blocks` | ✅ |
 | R402 | COMPLEXLHS | `assign` LHS is an identifier, `id[k]`, `id[msb:lsb]`, or a concatenation of those | — | ⬜ |
 | R403 | COMPLEXRHS | `assign` RHS is the R402 set, or a simple literal | — | ⬜ |
 | R404 | PRIMONLY | Instantiated primitive is one of `and, or, not, xor, nand, nor, xnor` | — | ⬜ |
