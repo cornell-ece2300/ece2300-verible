@@ -37,6 +37,7 @@ cc_library(
         ":forbid-defparam-rule",
         ":forbid-generic-always-rule",
         ":forbid-line-continuations-rule",
+        ":forbid-module-instantiation-rule",
         ":forbid-negative-array-dim",
         ":forbid-negedge-rule",
         ":final-else-x-only-rule",
@@ -1244,6 +1245,40 @@ cc_test(
     srcs = ["if-x-assignment-rule_test.cc"],
     deps = [
         ":if-x-assignment-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "forbid-module-instantiation-rule",
+    srcs = ["forbid-module-instantiation-rule.cc"],
+    hdrs = ["forbid-module-instantiation-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+        "//verible/verilog/parser:verilog-token-enum",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-module-instantiation-rule_test",
+    srcs = ["forbid-module-instantiation-rule_test.cc"],
+    deps = [
+        ":forbid-module-instantiation-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",

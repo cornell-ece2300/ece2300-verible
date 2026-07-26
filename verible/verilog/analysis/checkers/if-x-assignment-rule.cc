@@ -52,28 +52,6 @@ const LintRuleDescriptor &IfXAssignmentRule::GetDescriptor() {
   return d;
 }
 
-
-// STEP 3: Collect assignment nodes in two regions.
-//   Reuse the recursive FindAssignments shape from final-else-x-only-rule:
-//     a) collect under the whole conditional node;
-//     b) collect under only the final else body.
-//   Match kNetVariableAssignment and kNonblockingAssignmentStatement.
-//
-// STEP 4: Reduce each assignment LHS to one signal name.
-//   Find the assignment's direct kLPValue child, then call GetLeftmostLeaf().
-//   Its text is the base signal name for ordinary course assignments. This
-//   intentionally treats q, q[3], and q[7:4] as the same signal q.
-//
-// STEP 5: Build the comparison containers.
-//   Use a map<string_view, const SyntaxTreeNode *> for all chain assignments so
-//   each name keeps an assignment node that can anchor a violation. Use a
-//   set<string_view> for names assigned in the final else.
-//
-// STEP 6: Report the set difference.
-//   For every name in the chain map that is absent from the final-else set,
-//   insert LintViolation(*assignment, kMessage, context) into violations_.
-//   Do not inspect the RHS here; R205 checks that final-else values are all X.
-
 // Recursively collect every assignment node under 
 static void FindAssignments(
     const verible::Symbol &symbol,
@@ -133,7 +111,7 @@ void IfXAssignmentRule::HandleSymbol(const verible::Symbol &symbol,
   while (true) {
     const verible::SyntaxTreeNode *else_clause =
         GetConditionalStatementElseClause(*current);
-    if (else_clause == nullptr) return;  // R204 handles this.
+    if (else_clause == nullptr) return;  // R204 handles it
 
     const verible::SyntaxTreeNode *body =
         GetElseClauseStatementBody(*else_clause);

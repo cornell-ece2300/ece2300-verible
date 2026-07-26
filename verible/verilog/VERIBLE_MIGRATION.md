@@ -12,10 +12,10 @@ built-in, or by a custom C++ rule compiled into our Verible fork.
 > For a narrative explanation of how a rule works, how testing works, and how to run
 > everything (professor-facing overview), see [`HOW_IT_WORKS.md`](./HOW_IT_WORKS.md).
 
-_Last updated: 2026-07-20. Next up: **R202 DEFAULTXONLY** / **R205 ELSEXONLY**
-(share an "is this body all `'x`?" helper)._
+_Last updated: 2026-07-20. Next up: **R404 PRIMONLY** (pairs naturally with R405 —
+both inspect instantiations), then **R401 NOSPBLK**._
 
-**Status: 8 of 22 done.**
+**Status: 9 of 20 done.**
 
 ---
 
@@ -54,26 +54,35 @@ The case side and if side mirror one-for-one: *fallback exists → fallback is a
 | R305 | ASYNCRESET | `always_ff` sensitivity list has only one edge term (no async reset) | `forbid-async-reset` (custom) | ✅ |
 | R306 | NEGEDGE | No `negedge` in `always_ff`; only `posedge` | `forbid-negedge` (custom) | ✅ |
 
-### R4xx — Gate Level
+### R4xx — Gate Level / Structural
 
-All R4xx rules apply **only to gate-level (`_GL.v`) files.**
+Two rulesets share these rules (see **Ruleset selection** in Notes):
+
+- **`Struct`** = R401–R404, R406 — hierarchical modules; submodule instantiation **allowed**
+- **`GL`** = `Struct` + **R405** — leaf modules; gate primitives only, **no** submodules
 
 | ID | Name | What it checks | Implementation | Status |
 |---|---|---|---|---|
-| R401 | NOSPBLK | No `always`/`initial`/`function`/`task`/`generate`/`$system` in a gate-level module | — | ⬜ |
-| R402 | BADLHS | `assign` LHS operand is a wire/primitive (valid lvalue) | — | ⬜ |
-| R403 | BADRHS | `assign` RHS operand is a wire/primitive (valid rvalue) | — | ⬜ |
-| R404 | COMPLEXLHS | `assign` LHS is a single signal or part-select | — | ⬜ |
-| R405 | COMPLEXRHS | `assign` RHS is an identifier, `id[msb:lsb]`, or simple literal | — | ⬜ |
-| R406 | PRIMONLY | Only `and`/`or`/`xor`/`not` (+variants) as gate primitives | — | ⬜ |
-| R407 | NOMODULE | No module instantiation inside a gate-level module | — | ⬜ |
-| R408 | LOGICINPORT | Port connections contain no operators (`~ & ^ …`) — must be a bare net | — | ⬜ |
+| R401 | NOSPBLK | No `always`/`initial`/`function`/`task`/`generate`/system call as a direct module item | — | ⬜ |
+| R402 | COMPLEXLHS | `assign` LHS is an identifier, `id[k]`, `id[msb:lsb]`, or a concatenation of those | — | ⬜ |
+| R403 | COMPLEXRHS | `assign` RHS is the R402 set, or a simple literal | — | ⬜ |
+| R404 | PRIMONLY | Instantiated primitive is one of `and, or, not, xor, nand, nor, xnor` | — | ⬜ |
+| R405 | NOMODULE | No submodule instantiation — **`GL` ruleset only** | `forbid-module-instantiation` (custom) | ✅ *(unit test cases pending)* |
+| R406 | LOGICINPORT | Port connections contain no operators (`~ & ^ …`); concatenations are fine | — | ⬜ |
+
+**Concatenations are allowed** in `assign` LHS/RHS and in port connections — a deliberate
+change from last year, where banning them in ports was contemplated but never implemented
+(`linter.py:584-586` is commented out).
 
 ---
 
 ## Notes
 
-**Retired rules.** The old `XPROP` / `WRONGXPROP` macro rules and the
+**Retired rules.** `BADLHS` / `BADRHS` were removed on 2026-07-20: they fired when
+the Pyverilog AST lacked a well-formed `Lvalue`/`Rvalue` — a malformed-parse guard.
+Verible's parser rejects such an `assign` outright, so they could never fire.
+R402–R406 were renumbered to close the gap.
+The old `XPROP` / `WRONGXPROP` macro rules and the
 `CASEINCOMPLETE` / `IFINCOMPLETE` split-out rules were removed on 2026-07-19.
 Coverage checking now lives in R203/R206, which catch both failure modes (signal
 missing from the fallback, and signal present but not assigned `'x`). Note the
@@ -91,9 +100,26 @@ survey of the labs shows part-select LHS in student RTL is essentially
 nonexistent, so this costs nothing in practice. **Needs a decision from the
 professor.**
 
-**R4xx gating.** Labs are one module per file with `_GL`/`_RTL` naming, so
-"gate-level only" is a filename gate on the wrapper plus a shared
-"is this a gate-level module?" guard. Build R401–R408 as a cluster.
+**Ruleset selection — NOT derivable from filenames.** Which ruleset a module gets
+(`GL` / `Struct` / `RTL`) comes from an explicit per-module table in
+`scripts/lint/rulesets.yaml`. It deliberately cuts across the `_GL`/`_RTL` naming:
+
+- `MultiNotePlayer_RTL`, `MusicPlayer_RTL`, `MusicPlayerDpath_RTL`, `NotePlayer_RTL`,
+  `Synchronizer_RTL` are **`Struct`** despite the `_RTL` suffix
+- `AccumXcel`, `ALU_32b`, `ProcScycle`, `ProcSimple` are `Struct` with **no suffix**
+- `DFF_GL`, `DFFR_GL`, `Counter_16b_GL`, `Mux2_8b_GL` are `Struct`, **not** `GL`
+
+So the wrapper must read the yaml map; a filename heuristic would be wrong.
+**Mechanism deferred** — decide after the R4xx rules themselves exist.
+
+**`rulesets.yaml` needs a pass.** It references `CASEINFER` and
+`SignalAssignInDefault`, which do not exist in `lint_rules.py`, plus `XPROP` /
+`WRONGXPROP`, which were retired. Its `Struct` list also still names `BADLHS` /
+`BADRHS`.
+
+**Lab 1 module classification** (first migration target):
+`GL` → `BinaryToBinCodedDec_GL`, `BinaryToSevenSegOpt_GL`, `BinaryToSevenSegUnopt_GL`;
+`Struct` → `DisplayOpt_GL`, `DisplayUnopt_GL`.
 
 **R301 has no unit test.** It predates the test pattern; add
 `forbid-always-ff-rule_test.cc` to bring it in line with the other custom rules.
