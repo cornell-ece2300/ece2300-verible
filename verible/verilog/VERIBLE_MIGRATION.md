@@ -67,12 +67,8 @@ Two rulesets share these rules (see **Ruleset selection** in Notes):
 | R402 | COMPLEXLHS | `assign` LHS is an identifier, `id[k]`, `id[msb:lsb]`, or a concatenation of those | — | ⬜ |
 | R403 | COMPLEXRHS | `assign` RHS is the R402 set, or a simple literal | — | ⬜ |
 | R404 | PRIMONLY | Instantiated primitive is one of `and, or, not, xor, nand, nor, xnor` | — | ⬜ |
-| R405 | NOMODULE | No submodule instantiation — **`GL` ruleset only** | `forbid-module-instantiation` (custom) | ✅ *(unit test cases pending)* |
+| R405 | NOMODULE | No submodule instantiation — **`GL` ruleset only** | `forbid-module-instantiation` (custom) | ✅ |
 | R406 | LOGICINPORT | Port connections contain no operators (`~ & ^ …`); concatenations are fine | — | ⬜ |
-
-**Concatenations are allowed** in `assign` LHS/RHS and in port connections — a deliberate
-change from last year, where banning them in ports was contemplated but never implemented
-(`linter.py:584-586` is commented out).
 
 ---
 
