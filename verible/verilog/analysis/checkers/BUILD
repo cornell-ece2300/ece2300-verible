@@ -43,6 +43,7 @@ cc_library(
         ":forbid-special-blocks-rule",
         ":restrict-gate-primitives-rule",
         ":restrict-assign-rhs-rule",
+        ":restrict-port-connections-rule",
         ":final-else-x-only-rule",
         ":forbidden-anonymous-enums-rule",
         ":forbidden-anonymous-structs-unions-rule",
@@ -1387,6 +1388,41 @@ cc_test(
     srcs = ["restrict-assign-rhs-rule_test.cc"],
     deps = [
         ":restrict-assign-rhs-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "restrict-port-connections-rule",
+    srcs = ["restrict-port-connections-rule.cc"],
+    hdrs = ["restrict-port-connections-rule.h"],
+    deps = [
+        "@abseil-cpp//absl/strings",
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+        "//verible/verilog/parser:verilog-token-enum",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "restrict-port-connections-rule_test",
+    srcs = ["restrict-port-connections-rule_test.cc"],
+    deps = [
+        ":restrict-port-connections-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",
