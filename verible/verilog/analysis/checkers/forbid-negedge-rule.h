@@ -26,8 +26,7 @@
 namespace verilog {
 namespace analysis {
 
-// ForbidNegedgeRule flags negative-edge (`negedge`) sensitivity in always_ff.
-// (ECE2300 R306: only `posedge clk` is permitted in sequential logic.)
+// ForbidNegedgeRule flags negative-edge (`negedge`) sensitivity in always_ff
 class ForbidNegedgeRule : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;

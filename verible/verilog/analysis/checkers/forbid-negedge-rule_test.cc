@@ -30,33 +30,27 @@ using verible::LintTestCase;
 using verible::RunLintTestCases;
 
 TEST(ForbidNegedgeRuleTests, Various) {
-  // The violation is anchored on the `negedge` keyword token.
+  // The violation is anchored on the `negedge` keyword token
   constexpr int kToken = TK_negedge;
   const std::initializer_list<LintTestCase> kTestCases = {
-      // --- No violations ---
+      // No violations
       {""},
       {"module m; endmodule"},
-      // posedge is the allowed edge.
       {"module m; logic q, d, clk; "
        "always_ff @(posedge clk) q <= d; endmodule"},
-      // No event control at all.
       {"module m; logic y, a, b; always_comb y = a & b; endmodule"},
-      // negedge in a *generic* always is out of scope for this rule
-      // (that should by only caught by forbid-generic-always instead).
       {"module m; logic q, d, clk; "
        "always @(negedge clk) q <= d; endmodule"},
 
-      // --- Violations: negedge inside always_ff ---
+      // Violations
       {"module m; logic q, d, clk; always_ff @(",
        {kToken, "negedge"},
        " clk) q <= d; endmodule"},
 
-      // Mixed sensitivity: only the negedge term is flagged.
       {"module m; logic q, d, clk, rst; always_ff @(posedge clk or ",
        {kToken, "negedge"},
        " rst) q <= d; endmodule"},
 
-      // Two negedge terms -> two violations.
       {"module m; logic q, d, clk, rst; always_ff @(",
        {kToken, "negedge"},
        " clk or ",

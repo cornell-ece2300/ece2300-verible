@@ -67,8 +67,8 @@ void RestrictGatePrimitivesRule::HandleSymbol(const verible::Symbol &symbol,
   if (!node.MatchesTag(NodeEnum::kGateInstantiation)) return;        
 
   // kGateInstantiation
-  //   Leaf @0  (#"and" @45-48: "and")     ← gate type
-  //   kPrimitiveGateInstanceList          ← (y, a, b) part
+  //   Leaf @0  (#"and" @45-48: "and") <-- gate type
+  //   kPrimitiveGateInstanceList          
   //   Leaf @2  (#';')
 
   const verible::SyntaxTreeLeaf *gate_type =

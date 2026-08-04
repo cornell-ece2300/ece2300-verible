@@ -32,7 +32,7 @@ using verible::RunLintTestCases;
 TEST(FinalElseXOnlyRuleTests, Various) {
   constexpr int kToken = SymbolIdentifier;
   const std::initializer_list<LintTestCase> kTestCases = {
-      // --- No violations ---
+      // No violations
       {""},
       {"module m; endmodule"},
       {"module m; logic q, d, clk; "
@@ -110,7 +110,7 @@ TEST(FinalElseXOnlyRuleTests, Various) {
        "  end\n"
        "endmodule\n"},
 
-      // Violations after here
+      // Violations
       // try 1'b0
       {"module DFFR_RTL\n"
        "(\n"

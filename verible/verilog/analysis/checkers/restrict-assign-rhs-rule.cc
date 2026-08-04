@@ -53,6 +53,20 @@ const LintRuleDescriptor &RestrictAssignRhsRule::GetDescriptor() {
   return d;
 }
 
+// See printtree for: assign y = a, c = b;
+// kContinuousAssignmentStatement
+//   Leaf @0  "assign"
+//   kAssignmentList                       (can have multiple LHS, RHS pairs)
+//     kNetVariableAssignment          
+//       @0 kLPValue        "y"              
+//       @1 Leaf  '='
+//       @2 kExpression     "a"           
+//     Leaf @1  ','
+//     kNetVariableAssignment        
+//       @0 kLPValue        "c"
+//       @1 Leaf  '='
+//       @2 kExpression     "b"
+
 // Returns true if given tag is a node that does an operation
 static bool IsOperatorNode(NodeEnum tag) {
   switch (tag) {
@@ -79,20 +93,6 @@ static const verible::SyntaxTreeNode *FindFirstOperator(
   }
   return nullptr;
 }
-
-// See printtree for: assign y = a, c = b;
-// kContinuousAssignmentStatement
-//   Leaf @0  "assign"
-//   kAssignmentList                       (can have multiple LHS, RHS pairs)
-//     kNetVariableAssignment          
-//       @0 kLPValue        "y"              
-//       @1 Leaf  '='
-//       @2 kExpression     "a"           
-//     Leaf @1  ','
-//     kNetVariableAssignment        
-//       @0 kLPValue        "c"
-//       @1 Leaf  '='
-//       @2 kExpression     "b"
 
 void RestrictAssignRhsRule::HandleSymbol(const verible::Symbol &symbol,
                                          const SyntaxTreeContext &context) {

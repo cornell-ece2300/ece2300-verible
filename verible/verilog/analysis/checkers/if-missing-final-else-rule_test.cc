@@ -41,12 +41,12 @@ TEST(IfMissingFinalElseRuleTests, Various) {
        "always_ff @(posedge clk) q <= d; endmodule"},
       {"module m; logic y, a, b; always_comb y = a & b; endmodule"},
 
-      // if with no else -> flagged on its "if"
+      // if with no else --> flagged on its "if"
       {"module m; logic y, a, b; always_comb begin y = 1'b0; ",
        {kToken, "if"},
        " (a) y = b; end endmodule"},
 
-      // if with an else - no flag
+      // if with an else, no flag
       {"module m; logic y, a, b; always_comb begin y = 1'b0; if (a) y = b; "
        "else y = a; end endmodule"},
 
@@ -71,7 +71,7 @@ TEST(IfMissingFinalElseRuleTests, Various) {
        "  end\n"
        "endmodule\n"},
 
-      // dffr with no else -> flagged on the LAST if of the chain
+      // dffr with no else --> flagged on the LAST if of the chain
       {"module DFFR_RTL\n"
        "(\n"
        "  input  logic clk,\n"

@@ -36,7 +36,6 @@ using verible::LintRuleStatus;
 using verible::LintViolation;
 using verible::SyntaxTreeContext;
 
-// Register ForbidNegedgeRule so `verible-verilog-lint` can select it by name.
 VERILOG_REGISTER_LINT_RULE(ForbidNegedgeRule);
 
 static constexpr std::string_view kMessage =
@@ -63,7 +62,7 @@ static void FindNegedgeLeaves(
     if (leaf.get().token_enum() == TK_negedge) found->push_back(&leaf);
     return;
   }
-  // Recursive case: a node — check each child
+  // Recursive case: a node, check each child
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
   for (const auto &child : node.children()) {
     if (child != nullptr) FindNegedgeLeaves(*child, found);  // skip empty slots
@@ -72,7 +71,7 @@ static void FindNegedgeLeaves(
 
 void ForbidNegedgeRule::HandleSymbol(const verible::Symbol &symbol,
                                      const SyntaxTreeContext &context) {
-  // Only interested in kAlwaysStatement nodes.
+  // Only interested in kAlwaysStatement nodes
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
   if (!node.MatchesTag(NodeEnum::kAlwaysStatement)) return;

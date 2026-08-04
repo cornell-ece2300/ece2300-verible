@@ -51,11 +51,9 @@ const LintRuleDescriptor &IfMissingFinalElseRule::GetDescriptor() {
   return d;
 }
 
-// -----------------------------------------------------------------------------
-//
-// Shape of the tree (from `verible-verilog-syntax --printtree`):
-//
-//   kConditionalStatement          <- one link in the chain
+
+
+//   kConditionalStatement
 //     kIfClause
 //       kIfHeader                  <- the if's condition 
 //       kIfBody
@@ -71,7 +69,7 @@ const LintRuleDescriptor &IfMissingFinalElseRule::GetDescriptor() {
 // -----------------------------------------------------------------------------
 void IfMissingFinalElseRule::HandleSymbol(const verible::Symbol &symbol,
                                           const SyntaxTreeContext &context) {
-  // Only interested in kConditionalStatement nodes.
+
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
   if (!node.MatchesTag(NodeEnum::kConditionalStatement)) return;

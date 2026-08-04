@@ -35,7 +35,7 @@ using verible::LintRuleStatus;
 using verible::LintViolation;
 using verible::SyntaxTreeContext;
 
-// Register ForbidAlwaysFfRule so `verible-verilog-lint` can select it by name.
+// Register ForbidAlwaysFfRule so `verible-verilog-lint` can select it by name
 VERILOG_REGISTER_LINT_RULE(ForbidAlwaysFfRule);
 
 static constexpr std::string_view kMessage =
@@ -52,7 +52,7 @@ const LintRuleDescriptor &ForbidAlwaysFfRule::GetDescriptor() {
 
 void ForbidAlwaysFfRule::HandleSymbol(const verible::Symbol &symbol,
                                       const SyntaxTreeContext &context) {
-  // Only interested in kAlwaysStatement nodes.
+  // Only interested in kAlwaysStatement nodes
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
   if (!node.MatchesTag(NodeEnum::kAlwaysStatement)) return;
@@ -63,7 +63,6 @@ void ForbidAlwaysFfRule::HandleSymbol(const verible::Symbol &symbol,
   if (keyword == nullptr) return;
 
   if (keyword->get().token_enum() == TK_always_ff) {
-    // Point the diagnostic at the keyword token itself (gives file:line:col).
     violations_.insert(LintViolation(keyword->get(), kMessage, context));
   }
 }

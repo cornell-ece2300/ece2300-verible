@@ -53,7 +53,7 @@ TEST(ForbidModuleInstantiationRuleTests, Various) {
        {kToken, "dffr"},
        " (.clk (clk),.rst (rst),.en  (en),.d   (d),.q   (q)); endmodule"},
       
-      // Two instances of the same submodule -> two separate violations.
+      // Two instances of the same submodule --> two violations
       {"module m; wire a, y1, y2; Foo_GL ",
        {kToken, "u1"},
        " ( .in(a), .out(y1) ); Foo_GL ",

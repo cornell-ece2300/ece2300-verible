@@ -52,8 +52,7 @@ const LintRuleDescriptor &ForbidSpecialBlocksRule::GetDescriptor() {
   return d;
 }
 
-// -----------------------------------------------------------------------------
-// TAGS, verified with --printtree`:
+// From printtree:
 //
 //   always / always_comb / always_ff / always_latch  -> kAlwaysStatement
 //   initial                                          -> kInitialStatement
@@ -62,7 +61,6 @@ const LintRuleDescriptor &ForbidSpecialBlocksRule::GetDescriptor() {
 //   generate ... endgenerate                         -> kGenerateRegion
 //   $info(...) / $error(...) as a module item        -> kSystemTFCall
 
-// -----------------------------------------------------------------------------
 
 static std::string_view ForbiddenConstructName(NodeEnum tag) {
   switch (tag) {
@@ -78,7 +76,6 @@ static std::string_view ForbiddenConstructName(NodeEnum tag) {
 
 void ForbidSpecialBlocksRule::HandleSymbol(const verible::Symbol &symbol,
                                            const SyntaxTreeContext &context) {
-  // Only interested in nodes.
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
 

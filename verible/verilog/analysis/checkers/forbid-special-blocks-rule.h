@@ -28,8 +28,7 @@ namespace analysis {
 
 // ForbidSpecialBlocksRule flags RTL/behavioral constructs that have no place in
 // a gate-level or structural module: always, initial, function, task, generate,
-// and system task calls.
-// (ECE2300 R401 NOSPBLK. Applies to both the `GL` and `Struct` rulesets.)
+// and system task calls
 class ForbidSpecialBlocksRule : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;

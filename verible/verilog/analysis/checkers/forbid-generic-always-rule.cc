@@ -35,7 +35,6 @@ using verible::LintRuleStatus;
 using verible::LintViolation;
 using verible::SyntaxTreeContext;
 
-// Registers the rule so `verible-verilog-lint --rules=forbid-generic-always` works.
 VERILOG_REGISTER_LINT_RULE(ForbidGenericAlwaysRule);
 
 static constexpr std::string_view kMessage =
@@ -55,10 +54,7 @@ const LintRuleDescriptor &ForbidGenericAlwaysRule::GetDescriptor() {
 void ForbidGenericAlwaysRule::HandleSymbol(const verible::Symbol &symbol,
                                            const SyntaxTreeContext &context) {
   
-  // Skip if symbol isn't of type node during runtime
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
-    
-  // Cast static type symbol to node after check
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
   if (!node.MatchesTag(NodeEnum::kAlwaysStatement)) return;
 
@@ -68,7 +64,6 @@ void ForbidGenericAlwaysRule::HandleSymbol(const verible::Symbol &symbol,
   if (keyword == nullptr) return;
 
   if (keyword->get().token_enum() == TK_always) {
-    // Point the diagnostic at the keyword token itself (gives file:line:col).
     violations_.insert(LintViolation(keyword->get(), kMessage, context));
   }
 }

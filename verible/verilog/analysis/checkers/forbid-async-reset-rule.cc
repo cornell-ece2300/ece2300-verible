@@ -35,7 +35,6 @@ using verible::LintRuleStatus;
 using verible::LintViolation;
 using verible::SyntaxTreeContext;
 
-// Register ForbidAsyncResetRule so `verible-verilog-lint` can select it by name.
 VERILOG_REGISTER_LINT_RULE(ForbidAsyncResetRule);
 
 static constexpr std::string_view kMessage =

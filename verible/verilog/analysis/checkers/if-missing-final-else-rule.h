@@ -27,9 +27,7 @@ namespace verilog {
 namespace analysis {
 
 // IfMissingFinalElseRule flags an if/else chain that does not terminate in a
-// plain `else` clause.
-// (ECE2300 R207 IFFINALELSE: every if statement must have a final else clause,
-// so that an `x` condition falls through to a defined x-assignment.)
+// plain `else` clause
 class IfMissingFinalElseRule : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;

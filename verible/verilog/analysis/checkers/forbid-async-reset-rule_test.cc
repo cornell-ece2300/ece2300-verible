@@ -33,10 +33,10 @@ TEST(ForbidAsyncResetRuleTests, Various) {
   // The violation is anchored on the always_ff keyword.
   constexpr int kToken = TK_always_ff;
   const std::initializer_list<LintTestCase> kTestCases = {
-      // --- No violations ---
+      // No violations
       {""},
       {"module m; endmodule"},
-      // Single clock edge -> synchronous, allowed.
+      // Single clock edge --> synchronous, allowed
       {"module m; logic q, d, clk; "
        "always_ff @(posedge clk) q <= d; endmodule"},
       // A single negedge is one term, so fine for this rule).
@@ -48,7 +48,7 @@ TEST(ForbidAsyncResetRuleTests, Various) {
       {"module m; logic q, d, clk, rst; "
        "always @(posedge clk or negedge rst) q <= d; endmodule"},
 
-      // --- Violations: always_ff with more than one edge term ---
+      // Violations (always_ff with more than one edge term)
       {"module m; logic q, d, clk, rst; ",
        {kToken, "always_ff"},
        " @(posedge clk or negedge rst) q <= d; endmodule"},

@@ -30,7 +30,6 @@ namespace analysis {
 // contains an operator or function call. In a gate-level/structural module an
 // `assign` is for wiring only: a signal, a bit/part-select, a literal, or a
 // concatenation of those. Logic must come from instantiated gate primitives.
-// (ECE2300 R403 COMPLEXRHS. Applies to both the `GL` and `Struct` rulesets.)
 class RestrictAssignRhsRule : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;

@@ -27,9 +27,6 @@ namespace verilog {
 namespace analysis {
 
 // ForbidModuleInstantiationRule flags instantiation of a submodule.
-// (ECE2300 R405 NOMODULE: a leaf gate-level module must be built from gate
-// primitives only. Enabled for the `GL` ruleset only -- structural modules
-// are allowed to instantiate submodules.)
 class ForbidModuleInstantiationRule : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;

@@ -32,7 +32,7 @@ using verible::RunLintTestCases;
 TEST(IfXAssignmentRuleTests, Various) {
   constexpr int kToken = SymbolIdentifier;
   const std::initializer_list<LintTestCase> kTestCases = {
-      // --- No violations ---
+      // No violations 
       {""},
       {"module m; endmodule"},
       {"module m; logic q, d, clk; "
@@ -78,12 +78,11 @@ TEST(IfXAssignmentRuleTests, Various) {
        "  end\n"
        "end endmodule"},
 
-      // No final else: handled by R204
       {"module m; logic q, a, b; always_comb begin "
        "if (a) q = b; "
        "end endmodule"},
 
-      // --- Violations ---
+      // Violations
 
       // The chain assigns q, but the final else assigns a different signal
       {"module m; logic q, y, a, b; always_comb begin if (a) ",

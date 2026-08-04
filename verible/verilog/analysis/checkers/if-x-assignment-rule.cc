@@ -111,7 +111,7 @@ void IfXAssignmentRule::HandleSymbol(const verible::Symbol &symbol,
   while (true) {
     const verible::SyntaxTreeNode *else_clause =
         GetConditionalStatementElseClause(*current);
-    if (else_clause == nullptr) return;  // R204 handles it
+    if (else_clause == nullptr) return; 
 
     const verible::SyntaxTreeNode *body =
         GetElseClauseStatementBody(*else_clause);

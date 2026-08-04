@@ -33,17 +33,16 @@ TEST(ForbidGenericAlwaysRuleTests, Various) {
   // The violation is anchored on the bare `always` keyword token.
   constexpr int kToken = TK_always;
   const std::initializer_list<LintTestCase> kTestCases = {
-      // --- No violations: nothing to flag ---
+      // No violations
       {""},
       {"module m; endmodule"},
 
-      // --- Typed always variants: NOT flagged (different keyword token) ---
       {"module m; logic y, a, b; always_comb y = a ^ b; endmodule"},
       {"module m; logic q, a, clk; "
        "always_ff @(posedge clk) q <= a; endmodule"},
       {"module m; logic y, a, b; always_latch if (a) y = b; endmodule"},
 
-      // --- Generic always blocks: flagged ---
+      // Violations
       {"module m; logic y, a, b; ",
        {kToken, "always"},
        " @* y = a & b; endmodule"},
@@ -56,14 +55,12 @@ TEST(ForbidGenericAlwaysRuleTests, Various) {
        {kToken, "always"},
        " @(posedge clk) q <= a; endmodule"},
 
-      // --- Two generic always in one module: two violations ---
       {"module m; logic y1, y2, a, b; ",
        {kToken, "always"},
        " @* y1 = a & b; ",
        {kToken, "always"},
        " @* y2 = a | b; endmodule"},
 
-      // --- Mixed: only the generic one is flagged ---
       {"module m; logic y1, y2, a, b; always_comb y1 = a & b; ",
        {kToken, "always"},
        " @* y2 = a | b; endmodule"},

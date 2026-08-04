@@ -38,8 +38,8 @@ using verible::SyntaxTreeContext;
 VERILOG_REGISTER_LINT_RULE(ForbidModuleInstantiationRule);
 
 static constexpr std::string_view kMessage =
-    "Module instantiation is not allowed in a leaf gate-level module. Build "
-    "the module from gate primitives (and, or, not, xor, nand, nor, xnor).";
+    "Module instantiation is not allowed. Build the module from" 
+    "gate primitives (and, or, not, xor, nand, nor, xnor).";
 
 const LintRuleDescriptor &ForbidModuleInstantiationRule::GetDescriptor() {
   static const LintRuleDescriptor d{
@@ -51,7 +51,6 @@ const LintRuleDescriptor &ForbidModuleInstantiationRule::GetDescriptor() {
   return d;
 }
 
-// -----------------------------------------------------------------------------
 // Node @1 (tag: kModuleItemList) { --> the kModuleItemList can generate false flags
 //       Node @0 (tag: kDataDeclaration) {
 //         Node @1 (tag: kInstantiationBase) {
@@ -71,7 +70,6 @@ const LintRuleDescriptor &ForbidModuleInstantiationRule::GetDescriptor() {
 //               Leaf @0 (#SymbolIdentifier @141-145: "dffr")
 //               Node @1 (tag: kUnpackedDimensions) {
 //               }
-// -----------------------------------------------------------------------------
 
 void ForbidModuleInstantiationRule::HandleSymbol(
     const verible::Symbol &symbol, const SyntaxTreeContext &context) {
