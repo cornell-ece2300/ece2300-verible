@@ -855,7 +855,6 @@ void TreeUnwrapper::SetIndentationsAndCreatePartitions(
     case NodeEnum::kCaseInsideItem:
     case NodeEnum::kCasePatternItem:
     case NodeEnum::kGenerateCaseItem:
-    case NodeEnum::kGateInstance:
     case NodeEnum::kRegisterVariable:
     case NodeEnum::kGenerateIfClause:
     case NodeEnum::kGenerateElseClause:
@@ -873,6 +872,10 @@ void TreeUnwrapper::SetIndentationsAndCreatePartitions(
     }
       // The following cases will always expand into their constituent
       // partitions:
+      // ece2300: moved kGateInstance here from the fit-else-expand group
+      // above so module instantiations always expand instead of being
+      // auto-flattened back onto one line.
+    case NodeEnum::kGateInstance:
     case NodeEnum::kModuleDeclaration:
     case NodeEnum::kProgramDeclaration:
     case NodeEnum::kPackageDeclaration:
@@ -2540,6 +2543,14 @@ static void HandleDataDeclaration(const SyntaxTreeNode &node,
       // This can yield an intermediate partition that contains:
       // ") instance_name (".
       MergeConsecutiveSiblings(&data_declaration_partition, fuse_position);
+      // ece2300: force module instantiations to always expand so the
+      // merged "( instance_name (" partition doesn't get flattened back
+      // onto one line.
+      if (GetInstanceListFromDataDeclaration(node)->front()->Tag() ==
+          verible::NodeTag(NodeEnum::kGateInstance)) {
+        data_declaration_partition.Value().SetPartitionPolicy(
+            PartitionPolicyEnum::kAlwaysExpand);
+      }
     } else {
       // There is a qualifier before instance_type_partition.
       FlattenOnlyChildrenWithChildren(data_declaration_partition);
@@ -3213,6 +3224,11 @@ void TreeUnwrapper::Visit(const verible::SyntaxTreeLeaf &leaf) {
         IsPreprocessorClause(NodeEnum(Context().top().Tag().tag))) {
       CurrentUnwrappedLine().SetIndentationSpaces(0);
     }
+  } else if (IsModulePortListOpenParen(tag, Context())) {
+    // ece2300: put the '(' of a module definition/instantiation's port
+    // list on its own line instead of fusing it to the preceding token.
+    VLOG(4) << "starting module port list parenthesis on a new line";
+    StartNewUnwrappedLine(PartitionPolicyEnum::kFitOnLineElseExpand, &leaf);
   } else if (IsEndKeyword(tag)) {
     VLOG(4) << "handling end* keyword";
     StartNewUnwrappedLine(PartitionPolicyEnum::kAlwaysExpand, &leaf);

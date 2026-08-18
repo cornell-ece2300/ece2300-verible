@@ -155,6 +155,7 @@ static WithReason<int> SpacesRequiredBetween(
     // TODO(fangism): Take this from FormatStyle.
   }
 
+  // Keep all grouping delimiters compact unless a rule above overrides them.
   if (left.format_token_enum == FormatTokenType::open_group ||
       right.format_token_enum == FormatTokenType::close_group) {
     return {0,
@@ -301,9 +302,13 @@ static WithReason<int> SpacesRequiredBetween(
         IsKeywordCallable(verilog_tokentype(left.TokenEnum()))) {
       // TODO(fangism): This logic should use .DirectParentIs() to minimize risk
       // of unintended reach.
-      if (right_context.IsInside(NodeEnum::kActualNamedPort) ||
-          right_context.IsInside(NodeEnum::kPort)) {
-        return {0, "Named port: no space between ID and '('"};
+      // ece2300: force a space between the port name and '(' so we get
+      // ".aaa (aaa)" instead of ".aaa(aaa)".
+      if (right_context.IsInside(NodeEnum::kActualNamedPort)) {
+        return {1, "Named port: space between ID and '('"};
+      }
+      if (right_context.IsInside(NodeEnum::kPort)) {
+        return {0, "Port: no space between ID and '('"};
       }
       if (right_context.IsInside(NodeEnum::kPrimitiveGateInstance)) {
         return {1, "Primitive instance: want space between ID and '('"};
@@ -753,6 +758,15 @@ static WithReason<SpacingOptions> BreakDecisionBetween(
   if (left.TokenEnum() == verilog_tokentype::TK_LINE_CONT) {
     return {SpacingOptions::kMustWrap,
             "Keep \\ line continuation is always followed by \\n."};
+  }
+
+  // ece2300: HandleDataDeclaration() can merge the instance name and its
+  // port-list partition after tree unwrapping.  Keep the required line break
+  // even when both tokens end up in the same partition.
+  if (IsModulePortListOpenParen(
+          static_cast<verilog_tokentype>(right.TokenEnum()), right_context)) {
+    return {SpacingOptions::kMustWrap,
+            "Module port-list '(' must start on its own line"};
   }
 
   if (left.TokenEnum() == PP_define) {
