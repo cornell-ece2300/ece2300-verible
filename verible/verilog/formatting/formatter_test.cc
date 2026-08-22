@@ -1166,13 +1166,15 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule\n",
      "module pm #(\n"
      "    //comment\n"  // comment indented
-     ") (\n"
+     ")\n"
+     "(\n"
      "    wire ww\n"
      ");\n"
      "endmodule\n"},
     {"module pm ( ) ;\n"  // empty ports list
      "endmodule\n",
-     "module pm ();\n"
+     "module pm\n"
+     "();\n"
      "endmodule\n"},
     {"module pm #(\n"
      "//comment\n"
@@ -1180,7 +1182,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule\n",
      "module pm #(\n"
      "    //comment\n"  // comment indented
-     ") ();\n"          // (); grouped together
+     ")\n"
+     "();\n"          // (); grouped together
      "endmodule\n"},
     {"`ifdef FOO\n"
      "    `ifndef BAR\n"
@@ -1193,7 +1196,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
     {"module foo(\n"
      "       `include \"ports.svh\"\n"
      "         ) ; endmodule\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    `include \"ports.svh\"\n"
      ");\n"
      "endmodule\n"},
@@ -1201,13 +1205,15 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "       `define FOO\n"
      "`undef\tFOO\n"
      "         ) ; endmodule\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    `define FOO\n"
      "    `undef FOO\n"
      ");\n"
      "endmodule\n"},
     {"module foo(  input x  , output y ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  x,\n"  // aligned
      "    output y\n"
      ");\n"
@@ -1215,7 +1221,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
     {"module foo(\n"
      "// comment\n"
      "  input x  , output y ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    // comment\n"
      "    input  x,\n"  // aligned
      "    output y\n"
@@ -1223,13 +1230,15 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule : foo\n"},
     {"module foo(  input[2:0]x  , output y [3:0] ) ;endmodule:foo\n",
      // each port item should be on its own line
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  [2:0] x,\n"  // aligned
      "    output       y[3:0]\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input wire x  , output reg yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire x,\n"  // aligned
      "    output reg  yy\n"
      ");\n"
@@ -1237,7 +1246,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
     {"module foo(  input wire x  ,//c1\n"
      "output reg yyy //c2\n"
      " ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire x,   //c1\n"  // aligned
      "    output reg  yyy  //c2\n"  // aligned
      ");\n"
@@ -1245,7 +1255,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
     {"module foo(  input wire x  ,/* c1 */\n"
      "output reg yyy /* c2 */\n"
      " ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire x,   /* c1 */\n"  // aligned
      "    output reg  yyy  /* c2 */\n"  // aligned
      ");\n"
@@ -1255,7 +1266,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "input wire x  ,//c1\n"
      "output reg yyy //c2\n"
      " ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    // comment\n"
      "    input  wire x,   //c1\n"  // aligned
      "    output reg  yyy  //c2\n"  // aligned
@@ -1266,7 +1278,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "input wire x  ,/* c1 */\n"
      "output reg yyy /* c2 */\n"
      " ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    /* comment */\n"
      "    input  wire x,   /* c1 */\n"  // aligned
      "    output reg  yyy  /* c2 */\n"  // aligned
@@ -1277,7 +1290,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "c3 */\n"
      "output reg yyy /* c4 */\n"
      " ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire x,   /* c1\n"
      "c2\n"
      "c3 */\n"  // TODO: align multiline comments
@@ -1288,7 +1302,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "output reg yyy,\n"
      "output z // c2\n"
      " ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire x,    /* c1 */\n"  // aligned
      "    output reg  yyy,\n"
      "    output      z     // c2\n"  // aligned
@@ -1297,59 +1312,68 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
     {"module m(input logic [4:0] foo,  // comment\n"
      "input logic bar // comment\n"
      " ) ;endmodule:m\n",
-     "module m (\n"
+     "module m\n"
+     "(\n"
      "    input logic [4:0] foo,  // comment\n"  // aligned
      "    input logic       bar   // comment\n"  // aligned
      ");\n"
      "endmodule : m\n"},
     {"module foo(  input wire x  , output yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire x,\n"  // aligned
      "    output      yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input   x  , output reg yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input      x,\n"  // aligned
      "    output reg yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input   x  , output reg[a:b]yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input            x,\n"  // aligned
      "    output reg [a:b] yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input   [a:b]x  , output reg  yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input      [a:b] x,\n"  // aligned
      "    output reg       yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input   x  , "
      "  output logic  yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input        x,\n"  // aligned
      "    output logic yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input   [a:c]x  , "
      "  output logic[a-b: c]  yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input        [  a:c] x,\n"  // aligned
      "    output logic [a-b:c] yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input   [a:c]x  , "
      "  output logic[a - b: c]  yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input        [    a:c] x,\n"  // aligned
      "    output logic [a - b:c] yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input   [a:c]x  , input zzz ,"
      "  output logic[a - b: c]  yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input        [    a:c] x,\n"    // aligned []'s
      "    input                  zzz,\n"  // aligned ids
      "    output logic [a - b:c] yy\n"
@@ -1357,115 +1381,133 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule : foo\n"},
     {"module foo(  input   [a:b]x  , "
      "  output reg[e: f]  yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input      [a:b] x,\n"  // aligned
      "    output reg [e:f] yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input   tri[aa: bb]x  , "
      "  output reg[e: f]  yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  tri [aa:bb] x,\n"  // aligned
      "    output reg [  e:f] yy\n"  // TODO(b/70310743): align ':'
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input   [a:b][c:d]x  , "
      "  output reg[e: f]  yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input      [a:b][c:d] x,\n"  // aligned
      "    output reg [e:f]      yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input wire x  [j:k], output reg yy ) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire x [j:k],\n"  // aligned
      "    output reg  yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input wire x  , output reg yy [j:k]) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire x,\n"  // aligned
      "    output reg  yy[j:k]\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input wire x  [p:q], output reg yy [j:k]) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire x [p:q],\n"  // aligned
      "    output reg  yy[j:k]\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input wire x  [p:q][r:s], output reg yy [j:k]) "
      ";endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire x [p:q][r:s],\n"  // aligned
      "    output reg  yy[j:k]\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input wire x  [p:q][rr:ss], output reg yy [jj:kk][m:n]) "
      ";endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      // TODO(b/70310743): align :'s
      "    input  wire x [  p:q][rr:ss],\n"
      "    output reg  yy[jj:kk][  m:n]\n"  // aligned
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input wire   [p:q]x, output reg yy [j:k]) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire [p:q] x,\n"  // aligned
      "    output reg        yy[j:k]\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input wire  x [p:q], output reg[j:k]yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire       x [p:q],\n"  // aligned
      "    output reg  [j:k] yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input pkg::bar_t  x , output reg  yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  pkg::bar_t x,\n"  // aligned
      "    output reg        yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input wire  x , output pkg::bar_t  yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  wire       x,\n"  // aligned
      "    output pkg::bar_t yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input pkg::bar_t#(1)  x , output reg  yy) ;endmodule:foo\n",
-     "module foo (\n"  // with parameterized port type
+     "module foo\n"
+     "(\n"  // with parameterized port type
      "    input  pkg::bar_t#(1) x,\n"
      "    output reg            yy\n"  // aligned
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input signed x , output reg  yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  signed x,\n"  // aligned
      "    output reg    yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input signed x , output reg [m:n] yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  signed       x,\n"  // aligned
      "    output reg    [m:n] yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input int signed x , output reg [m:n] yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  int signed       x,\n"  // aligned
      "    output reg        [m:n] yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module foo(  input signed x , output pkg::bar_t  yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input  signed     x,\n"  // aligned
      "    output pkg::bar_t yy\n"
      ");\n"
      "endmodule : foo\n"},
     {"module somefunction ("
      "logic clk, int   a, int b);endmodule",
-     "module somefunction (\n"
+     "module somefunction\n"
+     "(\n"
      "    logic clk,\n"  // direction missing
      "    int   a,\n"    // direction missing
      "    int   b\n"     // direction missing
@@ -1473,7 +1515,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule\n"},
     {"module somefunction ("
      "logic clk, input int   a, int b);endmodule",
-     "module somefunction (\n"
+     "module somefunction\n"
+     "(\n"
      "          logic clk,\n"  // direction missing
      "    input int   a,\n"
      "          int   b\n"  // direction missing
@@ -1481,7 +1524,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule\n"},
     {"module somefunction ("
      "input logic clk, input int   a, int b);endmodule",
-     "module somefunction (\n"
+     "module somefunction\n"
+     "(\n"
      "    input logic clk,\n"
      "    input int   a,\n"
      "          int   b\n"  // direction missing
@@ -1489,7 +1533,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule\n"},
     {"module somefunction ("
      "input clk, input int   a, int b);endmodule",
-     "module somefunction (\n"
+     "module somefunction\n"
+     "(\n"
      "    input     clk,\n"  // type missing
      "    input int a,\n"
      "          int b\n"
@@ -1497,7 +1542,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule\n"},
     {"module somefunction ("
      "input logic clk, input a, int b);endmodule",
-     "module somefunction (\n"
+     "module somefunction\n"
+     "(\n"
      "    input logic clk,\n"
      "    input       a,\n"  // type missing
      "          int   b\n"   // direction missing
@@ -1505,13 +1551,17 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule\n"},
     {"module m;foo bar(.baz({larry, moe, curly}));endmodule",
      "module m;\n"
-     "  foo bar (.baz({larry, moe, curly}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .baz ({larry, moe, curly})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.baz({larry,// expand this\n"
      "moe, curly}));endmodule",
      "module m;\n"
-     "  foo bar (\n"
-     "      .baz({\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .baz ({\n"
      "        larry,  // expand this\n"
      "        moe,\n"
      "        curly\n"
@@ -1571,7 +1621,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "output reg  yy\n"
      "//c3\n"
      ") ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    //c1\n"
      "    input  wire x,\n"  // aligned, ignoring comments
      "    //c2\n"
@@ -1587,7 +1638,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "output reg  yy\n"
      "//c3\n"
      ") ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    //c1\n"
      "    input  wire x,\n"  // aligned, ignoring comments
      "    //c2a\n"           // note: separated by 2 lines of comments
@@ -1603,7 +1655,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "output reg  yy\n"
      " `endif\n"
      ") ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "`ifdef FOO\n"
      "    input  wire x,\n"  // aligned, ignoring preprocessor conditionals
      "`else\n"
@@ -1620,7 +1673,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      " `undef    FOO\n"
      "output zz\n"
      ") ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input       w,\n"  // aligned, ignoring preprocessor directives
      "    `define FOO BAR\n"
      "    input  wire x,\n"
@@ -1634,7 +1688,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "input wire x , \n  \n"  // blank line, separating alignment groups
      "output reg  yy\n"
      ") ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input wire x,\n"  // not aligned, due to blank line separating groups
      "\n"
      "    output reg yy\n"
@@ -1646,7 +1701,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "output reg  [jj:kk]yy1,\n"
      "output pkg::barr_t [mm:nn] yy2\n"
      ") ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input wire       x1[r:s],\n"  // aligned in this group, but not across
                                         // groups
      "    input      [p:q] x2,\n"
@@ -1665,7 +1721,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      " //c4\n"
      "output pkg::barr_t [mm:nn] yy2\n"
      ") ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    //c1\n"
      "    input wire       x1[r:s],\n"  // aligned in this group, but not across
                                         // groups
@@ -1709,7 +1766,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
     {// aligning here just barely fits in the 40col limit
      "module foo(  input int signed x [a:b],"
      "output reg [mm:nn] yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      // ---------------40col----------------->
      "    input  int signed         x [a:b],\n"  // aligned, still fits
      "    output reg        [mm:nn] yy\n"
@@ -1719,7 +1777,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      // now
      "module foo(  input int signed x [aa:bb],"
      "output reg [mm:nn] yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      // ---------------40col----------------->
      //   input  int signed         x [aa:bb],\n"
      //   output reg        [mm:nn] yy\n"
@@ -1731,7 +1790,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      // now
      "module foo(  input int signed x [aa:bb],"
      "output reg [mm:nn] yyy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      // ---------------40col----------------->
      //   input  int signed         x  [aa:bb],\n"  // over limit, by comma
      //   output reg        [mm:nn] yyy\n"
@@ -1743,7 +1803,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      // now
      "module foo(  input int signed x [a:b],//c\n"
      "output reg [m:n] yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      // ---------------40col---------------->
      //   input  int signed       x [a:b],  //c\n"  // over limit, by comment
      //   output reg        [m:n] yy\n"
@@ -1754,7 +1815,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
     {// aligning interfaces in port headers like types
      // TODO(b/161181877): flush interface port type left (multi-column)
      "module foo(  input clk , inter.face yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input            clk,\n"  // aligned
      "          inter.face yy\n"
      ");\n"
@@ -1762,7 +1824,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
     {// aligning interfaces in port headers like types
      // TODO(b/161181877): flush interface port type left (multi-column)
      "module foo(  input wire   clk , inter.face yy) ;endmodule:foo\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    input wire       clk,\n"  // aligned
      "          inter.face yy\n"
      ");\n"
@@ -1908,7 +1971,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "module m;\n"
      "  logic a;\n"  // these two are aligned
      "  bit   b;\n"
-     "  my_module my_inst ();\n"  // module instance separates alignment groups
+     "  my_module my_inst\n"
+     "  ();\n"  // module instance separates alignment groups
      "  wire c;\n"                // these two are aligned
      "  bit  d;\n"
      "endmodule\n"},
@@ -1936,7 +2000,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  (* attr2=\"value2\" *)\n"           // indented
      "  ex_output_pins_t ex_output_pins;\n"
      "  (* attr3=\"value3\" *)\n"  // indented
-     "  ex wrap_ex ();\n"
+     "  ex wrap_ex\n"
+     "  ();\n"
      "endmodule\n"},
     {"module mattr;\n"
      "ex_input_pins_t ex_input_pins;\n"
@@ -1952,10 +2017,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  ex_input_pins_t  ex_input_pins;\n"  // aligned
      "  ex_output_pins_t ex_output_pins;\n"
      "  (* package_definition=\"ex_pkg\" *)\n"  // indented
-     "  ex wrap_ex (\n"
-     "      .clk(ex_input_pins.clk),\n"
-     "      .rst(ex_input_pins.rst),\n"
-     "      .in (ex_input_pins.in)\n"  // aligned
+     "  ex wrap_ex\n"
+     "  (\n"
+     "      .clk (ex_input_pins.clk),\n"
+     "      .rst (ex_input_pins.rst),\n"
+     "      .in  (ex_input_pins.in)\n"  // aligned
      "  );\n"
      "endmodule\n"},
     {"module test;\n"
@@ -1965,11 +2031,12 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "module test;\n"
      "  bind entropy_src tlul_assert #(\n"
      "      .EndpointType(\"Device\")\n"
-     "  ) tlul_assert_device (\n"
+     "  ) tlul_assert_device\n"
+     "  (\n"
      "      .clk_i,\n"
      "      .rst_ni,\n"
-     "      .h2d(tl_i),\n"
-     "      .d2h(tl_o)\n"
+     "      .h2d (tl_i),\n"
+     "      .d2h (tl_o)\n"
      "  );\n"
      "endmodule\n"},
     {"module test;\n"
@@ -1979,13 +2046,14 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "module test;\n"
      "  bind entropy_src tlul_assert #(\n"
      "      .EndpointType(\"Device\")\n"
-     "  ) tlul_assert_device (\n"
+     "  ) tlul_assert_device\n"
+     "  (\n"
      "      .clk_i,\n"
      "      .rst_ni,\n"
      "\n"
-     "      .h2d(tl_i),\n"
+     "      .h2d (tl_i),\n"
      "\n"
-     "      .d2h(tl_o)\n"
+     "      .d2h (tl_o)\n"
      "  );\n"
      "endmodule\n"},
     {"bind expand_me long_name #(.W(W_CONST), .D(D_CONST)) instaaance_name ("
@@ -1994,16 +2062,17 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "bind expand_me long_name #(\n"
      "    .W(W_CONST),\n"
      "    .D(D_CONST)\n"
-     ") instaaance_name (\n"
-     "    .in(iiiiiiiin),\n"
+     ") instaaance_name\n"
+     "(\n"
+     "    .in (iiiiiiiin),\n"
      "\n"
-     "    .out(ooooooout),\n"
-     "    .clk(ccccccclk),\n"
+     "    .out (ooooooout),\n"
+     "    .clk (ccccccclk),\n"
      "\n"
-     "    .in1234 (in),\n"
+     "    .in1234  (in),\n"
      "    //c1\n"
-     "    .out1234(out),\n"
-     "    .clk1234(clk),\n"
+     "    .out1234 (out),\n"
+     "    .clk1234 (clk),\n"
      ");\n"},
     {"initial // clock generation\n begin\n clk = 0;\n forever begin\n"
      "#4ns clk = !clk;\n end\n end\n",
@@ -2024,7 +2093,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      // parameter and port
      "module foo #(\n"
      "    int x\n"
-     ") (\n"
+     ")\n"
+     "(\n"
      "    input y\n"
      ");\n"  // each paramater and port item should be on its own line
      "endmodule : foo\n"},
@@ -2058,7 +2128,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "module foo #(  //comment\n"
      "    parameter  bar = 1,\n"
      "    localparam baz = 2\n"
-     ") ();\n"
+     ")\n"
+     "();\n"
      "endmodule\n"},
     {"module foo #("
      "parameter  bar =1,//comment\n"
@@ -2068,7 +2139,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "module foo #(\n"
      "    parameter  bar = 1,  //comment\n"
      "    localparam baz = 2\n"
-     ") ();\n"
+     ")\n"
+     "();\n"
      "endmodule\n"},
     {"module foo #("
      "parameter  bar =1,"
@@ -2078,7 +2150,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "module foo #(\n"
      "    parameter  bar = 1,\n"
      "    localparam baz = 2   //comment\n"
-     ") ();\n"
+     ")\n"
+     "();\n"
      "endmodule\n"},
     {"module foo #("
      "parameter  bar =1//comment\n"
@@ -2088,7 +2161,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "module foo #(\n"
      "      parameter  bar = 1  //comment\n"
      "    , localparam baz = 2\n"
-     ") ();\n"
+     ")\n"
+     "();\n"
      "endmodule\n"},
     {"module foo;"
      // fit in one line
@@ -2243,16 +2317,20 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "bar#(  \"test\"  ,5) bar(  );"
      "endmodule\n",
      "module top;\n"
-     "  foo #(\"test\") foo ();\n"  // module instantiation, string arg
-     "  bar #(\"test\", 5) bar ();\n"
+     "  foo #(\"test\") foo\n"
+     "  ();\n"  // module instantiation, string arg
+     "  bar #(\"test\", 5) bar\n"
+     "  ();\n"
      "endmodule\n"},
     {"module    top;"
      "foo#(  `\"test`\"  ) foo(  );"
      "bar#(  `\"test`\"  ,5) bar(  );"
      "endmodule\n",
      "module top;\n"
-     "  foo #(`\"test`\") foo ();\n"  // module instantiation, eval string arg
-     "  bar #(`\"test`\", 5) bar ();\n"
+     "  foo #(`\"test`\") foo\n"
+     "  ();\n"  // module instantiation, eval string arg
+     "  bar #(`\"test`\", 5) bar\n"
+     "  ();\n"
      "endmodule\n"},
     {"`ifdef FOO\n"
      "  module bar;endmodule\n"
@@ -2299,272 +2377,462 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
     // unary: + - !  ~ & | ^  ~& ~| ~^ ^~
     {"module m;foo bar(.x(-{a,b}));endmodule",
      "module m;\n"
-     "  foo bar (.x(-{a, b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (-{a, b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(!{a,b}));endmodule",
      "module m;\n"
-     "  foo bar (.x(!{a, b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (!{a, b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(~{a,b}));endmodule",
      "module m;\n"
-     "  foo bar (.x(~{a, b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (~{a, b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(&{a,b}));endmodule",
      "module m;\n"
-     "  foo bar (.x(&{a, b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (&{a, b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(|{a,b}));endmodule",
      "module m;\n"
-     "  foo bar (.x(|{a, b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (|{a, b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(^{a,b}));endmodule",
      "module m;\n"
-     "  foo bar (.x(^{a, b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (^{a, b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(~&{a,b}));endmodule",
      "module m;\n"
-     "  foo bar (.x(~&{a, b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (~&{a, b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(~|{a,b}));endmodule",
      "module m;\n"
-     "  foo bar (.x(~|{a, b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (~|{a, b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(~^{a,b}));endmodule",
      "module m;\n"
-     "  foo bar (.x(~^{a, b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (~^{a, b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(^~{a,b}));endmodule",
      "module m;\n"
-     "  foo bar (.x(^~{a, b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (^~{a, b})\n"
+     "  );\n"
      "endmodule\n"},
 
     // binary: + - * / % & | ^ ^~ ~^ && ||
     {"module m;foo bar(.x(a+b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a + b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a + b)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a-b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a - b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a - b)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a*b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a * b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a * b)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a/b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a / b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a / b)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a%b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a % b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a % b)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a&b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a & b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a & b)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a|b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a | b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a | b)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a^b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a ^ b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a ^ b)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a^~b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a ^~ b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a ^~ b)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a~^b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a ~^ b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a ~^ b)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a&&b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a && b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a && b)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a||b));endmodule",
      "module m;\n"
-     "  foo bar (.x(a || b));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a || b)\n"
+     "  );\n"
      "endmodule\n"},
 
     // {a} op {b}
     {"module m;foo bar(.x({a}+{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} + {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} + {b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x({a}-{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} - {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} - {b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x({a}*{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} * {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} * {b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x({a}/{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} / {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} / {b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x({a}%{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} % {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} % {b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x({a}&{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} & {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} & {b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x({a}|{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} | {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} | {b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x({a}^{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} ^ {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} ^ {b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x({a}^~{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} ^~ {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} ^~ {b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x({a}~^{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} ~^ {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} ~^ {b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x({a}&&{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} && {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} && {b})\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x({a}||{b}));endmodule",
      "module m;\n"
-     "  foo bar (.x({a} || {b}));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ({a} || {b})\n"
+     "  );\n"
      "endmodule\n"},
 
     // (a) op (b)
     {"module m;foo bar(.x((a)+(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) + (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) + (b))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a)-(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) - (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) - (b))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a)*(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) * (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) * (b))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a)/(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) / (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) / (b))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a)%(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) % (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) % (b))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a)&(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) & (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) & (b))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a)|(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) | (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) | (b))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a)^(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) ^ (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) ^ (b))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a)^~(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) ^~ (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) ^~ (b))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a)~^(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) ~^ (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) ~^ (b))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a)&&(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) && (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) && (b))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a)||(b)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a) || (b)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a) || (b))\n"
+     "  );\n"
      "endmodule\n"},
 
     // a[b] op c
     {"module m;foo bar(.x(a[b]+c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] + c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] + c)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b]-c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] - c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] - c)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b]*c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] * c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] * c)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b]/c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] / c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] / c)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b]%c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] % c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] % c)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b]&c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] & c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] & c)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b]|c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] | c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] | c)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b]^c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] ^ c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] ^ c)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b]^~c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] ^~ c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] ^~ c)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b]~^c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] ~^ c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] ~^ c)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b]&&c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] && c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] && c)\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b]||c));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] || c));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] || c)\n"
+     "  );\n"
      "endmodule\n"},
 
     // misc
     {"module m;foo bar(.x(a[1:0]^b[2:1]));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[1:0] ^ b[2:1]));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[1:0] ^ b[2:1])\n"
+     "  );\n"
      "endmodule\n"},
 
     {"module m;foo bar(.x(a[b] | b[c]));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] | b[c]));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] | b[c])\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x(a[b] & b[c]));endmodule",
      "module m;\n"
-     "  foo bar (.x(a[b] & b[c]));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x (a[b] & b[c])\n"
+     "  );\n"
      "endmodule\n"},
 
     {"module m;foo bar(.x((a^c)^(b^ ~c)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a ^ c) ^ (b ^ ~c)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a ^ c) ^ (b ^ ~c))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a^c)^(b^~c)));endmodule",
      "module m;\n"
-     "  foo bar (.x((a ^ c) ^ (b ^~ c)));\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a ^ c) ^ (b ^~ c))\n"
+     "  );\n"
      "endmodule\n"},
     {"module m;foo bar(.x((a^{c,d})^(b^^{c,d})));endmodule",
      "module m;\n"
-     "  foo bar (\n"
-     "      .x((a ^ {c, d}) ^ (b ^ ^{c, d}))\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .x ((a ^ {c, d}) ^ (b ^ ^{c, d}))\n"
      "  );\n"
      "endmodule\n"},
 
@@ -2604,7 +2872,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule\n"},
     {"module foo ();\nif (1) begin\n$finish(\n"
      "      1    ); $finish    ();\n  end\nendmodule",
-     "module foo ();\n"
+     "module foo\n"
+     "();\n"
      "  if (1) begin\n"
      "    $finish(1);\n"
      "    $finish();\n"
@@ -3569,7 +3838,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endinterface\n"},
     {// interface declaration with ports (empty)
      " interface if1()\n;endinterface\t\t",
-     "interface if1 ();\n"
+     "interface if1\n"
+     "();\n"
      "endinterface\n"},
     {// interface declaration with parameter comment only, empty ports
      " interface if1#( \n"
@@ -3577,23 +3847,27 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      ")();endinterface\t\t",
      "interface if1 #(\n"
      "    //param\n"
-     ") ();\n"
+     ")\n"
+     "();\n"
      "endinterface\n"},
     {// interface declaration with parameter, empty ports
      " interface if1#( parameter int W= 8 )();endinterface\t\t",
      "interface if1 #(\n"
      "    parameter int W = 8\n"
-     ") ();\n"
+     ")\n"
+     "();\n"
      "endinterface\n"},
     {// interface declaration with ports
      " interface if1( input\tlogic   z)\n;endinterface\t\t",
-     "interface if1 (\n"
+     "interface if1\n"
+     "(\n"
      "    input logic z\n"
      ");\n"
      "endinterface\n"},
     {// interface declaration with multiple ports
      " interface if1( input\tlogic   z, output logic a)\n;endinterface\t\t",
-     "interface if1 (\n"
+     "interface if1\n"
+     "(\n"
      "    input  logic z,\n"  // should be one-per-line, even it it fits
      "    output logic a\n"   // aligned
      ");\n"
@@ -3603,7 +3877,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      // doesn't fit on one line
      "interface if1 #(\n"
      "    parameter int W = 8\n"
-     ") (\n"
+     ")\n"
+     "(\n"
      "    input logic z\n"
      ");\n"
      "endinterface\n"},
@@ -3757,45 +4032,37 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endclass\n"},
     {"class c;task t ;endtask endclass",
      "class c;\n"
-     "  task t;\n"
-     "  endtask\n"
+     "  task t ;endtask\n"
      "endclass\n"},
     {"class c;task t ( int  ii ,bit  bb );endtask endclass",
      "class c;\n"
-     "  task t(int ii, bit bb);\n"
-     "  endtask\n"
+     "  task t ( int  ii ,bit  bb );endtask\n"
      "endclass\n"},
     {"class c; task automatic repeated_assigner;"
      "repeat (count) y = w;"  // single statement body
      "endtask endclass",
      "class c;\n"
-     "  task automatic repeated_assigner;\n"
-     "    repeat (count) y = w;\n"
-     "  endtask\n"
+     "  task automatic repeated_assigner;repeat (count) y = w;endtask\n"
      "endclass\n"},
     {"class c; task automatic delayed_assigner;"
      "#   100   y = w;"  // delayed assignment
      "endtask endclass",
      "class c;\n"
-     "  task automatic delayed_assigner;\n"
-     "    #100 y = w;\n"
-     "  endtask\n"
+     "  task automatic delayed_assigner;#   100   y = w;endtask\n"
      "endclass\n"},
+    // ece2300: task body preserved verbatim, so the label spacing is kept
     {"class c; task automatic labeled_assigner;"
      "lbl   :   y = w;"  // delayed assignment
      "endtask endclass",
      "class c;\n"
-     "  task automatic labeled_assigner;\n"
-     "    lbl : y = w;\n"  // TODO(fangism): no space before ':'
-     "  endtask\n"
+     "  task automatic labeled_assigner;lbl   :   y = w;endtask\n"
      "endclass\n"},
     // task with macro call
     {"module m1;\ntask automatic t1();\n"
      "t2(`R1(1)+ 8);endtask : t1\nendmodule",
      "module m1;\n"
      "  task automatic t1();\n"
-     "    t2(`R1(1) + 8);\n"
-     "  endtask : t1\n"
+     "t2(`R1(1)+ 8);endtask : t1\n"
      "endmodule\n"},
 
     // tasks with control statements
@@ -3803,48 +4070,37 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "if (count == 0) begin #0; return;end "
      "endtask endclass",
      "class c;\n"
-     "  task automatic waiter;\n"
-     "    if (count == 0) begin\n"
-     "      #0;\n"
-     "      return;\n"
-     "    end\n"
-     "  endtask\n"
+     "  task automatic waiter;if (count == 0) begin #0; return;end endtask\n"
      "endclass\n"},
     {"class c; task automatic heartbreaker;"
      "if( c)if( d) break ;"
      "endtask endclass",
      "class c;\n"
-     "  task automatic heartbreaker;\n"
-     "    if (c) if (d) break;\n"
-     "  endtask\n"
+     "  task automatic heartbreaker;if( c)if( d) break ;endtask\n"
      "endclass\n"},
     {"class c; task automatic waiter;"
      "repeat (count) @(posedge clk);"
      "endtask endclass",
      "class c;\n"
-     "  task automatic waiter;\n"
-     "    repeat (count) @(posedge clk);\n"
-     "  endtask\n"
+     "  task automatic waiter;repeat (count) @(posedge clk);endtask\n"
      "endclass\n"},
     {"class c; task automatic repeat_assigner;"
      "repeat( r )\ny = w;"
      "repeat( q )\ny = 1;"
      "endtask endclass",
      "class c;\n"
-     "  task automatic repeat_assigner;\n"
-     "    repeat (r) y = w;\n"
-     "    repeat (q) y = 1;\n"
-     "  endtask\n"
+     "  task automatic repeat_assigner;repeat( r )\n"
+     "y = w;repeat( q )\n"
+     "y = 1;endtask\n"
      "endclass\n"},
     {"class c; task automatic event_control_assigner;"
      "@ ( posedge clk )\ny = w;"
      "@ ( negedge clk )\nz = w;"
      "endtask endclass",
      "class c;\n"
-     "  task automatic event_control_assigner;\n"
-     "    @(posedge clk) y = w;\n"
-     "    @(negedge clk) z = w;\n"
-     "  endtask\n"
+     "  task automatic event_control_assigner;@ ( posedge clk )\n"
+     "y = w;@ ( negedge clk )\n"
+     "z = w;endtask\n"
      "endclass\n"},
     {
         // classes with surrrounding comments
@@ -3881,8 +4137,7 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  function f(integer size);\n"
      "  endfunction\n"
      "  // t is for true\n"
-     "  task t();\n"
-     "  endtask\n"
+     "  task t();endtask\n"
      "  // class is about to end\n"
      "endclass\n"},
     // class property alignment test cases
@@ -4658,43 +4913,32 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  return {a} ? {b} : {c};\n"
      "endfunction\n"},
     {"task t;endtask",
-     "task t;\n"
-     "endtask\n"},
+     "task t;endtask\n"},
     {"task t (   );endtask",
-     "task t();\n"
-     "endtask\n"},
+     "task t (   );endtask\n"},
     {"task t (input    bit   drill   ) ;endtask",
-     "task t(input bit drill);\n"
-     "endtask\n"},
+     "task t (input    bit   drill   ) ;endtask\n"},
     {"task t; ## 100 ;endtask",
-     "task t;\n"
-     "  ##100;\n"
-     "endtask\n"},
+     "task t; ## 100 ;endtask\n"},
     {"task t; ## (1+1) ;endtask",  // delay expression
-     "task t;\n"
-     "  ##(1 + 1);\n"
-     "endtask\n"},
+     "task t; ## (1+1) ;endtask\n"},
     {"task t; ## delay_value ;endtask",
-     "task t;\n"
-     "  ##delay_value;\n"
-     "endtask\n"},
+     "task t; ## delay_value ;endtask\n"},
     {"task t; ## `DELAY_VALUE ;endtask",
-     "task t;\n"
-     "  ##`DELAY_VALUE;\n"
-     "endtask\n"},
+     "task t; ## `DELAY_VALUE ;endtask\n"},
     {"task t;\n"
      "`uvm_error( foo,bar);\n"
      "endtask\n",
      "task t;\n"
-     "  `uvm_error(foo, bar);\n"
+     "`uvm_error( foo,bar);\n"
      "endtask\n"},
     {"task t;\n"
      "`uvm_error(foo,bar)\n"
      ";\n"  // null statement
      "endtask\n",
      "task t;\n"
-     "  `uvm_error(foo, bar)\n"
-     "  ;\n"
+     "`uvm_error(foo,bar)\n"
+     ";\n"
      "endtask\n"},
     {"task t;\n"
      "if(expr)begin\t\n"
@@ -4702,14 +4946,15 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "end\n"
      "endtask\n",
      "task t;\n"
-     "  if (expr) begin\n"
-     "    `uvm_error(foo, bar);\n"
-     "  end\n"
+     "if(expr)begin\t\n"
+     "`uvm_error(foo,bar);\n"
+     "end\n"
      "endtask\n"},
     {"task\nrabbit;$kill(the,\nrabbit)\n;endtask:  rabbit\n",
-     "task rabbit;\n"
-     "  $kill(the, rabbit);\n"
-     "endtask : rabbit\n"},
+     "task\n"
+     "rabbit;$kill(the,\n"
+     "rabbit)\n"
+     ";endtask:  rabbit\n"},
     {"function  int foo( );if( a )a+=1 ; endfunction",
      "function int foo();\n"
      "  if (a) a += 1;\n"
@@ -4749,7 +4994,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      " \t\tend \t"
      "\t end:main_test\n"
      "endmodule:g_test\n",
-     "module g_test ();\n"
+     "module g_test\n"
+     "();\n"
      "  initial begin : main_test\n"
      "    for (int i = 0; i < k; i++) begin\n"
      "      case (i)\n"
@@ -5307,16 +5553,19 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "module foo;\n"
      "endmodule\n"},
     {"   module       foo   (    )   ;     endmodule\n",
-     "module foo ();\n"
+     "module foo\n"
+     "();\n"
      "endmodule\n"},
     {"   module       foo   (  .x (  x) );     endmodule\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    .x(x)\n"
      ");\n"
      "endmodule\n"},
     {"   module       foo   (  .x (  x)  \n,\n . y "
      "  ( \ny) );     endmodule\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    .x(x),\n"
      "    .y(y)\n"
      ");\n"
@@ -5325,48 +5574,63 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
     // module instantiation test cases
     {"  module foo   ; bar bq();endmodule\n",
      "module foo;\n"
-     "  bar bq ();\n"  // single instance
+     "  bar bq\n"
+     "  ();\n"  // single instance
      "endmodule\n"},
     {"  module foo   ; bar bq(), bq2(  );endmodule\n",
      "module foo;\n"
-     "  bar bq (), bq2 ();\n"  // multiple instances, still fitting on one line
+     "  bar\n"  // ece2300: instances always expand, one per line
+     "      bq\n"
+     "      (),\n"
+     "      bq2\n"
+     "      ();\n"
      "endmodule\n"},
     {"module foo; bar #(.N(N)) bq (.bus(bus));endmodule\n",
      // instance parameter and port fits on line
      "module foo;\n"
-     "  bar #(.N(N)) bq (.bus(bus));\n"
+     "  bar #(\n"
+     "      .N(N)\n"
+     "  ) bq\n"
+     "  (\n"
+     "      .bus (bus)\n"
+     "  );\n"
      "endmodule\n"},
     {"module foo; bar #(.N(N),.M(M)) bq ();endmodule\n",  // two named params
      "module foo;\n"
      "  bar #(\n"
      "      .N(N),\n"
      "      .M(M)\n"
-     "  ) bq ();\n"
+     "  ) bq\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo; bar #(//comment\n.N(N),.M(M)) bq ();endmodule\n",
      "module foo;\n"
      "  bar #(  //comment\n"  // EOL comment before first param
      "      .N(N),\n"
      "      .M(M)\n"
-     "  ) bq ();\n"
+     "  ) bq\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo; bar #(.N(N),//comment\n.M(M)) bq ();endmodule\n",
      "module foo;\n"
      "  bar #(\n"
      "      .N(N),  //comment\n"  // EOL comment after first param
      "      .M(M)\n"
-     "  ) bq ();\n"
+     "  ) bq\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo; bar #(.N(N),.M(M)//comment\n) bq ();endmodule\n",
      "module foo;\n"
      "  bar #(\n"
      "      .N(N),\n"
      "      .M(M)   //comment\n"  // EOL comment after last param
-     "  ) bq ();\n"
+     "  ) bq\n"
+     "  ();\n"
      "endmodule\n"},
     {"  module foo   ; bar bq(aa,bb,cc);endmodule\n",
      "module foo;\n"
-     "  bar bq (\n"
+     "  bar bq\n"
+     "  (\n"
      "      aa,\n"
      "      bb,\n"
      "      cc\n"
@@ -5378,7 +5642,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "`endif\n"
      "cc);endmodule\n",
      "module foo;\n"
-     "  bar bq (\n"
+     "  bar bq\n"
+     "  (\n"
      "      aa,\n"
      "`ifdef BB\n"
      "      bb,\n"  // keep same indentation as outside conditional
@@ -5388,16 +5653,18 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule\n"},
     {"  module foo   ; bar bq(.aa,.bb);endmodule\n",
      "module foo;\n"
-     "  bar bq (\n"
+     "  bar bq\n"
+     "  (\n"
      "      .aa,\n"
      "      .bb\n"
      "  );\n"  // multiple named ports, one per line
      "endmodule\n"},
     {"  module foo   ; bar bq(.aa(aa),.bb(bb));endmodule\n",
      "module foo;\n"
-     "  bar bq (\n"
-     "      .aa(aa),\n"
-     "      .bb(bb)\n"
+     "  bar bq\n"
+     "  (\n"
+     "      .aa (aa),\n"
+     "      .bb (bb)\n"
      "  );\n"  // multiple named ports, one per line
      "endmodule\n"},
     {"  module foo   ; bar bq(.aa(aa),\n"
@@ -5409,30 +5676,33 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      ".bb(bb)\n"
      ");endmodule\n",
      "module foo;\n"
-     "  bar bq (\n"
-     "      .aa(aa),\n"
+     "  bar bq\n"
+     "  (\n"
+     "      .aa (aa),\n"
      "`ifdef ZZ\n"
-     "      .zz(zz),\n"
+     "      .zz (zz),\n"
      "`else\n"
-     "      .yy(yy),\n"
+     "      .yy (yy),\n"
      "`endif\n"
-     "      .bb(bb)\n"
+     "      .bb (bb)\n"
      "  );\n"  // multiple named ports, one per line
      "endmodule\n"},
     {"  module foo   ; bar#(NNNNNNNN)"
      "bq(.aa(aaaaaa),.bb(bbbbbb));endmodule\n",
      "module foo;\n"
-     "  bar #(NNNNNNNN) bq (\n"
-     "      .aa(aaaaaa),\n"
-     "      .bb(bbbbbb)\n"
+     "  bar #(NNNNNNNN) bq\n"
+     "  (\n"
+     "      .aa (aaaaaa),\n"
+     "      .bb (bbbbbb)\n"
      "  );\n"
      "endmodule\n"},
     {" module foo   ; barrrrrrr "
      "bq(.aaaaaa(aaaaaa),.bbbbbb(bbbbbb));endmodule\n",
      "module foo;\n"
-     "  barrrrrrr bq (\n"
-     "      .aaaaaa(aaaaaa),\n"
-     "      .bbbbbb(bbbbbb)\n"
+     "  barrrrrrr bq\n"
+     "  (\n"
+     "      .aaaaaa (aaaaaa),\n"
+     "      .bbbbbb (bbbbbb)\n"
      "  );\n"
      "endmodule\n"},
     {"module foo; bar #(.NNNNN(NNNNN)) bq (.bussss(bussss));endmodule\n",
@@ -5440,16 +5710,18 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "module foo;\n"
      "  bar #(\n"
      "      .NNNNN(NNNNN)\n"
-     "  ) bq (\n"
-     "      .bussss(bussss)\n"
+     "  ) bq\n"
+     "  (\n"
+     "      .bussss (bussss)\n"
      "  );\n"
      "endmodule\n"},
     {"module foo; bar #(//\n.N(N)) bq (.bus(bus));endmodule\n",
      "module foo;\n"
      "  bar #(  //\n"  // would fit on one line, but forced to expand by //
      "      .N(N)\n"
-     "  ) bq (\n"
-     "      .bus(bus)\n"
+     "  ) bq\n"
+     "  (\n"
+     "      .bus (bus)\n"
      "  );\n"
      "endmodule\n"},
     {"module foo; bar #(\n"
@@ -5466,72 +5738,80 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "`else\n"
      "      .N(N)\n"
      "`endif\n"
-     "  ) bq (\n"
-     "      .bus(bus)\n"
+     "  ) bq\n"
+     "  (\n"
+     "      .bus (bus)\n"
      "  );\n"
      "endmodule\n"},
     {"module foo; bar #(.N(N)//\n) bq (.bus(bus));endmodule\n",
      "module foo;\n"
      "  bar #(\n"  // would fit on one line, but forced to expand by //
      "      .N(N)  //\n"
-     "  ) bq (\n"
-     "      .bus(bus)\n"
+     "  ) bq\n"
+     "  (\n"
+     "      .bus (bus)\n"
      "  );\n"
      "endmodule\n"},
     {"module foo; bar #(.N(N)) bq (//\n.bus(bus));endmodule\n",
      "module foo;\n"
-     "  bar #(\n"  // would fit on one line, but forced to expand by //
+     "  bar #(\n"
      "      .N(N)\n"
-     "  ) bq (  //\n"
-     "      .bus(bus)\n"
+     "  ) bq\n"
+     "  ( //\n"
+     "      .bus (bus)\n"
      "  );\n"
      "endmodule\n"},
     {"module foo; bar #(.N(N)) bq (.bus(bus)//\n);endmodule\n",
      "module foo;\n"
      "  bar #(\n"  // would fit on one line, but forced to expand by //
      "      .N(N)\n"
-     "  ) bq (\n"
-     "      .bus(bus)  //\n"
+     "  ) bq\n"
+     "  (\n"
+     "      .bus (bus)  //\n"
      "  );\n"
      "endmodule\n"},
     {" module foo   ; bar "
      "bq(.aaa(aaa),.bbb(bbb),.ccc(ccc),.ddd(ddd));endmodule\n",
      "module foo;\n"
-     "  bar bq (\n"
-     "      .aaa(aaa),\n"  // ports don't fit on one line, so expanded
-     "      .bbb(bbb),\n"
-     "      .ccc(ccc),\n"
-     "      .ddd(ddd)\n"
+     "  bar bq\n"
+     "  (\n"
+     "      .aaa (aaa),\n"  // ports don't fit on one line, so expanded
+     "      .bbb (bbb),\n"
+     "      .ccc (ccc),\n"
+     "      .ddd (ddd)\n"
      "  );\n"
      "endmodule\n"},
     {" module foo   ; bar "
      "bq(.aa(aa),.bb(bb),.cc(cc),.dd(dd));endmodule\n",
      "module foo;\n"
-     "  bar bq (\n"
-     "      .aa(aa),\n"  // one named port per line
-     "      .bb(bb),\n"
-     "      .cc(cc),\n"
-     "      .dd(dd)\n"
+     "  bar bq\n"
+     "  (\n"
+     "      .aa (aa),\n"  // one named port per line
+     "      .bb (bb),\n"
+     "      .cc (cc),\n"
+     "      .dd (dd)\n"
      "  );\n"
      "endmodule\n"},
     {" module foo   ; bar "
      "bq(.aa(aa),//\n.bb(bb),.cc(cc),.dd(dd));endmodule\n",
      "module foo;\n"
-     "  bar bq (\n"
-     "      .aa(aa),  //\n"  // forced to expand by //
-     "      .bb(bb),\n"
-     "      .cc(cc),\n"
-     "      .dd(dd)\n"
+     "  bar bq\n"
+     "  (\n"
+     "      .aa (aa),  //\n"  // forced to expand by //
+     "      .bb (bb),\n"
+     "      .cc (cc),\n"
+     "      .dd (dd)\n"
      "  );\n"
      "endmodule\n"},
     {" module foo   ; bar "
      "bq(.aa(aa),.bb(bb),.cc(cc),.dd(dd)//\n);endmodule\n",
      "module foo;\n"
-     "  bar bq (\n"
-     "      .aa(aa),\n"
-     "      .bb(bb),\n"
-     "      .cc(cc),\n"
-     "      .dd(dd)   //\n"  // forced to expand by //
+     "  bar bq\n"
+     "  (\n"
+     "      .aa (aa),\n"
+     "      .bb (bb),\n"
+     "      .cc (cc),\n"
+     "      .dd (dd)   //\n"  // forced to expand by //
      "  );\n"
      "endmodule\n"},
     {// gate instantiation test
@@ -5549,7 +5829,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "`endif\n"
      ")  ;endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
+     "  foo bar\n"
+     "  (\n"
      "`ifdef BAZ\n"
      "`endif\n"
      "  );\n"
@@ -5560,8 +5841,9 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "`endif\n"
      ")  ;endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a(a),\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a (a),\n"
      "`ifdef BAZ\n"
      "`endif\n"
      "  );\n"
@@ -5572,10 +5854,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "`endif\n"
      ". b(b) )  ;endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
+     "  foo bar\n"
+     "  (\n"
      "`ifdef BAZ\n"
      "`endif\n"
-     "      .b(b)\n"
+     "      .b (b)\n"
      "  );\n"
      "endmodule\n"},
     {// ifdef-conditional port connection
@@ -5585,9 +5868,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "`endif\n"
      " )  ;endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
+     "  foo bar\n"
+     "  (\n"
      "`ifdef BAZ\n"
-     "      .c(c)\n"
+     "      .c (c)\n"
      "`endif\n"
      "  );\n"
      "endmodule\n"},
@@ -5600,11 +5884,12 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  `endif\n"
      " )  ;endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
+     "  foo bar\n"
+     "  (\n"
      "`ifndef BAZ\n"
-     "      .c(c)\n"
+     "      .c (c)\n"
      "`else\n"
-     "      .d(d)\n"
+     "      .d (d)\n"
      "`endif\n"
      "  );\n"
      "endmodule\n"},
@@ -5659,7 +5944,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "logic [12:34] data[`AAAAAAAAAAAAAAAAAAAAAAAA(1) : "
      "`BBBBBBBBBBBBBBBBBBBBBBBB(2) + 3];\n  "
      "endfunction\nendmodule",
-     "module foo ();\n"
+     "module foo\n"
+     "();\n"
      "  function bar();\n"
      "    logic [12:34] data[\n"
      "    `AAAAAAAAAAAAAAAAAAAAAAAA(1) :\n"
@@ -5748,41 +6034,48 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endfunction\n"},
      */
     {"task\tt ;a ;endtask",  // implicit type
-     "task t;\n"
-     "  a;\n"
-     "endtask\n"},
+     "task\tt ;a ;endtask\n"},
     {"task\tt ;a   ;x ;endtask",  // implicit type
-     "task t;\n"
-     "  a;\n"
-     "  x;\n"
-     "endtask\n"},
+     "task\tt ;a   ;x ;endtask\n"},
 
     {// tests bind declaration
      "bind   foo   bar baz  ( . clk ( clk  ) ) ;",
-     "bind foo bar baz (.clk(clk));\n"},
+     "bind foo bar baz\n"
+     "(\n"
+     "    .clk (clk)\n"
+     ");\n"},
     {// tests bind declaration, with type params
      "bind   foo   bar# ( . W ( W ) ) baz  ( . clk ( clk  ) ) ;",
-     "bind foo bar #(.W(W)) baz (.clk(clk));\n"},
+     "bind foo bar #(\n"
+     "    .W(W)\n"
+     ") baz\n"
+     "(\n"
+     "    .clk (clk)\n"
+     ");\n"},
     {// tests bind declarations
      "bind   foo   bar baz  ( ) ;"
      "bind goo  car  caz (   );",
-     "bind foo bar baz ();\n"
-     "bind goo car caz ();\n"},
+     "bind foo bar baz\n"
+     "();\n"
+     "bind goo car caz\n"
+     "();\n"},
 
     {"bind blah foo #( .MaxCount(MaxCount), .MaxDelta(MaxDelta)) bar ("
      "    .clk(clk), .rst(rst), .value(value) );",
      "bind blah foo #(\n"
      "    .MaxCount(MaxCount),\n"
      "    .MaxDelta(MaxDelta)\n"
-     ") bar (\n"
-     "    .clk  (clk),\n"
-     "    .rst  (rst),\n"
-     "    .value(value)\n"
+     ") bar\n"
+     "(\n"
+     "    .clk   (clk),\n"
+     "    .rst   (rst),\n"
+     "    .value (value)\n"
      ");\n"},
     {"bind foo bar baz(\\\n"
      "`undef d\\\n"
      "`undef d);",
-     "bind foo bar baz (\\\n"
+     "bind foo bar baz\n"
+     "(\\\n"
      "    `undef d\\\n"
      "    `undef d\n"
      ");\n"},
@@ -5795,10 +6088,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
         "    .W(W_CONST),\n"
         "    .H(H_CONST),\n"
         "    .D(D_CONST)\n"
-        ") instaaance_name (\n"
-        "    .in (iiiiiiiin),\n"
-        "    .out(ooooooout),\n"
-        "    .clk(ccccccclk)\n"
+        ") instaaance_name\n"
+        "(\n"
+        "    .in  (iiiiiiiin),\n"
+        "    .out (ooooooout),\n"
+        "    .clk (ccccccclk)\n"
         ");\n",
     },
 
@@ -5810,10 +6104,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
         "    .W(W_CONST),\n"
         "    .H(H_CONST),\n"
         "    .D(D_CONST)\n"
-        ") instaaance_name (\n"
-        "    .in (iiiiiiiin),\n"
-        "    .out(ooooooout),\n"
-        "    .clk(ccccccclk)\n"
+        ") instaaance_name\n"
+        "(\n"
+        "    .in  (iiiiiiiin),\n"
+        "    .out (ooooooout),\n"
+        "    .clk (ccccccclk)\n"
         ");\n",
     },
 
@@ -5931,82 +6226,56 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
 
     // task test cases
     {"task t ;endtask:t",  //
-     "task t;\n"
-     "endtask : t\n"},
+     "task t ;endtask:t\n"},
+    // ece2300: task body preserved verbatim, delay expressions untouched
     {"task t ;#   10 ;# 5ns ; # 0.1 ; # 1step ;endtask",
-     "task t;\n"
-     "  #10;\n"  // no space in delay expression
-     "  #5ns;\n"
-     "  #0.1;\n"
-     "  #1step;\n"
-     "endtask\n"},
+     "task t ;#   10 ;# 5ns ; # 0.1 ; # 1step ;endtask\n"},
     {"task t\n;a<=b ;c<=d ;endtask\n",
-     "task t;\n"
-     "  a <= b;\n"
-     "  c <= d;\n"
-     "endtask\n"},
+     "task t\n"
+     ";a<=b ;c<=d ;endtask\n"},
     {"class c;   virtual protected task\tt  ( foo bar);"
      "a.a<=b.b;\t\tc.c\n<=   d.d; endtask   endclass",
      "class c;\n"
-     "  virtual protected task t(foo bar);\n"
-     "    a.a <= b.b;\n"
-     "    c.c <= d.d;\n"
-     "  endtask\n"
+     "  virtual protected task\tt  ( foo bar);a.a<=b.b;\t\tc.c\n"
+     "<=   d.d; endtask\n"
      "endclass\n"},
     {"task t;\n// statement comment\nendtask\n",
      "task t;\n"
-     "  // statement comment\n"  // indented
+     "// statement comment\n"  // indented
      "endtask\n"},
     {"task t( );\n// statement comment\nendtask\n",
-     "task t();\n"
-     "  // statement comment\n"  // indented
+     "task t( );\n"
+     "// statement comment\n"  // indented
      "endtask\n"},
     {"task t( input x  );\n"
      "// statement comment\n"
      "s();\n"
      "// statement comment\n"
      "endtask\n",
-     "task t(input x);\n"
-     "  // statement comment\n"  // indented
-     "  s();\n"
-     "  // statement comment\n"  // indented
+     "task t( input x  );\n"
+     "// statement comment\n"  // indented
+     "s();\n"
+     "// statement comment\n"  // indented
      "endtask\n"},
     {"task fj;fork join fork join\tendtask",
-     "task fj;\n"
-     "  fork\n"
-     "  join\n"
-     "  fork\n"
-     "  join\n"
-     "endtask\n"},
+     "task fj;fork join fork join\tendtask\n"},
     {"task fj;fork join_any fork join_any\tendtask",
-     "task fj;\n"
-     "  fork\n"
-     "  join_any\n"
-     "  fork\n"
-     "  join_any\n"
-     "endtask\n"},
+     "task fj;fork join_any fork join_any\tendtask\n"},
     {"task fj;fork join_none fork join_none\tendtask",
-     "task fj;\n"
-     "  fork\n"
-     "  join_none\n"
-     "  fork\n"
-     "  join_none\n"
-     "endtask\n"},
+     "task fj;fork join_none fork join_none\tendtask\n"},
     {"task fj;fork\n"
      "//c1\njoin\n"
      "//c2\n"
      "fork  \n"
      "//c3\n"
      "join\tendtask",
-     "task fj;\n"
-     "  fork\n"
-     "    //c1\n"
-     "  join\n"
-     "  //c2\n"
-     "  fork\n"
-     "    //c3\n"
-     "  join\n"
-     "endtask\n"},
+     "task fj;fork\n"
+     "//c1\n"
+     "join\n"
+     "//c2\n"
+     "fork  \n"
+     "//c3\n"
+     "join\tendtask\n"},
     {"task fj;\n"
      "fork "
      "begin "
@@ -6016,194 +6285,98 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "end "
      "join_any endtask",
      "task fj;\n"
-     "  fork\n"
-     "    begin\n"
-     "    end\n"
-     "    foo();\n"
-     "    begin\n"
-     "    end\n"
-     "  join_any\n"
-     "endtask\n"},
+     "fork begin end foo();begin end join_any endtask\n"},
     {
         // call and assertion statements
         "task  t ;Fire() ;assert ( x);assert(y );endtask",
-        "task t;\n"
-        "  Fire();\n"
-        "  assert (x);\n"
-        "  assert (y);\n"
-        "endtask\n",
+        "task  t ;Fire() ;assert ( x);assert(y );endtask\n",
     },
     {
         // assertion statements with body clause
         "task  t ;Fire() ;assert ( x) fee ( );assert(y ) foo ( ) ;endtask",
-        "task t;\n"
-        "  Fire();\n"
-        "  assert (x) fee();\n"
-        "  assert (y) foo();\n"
-        "endtask\n",
+        "task  t ;Fire() ;assert ( x) fee ( );assert(y ) foo ( ) ;endtask\n",
     },
     {
         // assertion statements with else clause
         "task  t ;Fire() ;assert ( x) else  fee ( );"
         "assert(y ) else  foo ( ) ;endtask",
-        "task t;\n"
-        "  Fire();\n"
-        "  assert (x)\n"
-        "  else fee();\n"
-        "  assert (y)\n"
-        "  else foo();\n"
-        "endtask\n",
+        "task  t ;Fire() ;assert ( x) else  fee ( );assert(y ) else  foo ( ) ;endtask\n",
     },
     {
         // assertion statements with else clause
         "task  t ;Fire() ;assert ( x) fa(); else  fee ( );"
         "assert(y ) fi(); else  foo ( ) ;endtask",
-        "task t;\n"
-        "  Fire();\n"
-        "  assert (x) fa();\n"
-        "  else fee();\n"
-        "  assert (y) fi();\n"
-        "  else foo();\n"
-        "endtask\n",
+        "task  t ;Fire() ;assert ( x) fa(); else  fee ( );assert(y ) fi(); else  foo ( ) ;endtask\n",
     },
     {
         // assume statements
         "task  t ;Fire() ;assume ( x);assume(y );endtask",
-        "task t;\n"
-        "  Fire();\n"
-        "  assume (x);\n"
-        "  assume (y);\n"
-        "endtask\n",
+        "task  t ;Fire() ;assume ( x);assume(y );endtask\n",
     },
     {
         // cover statements
         "task  t ;Fire() ;cover ( x);cover(y );endtask",
-        "task t;\n"
-        "  Fire();\n"
-        "  cover (x);\n"
-        "  cover (y);\n"
-        "endtask\n",
+        "task  t ;Fire() ;cover ( x);cover(y );endtask\n",
     },
     {
         // cover statements, with action
         "task  t ;Fire() ;cover ( x)g( );cover(y ) h();endtask",
-        "task t;\n"
-        "  Fire();\n"
-        "  cover (x) g();\n"
-        "  cover (y) h();\n"
-        "endtask\n",
+        "task  t ;Fire() ;cover ( x)g( );cover(y ) h();endtask\n",
     },
     {
         // cover statements, with action block
         "task  t ;Fire() ;cover ( x) begin g( ); end "
         "cover(y ) begin h(); end endtask",
-        "task t;\n"
-        "  Fire();\n"
-        "  cover (x) begin\n"
-        "    g();\n"
-        "  end\n"
-        "  cover (y) begin\n"
-        "    h();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;Fire() ;cover ( x) begin g( ); end cover(y ) begin h(); end endtask\n",
     },
     {// shuffle calls
      "task t; foo. shuffle  ( );bar .shuffle( ); endtask",
-     "task t;\n"
-     "  foo.shuffle();\n"
-     "  bar.shuffle();\n"
-     "endtask\n"},
+     "task t; foo. shuffle  ( );bar .shuffle( ); endtask\n"},
     {// wait statements (null)
      "task t; wait  (a==b);wait(c<d); endtask",
-     "task t;\n"
-     "  wait (a == b);\n"
-     "  wait (c < d);\n"
-     "endtask\n"},
+     "task t; wait  (a==b);wait(c<d); endtask\n"},
     {// wait statements, single action statement
      "task t; wait  (a==b) p();wait(c<d) q(); endtask",
-     "task t;\n"
-     "  wait (a == b) p();\n"
-     "  wait (c < d) q();\n"
-     "endtask\n"},
+     "task t; wait  (a==b) p();wait(c<d) q(); endtask\n"},
     {// wait statements, block action statement
      "task t; wait  (a==b) begin p(); end "
      "wait(c<d) begin q(); end endtask",
-     "task t;\n"
-     "  wait (a == b) begin\n"
-     "    p();\n"
-     "  end\n"
-     "  wait (c < d) begin\n"
-     "    q();\n"
-     "  end\n"
-     "endtask\n"},
+     "task t; wait  (a==b) begin p(); end wait(c<d) begin q(); end endtask\n"},
     {// wait fork statements
      "task t ; wait\tfork;wait   fork ;endtask",
-     "task t;\n"
-     "  wait fork;\n"
-     "  wait fork;\n"
-     "endtask\n"},
+     "task t ; wait\tfork;wait   fork ;endtask\n"},
     {// labeled single statements (prefix-style)
      "task t;l1:x<=y ;endtask",
-     "task t;\n"
-     "  l1 : x <= y;\n"
-     "endtask\n"},
+     "task t;l1:x<=y ;endtask\n"},
     {// labeled block statements (prefix-style)
      "task t;l1:begin end:l1 endtask",
-     "task t;\n"
-     "  l1 : begin\n"
-     "  end : l1\n"
-     "endtask\n"},
+     "task t;l1:begin end:l1 endtask\n"},
     {// labeled seq block statements
      "task t;begin:l1 end:l1 endtask",
-     "task t;\n"
-     "  begin : l1\n"
-     "  end : l1\n"
-     "endtask\n"},
+     "task t;begin:l1 end:l1 endtask\n"},
     {// labeled par block statements
      "task t;fork:l1 join:l1 endtask",
-     "task t;\n"
-     "  fork : l1\n"
-     "  join : l1\n"
-     "endtask\n"},
+     "task t;fork:l1 join:l1 endtask\n"},
     {// task with disable statements
      "task  t ;fork\tjoin\tdisable\tfork;endtask",
-     "task t;\n"
-     "  fork\n"
-     "  join\n"
-     "  disable fork;\n"
-     "endtask\n"},
+     "task  t ;fork\tjoin\tdisable\tfork;endtask\n"},
     {"task  t ;fork\tjoin_any\tdisable\tfork  ;endtask",
-     "task t;\n"
-     "  fork\n"
-     "  join_any\n"
-     "  disable fork;\n"
-     "endtask\n"},
+     "task  t ;fork\tjoin_any\tdisable\tfork  ;endtask\n"},
     {"task  t ;disable\tbean_counter  ;endtask",
-     "task t;\n"
-     "  disable bean_counter;\n"
-     "endtask\n"},
+     "task  t ;disable\tbean_counter  ;endtask\n"},
     {
         // task with if-statement
         "task t;"
         "if (r == t)"
         "a.b(c);"
         "endtask",
-        "task t;\n"
-        "  if (r == t) a.b(c);\n"
-        "endtask\n",
+        "task t;if (r == t)a.b(c);endtask\n",
     },
     {
         // task with system call inside if header
         "task t;"
         "if (!$cast(ssssssssssssssss,vvvvvvvvvv,gggggggg))begin end endtask:t",
-        "task t;\n"
-        "  if (!$cast(\n"
-        "          ssssssssssssssss,\n"
-        "          vvvvvvvvvv,\n"
-        "          gggggggg\n"
-        "      )) begin\n"
-        "  end\n"
-        "endtask : t\n",
+        "task t;if (!$cast(ssssssssssssssss,vvvvvvvvvv,gggggggg))begin end endtask:t\n",
     },
     {
         // task with nested subtask call and arguments passed by name
@@ -6214,322 +6387,173 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
         "))) begin "
         "end "
         "endtask : t",
-        "task t;\n"
-        "  if (!$cast(\n"
-        "          ssssssssssssssss,\n"
-        "          vvvvvvvvvv.gggggggg(\n"
-        "              .ppppppp(ppppppp),\n"
-        "              .yyyyy(\"xxxxxxxxxxxxx\")\n"
-        "          )\n"
-        "      )) begin\n"
-        "  end\n"
-        "endtask : t\n",
+        "task t;if (!$cast(ssssssssssssssss, vvvvvvvvvv.gggggggg(.ppppppp(ppppppp),.yyyyy(\"xxxxxxxxxxxxx\")))) begin end endtask : t\n",
     },
 
     {
         // assert property statements
         "task  t ;assert  property( x);assert\tproperty(y );endtask",
-        "task t;\n"
-        "  assert property (x);\n"
-        "  assert property (y);\n"
-        "endtask\n",
+        "task  t ;assert  property( x);assert\tproperty(y );endtask\n",
     },
     {
         // assert property statements, with action
         "task  t ;assert  property( x) j();assert\tproperty(y )k( );endtask",
-        "task t;\n"
-        "  assert property (x) j();\n"
-        "  assert property (y) k();\n"
-        "endtask\n",
+        "task  t ;assert  property( x) j();assert\tproperty(y )k( );endtask\n",
     },
     {
         // assert property statements, with action block
         "task  t ;assert  property( x) begin j();end "
         " assert\tproperty(y )begin\tk( );  end endtask",
-        "task t;\n"
-        "  assert property (x) begin\n"
-        "    j();\n"
-        "  end\n"
-        "  assert property (y) begin\n"
-        "    k();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;assert  property( x) begin j();end  assert\tproperty(y )begin\tk( );  end endtask\n",
     },
     {
         // assert property statements, else with null
         "task  t ;assert  property( x) else;assert\tproperty(y )else;endtask",
-        "task t;\n"
-        "  assert property (x)\n"
-        "  else;\n"
-        "  assert property (y)\n"
-        "  else;\n"
-        "endtask\n",
+        "task  t ;assert  property( x) else;assert\tproperty(y )else;endtask\n",
     },
     {
         // assert property statements, else with actions
         "task  t ;assert  property( x) f(); else p(); "
         "\tassert\tproperty(y ) g();else  q( );endtask",
-        "task t;\n"
-        "  assert property (x) f();\n"
-        "  else p();\n"
-        "  assert property (y) g();\n"
-        "  else q();\n"
-        "endtask\n",
+        "task  t ;assert  property( x) f(); else p(); \tassert\tproperty(y ) g();else  q( );endtask\n",
     },
     {
         // assert property statement, with action block, else statement
         "task  t ;assert  property( x) begin j();end  else\tk( );  endtask",
-        "task t;\n"
-        "  assert property (x) begin\n"
-        "    j();\n"
-        "  end else k();\n"
-        "endtask\n",
+        "task  t ;assert  property( x) begin j();end  else\tk( );  endtask\n",
     },
     {
         // assert property statement, with action statement, else block
         "task  t ;assert  property( x) j();  else  begin\tk( );end  endtask",
-        "task t;\n"
-        "  assert property (x) j();\n"
-        "  else begin\n"
-        "    k();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;assert  property( x) j();  else  begin\tk( );end  endtask\n",
     },
     {
         // assert property statement, with action block, else block
         "task  t ;assert  property( x)begin j();end  "
         "else  begin\tk( );end  endtask",
-        "task t;\n"
-        "  assert property (x) begin\n"
-        "    j();\n"
-        "  end else begin\n"
-        "    k();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;assert  property( x)begin j();end  else  begin\tk( );end  endtask\n",
     },
 
     {
         // assume property statements
         "task  t ;assume  property( x);assume\tproperty(y );endtask",
-        "task t;\n"
-        "  assume property (x);\n"
-        "  assume property (y);\n"
-        "endtask\n",
+        "task  t ;assume  property( x);assume\tproperty(y );endtask\n",
     },
     {
         // assume property statements, with action
         "task  t ;assume  property( x) j();assume\tproperty(y )k( );endtask",
-        "task t;\n"
-        "  assume property (x) j();\n"
-        "  assume property (y) k();\n"
-        "endtask\n",
+        "task  t ;assume  property( x) j();assume\tproperty(y )k( );endtask\n",
     },
     {
         // assume property statements, with action block
         "task  t ;assume  property( x) begin j();end "
         " assume\tproperty(y )begin\tk( );  end endtask",
-        "task t;\n"
-        "  assume property (x) begin\n"
-        "    j();\n"
-        "  end\n"
-        "  assume property (y) begin\n"
-        "    k();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;assume  property( x) begin j();end  assume\tproperty(y )begin\tk( );  end endtask\n",
     },
     {
         // assume property statements, else with null
         "task  t ;assume  property( x) else;assume\tproperty(y )else;endtask",
-        "task t;\n"
-        "  assume property (x)\n"
-        "  else;\n"
-        "  assume property (y)\n"
-        "  else;\n"
-        "endtask\n",
+        "task  t ;assume  property( x) else;assume\tproperty(y )else;endtask\n",
     },
     {
         // assume property statements, else with actions
         "task  t ;assume  property( x) f(); else p(); "
         "\tassume\tproperty(y ) g();else  q( );endtask",
-        "task t;\n"
-        "  assume property (x) f();\n"
-        "  else p();\n"
-        "  assume property (y) g();\n"
-        "  else q();\n"
-        "endtask\n",
+        "task  t ;assume  property( x) f(); else p(); \tassume\tproperty(y ) g();else  q( );endtask\n",
     },
     {
         // assume property statement, with action block, else statement
         "task  t ;assume  property( x) begin j();end  else\tk( );  endtask",
-        "task t;\n"
-        "  assume property (x) begin\n"
-        "    j();\n"
-        "  end else k();\n"
-        "endtask\n",
+        "task  t ;assume  property( x) begin j();end  else\tk( );  endtask\n",
     },
     {
         // assume property statement, with action statement, else block
         "task  t ;assume  property( x) j();  else  begin\tk( );end  endtask",
-        "task t;\n"
-        "  assume property (x) j();\n"
-        "  else begin\n"
-        "    k();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;assume  property( x) j();  else  begin\tk( );end  endtask\n",
     },
     {
         // assume property statement, with action block, else block
         "task  t ;assume  property( x)begin j();end  "
         "else  begin\tk( );end  endtask",
-        "task t;\n"
-        "  assume property (x) begin\n"
-        "    j();\n"
-        "  end else begin\n"
-        "    k();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;assume  property( x)begin j();end  else  begin\tk( );end  endtask\n",
     },
 
     {
         // expect property statements
         "task  t ;expect  ( x);expect\t(y );endtask",
-        "task t;\n"
-        "  expect (x);\n"
-        "  expect (y);\n"
-        "endtask\n",
+        "task  t ;expect  ( x);expect\t(y );endtask\n",
     },
     {
         // expect property statements, with action
         "task  t ;expect  ( x) j();expect\t(y )k( );endtask",
-        "task t;\n"
-        "  expect (x) j();\n"
-        "  expect (y) k();\n"
-        "endtask\n",
+        "task  t ;expect  ( x) j();expect\t(y )k( );endtask\n",
     },
     {
         // expect property statements, with action block
         "task  t ;expect  ( x) begin j();end "
         " expect\t(y )begin\tk( );  end endtask",
-        "task t;\n"
-        "  expect (x) begin\n"
-        "    j();\n"
-        "  end\n"
-        "  expect (y) begin\n"
-        "    k();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;expect  ( x) begin j();end  expect\t(y )begin\tk( );  end endtask\n",
     },
     {
         // expect property statements, else with null
         "task  t ;expect  ( x) else;expect\t(y )else;endtask",
-        "task t;\n"
-        "  expect (x)\n"
-        "  else;\n"
-        "  expect (y)\n"
-        "  else;\n"
-        "endtask\n",
+        "task  t ;expect  ( x) else;expect\t(y )else;endtask\n",
     },
     {
         // expect property statements, else with actions
         "task  t ;expect  ( x) f(); else p(); "
         "\texpect\t(y ) g();else  q( );endtask",
-        "task t;\n"
-        "  expect (x) f();\n"
-        "  else p();\n"
-        "  expect (y) g();\n"
-        "  else q();\n"
-        "endtask\n",
+        "task  t ;expect  ( x) f(); else p(); \texpect\t(y ) g();else  q( );endtask\n",
     },
     {
         // expect property statement, with action block, else statement
         "task  t ;expect  ( x) begin j();end  else\tk( );  endtask",
-        "task t;\n"
-        "  expect (x) begin\n"
-        "    j();\n"
-        "  end else k();\n"
-        "endtask\n",
+        "task  t ;expect  ( x) begin j();end  else\tk( );  endtask\n",
     },
     {
         // expect property statement, with action statement, else block
         "task  t ;expect  ( x) j();  else  begin\tk( );end  endtask",
-        "task t;\n"
-        "  expect (x) j();\n"
-        "  else begin\n"
-        "    k();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;expect  ( x) j();  else  begin\tk( );end  endtask\n",
     },
     {
         // expect property statement, with action block, else block
         "task  t ;expect  ( x)begin j();end  "
         "else  begin\tk( );end  endtask",
-        "task t;\n"
-        "  expect (x) begin\n"
-        "    j();\n"
-        "  end else begin\n"
-        "    k();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;expect  ( x)begin j();end  else  begin\tk( );end  endtask\n",
     },
 
     {
         // cover property statements
         "task  t ;cover  property( x);cover\tproperty(y );endtask",
-        "task t;\n"
-        "  cover property (x);\n"
-        "  cover property (y);\n"
-        "endtask\n",
+        "task  t ;cover  property( x);cover\tproperty(y );endtask\n",
     },
     {
         // cover property statements, with action
         "task  t ;cover  property( x) j();cover\tproperty(y )k( );endtask",
-        "task t;\n"
-        "  cover property (x) j();\n"
-        "  cover property (y) k();\n"
-        "endtask\n",
+        "task  t ;cover  property( x) j();cover\tproperty(y )k( );endtask\n",
     },
     {
         // cover property statements, with action block
         "task  t ;cover  property( x) begin j();end "
         " cover\tproperty(y )begin\tk( );  end endtask",
-        "task t;\n"
-        "  cover property (x) begin\n"
-        "    j();\n"
-        "  end\n"
-        "  cover property (y) begin\n"
-        "    k();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;cover  property( x) begin j();end  cover\tproperty(y )begin\tk( );  end endtask\n",
     },
 
     {
         // cover sequence statements
         "task  t ;cover  sequence( x);cover\tsequence(y );endtask",
-        "task t;\n"
-        "  cover sequence (x);\n"
-        "  cover sequence (y);\n"
-        "endtask\n",
+        "task  t ;cover  sequence( x);cover\tsequence(y );endtask\n",
     },
     {
         // cover sequence statements, with action
         "task  t ;cover  sequence( x) j();cover\tsequence(y )k( );endtask",
-        "task t;\n"
-        "  cover sequence (x) j();\n"
-        "  cover sequence (y) k();\n"
-        "endtask\n",
+        "task  t ;cover  sequence( x) j();cover\tsequence(y )k( );endtask\n",
     },
     {
         // cover sequence statements, with action block
         "task  t ;cover  sequence( x) begin j();end "
         " cover\tsequence(y )begin\tk( );  end endtask",
-        "task t;\n"
-        "  cover sequence (x) begin\n"
-        "    j();\n"
-        "  end\n"
-        "  cover sequence (y) begin\n"
-        "    k();\n"
-        "  end\n"
-        "endtask\n",
+        "task  t ;cover  sequence( x) begin j();end  cover\tsequence(y )begin\tk( );  end endtask\n",
     },
 
     {// module with disable statements
@@ -6699,7 +6723,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "output  reg    xx\n"
      ");\n"
      "endmodule",
-     "module align_off (\n"
+     "module align_off\n"
+     "(\n"
      "    input w  ,\n"  // preserved because group is partially disabled
      "    // verilog_format: off\n"
      "input wire  [y:z] wwww,\n"  // not compacted
@@ -6879,12 +6904,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
         "SqRgavM[15:2];\n"
         "JgQLBG == 4'h0;, \"foo\" )\n"
         "endtask\n",
-        "task S;\n"
-        "  `ppgJH3JoxhwyTmZ2dgPiuMQzpRAWiSs(\n"
-        "      {xYtxuh6.FIMcVPEWfhtoI2FSe, xYtxuh6.ZVL5XASVGLYz32} == "
-        "SqRgavM[15:2];\n"
-        "JgQLBG == 4'h0;,\n"
-        "      \"foo\")\n"
+        "task  S ; `ppgJH3JoxhwyTmZ2dgPiuMQzpRAWiSs({xYtxuh6.FIMcVPEWfhtoI2FSe, xYtxuh6.ZVL5XASVGLYz32} == SqRgavM[15:2];\n"
+        "JgQLBG == 4'h0;, \"foo\" )\n"
         "endtask\n",
     },
 
@@ -6908,10 +6929,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a(a), .aa(aa), .aaa(aaa));\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),\n"
-     "      .aa (aa),\n"
-     "      .aaa(aaa)\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),\n"
+     "      .aa  (aa),\n"
+     "      .aaa (aaa)\n"
      "  );\n"
      "endmodule\n"},
     {// named ports left unconnected
@@ -6919,10 +6941,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a(), .aa(), .aaa());\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (),\n"
-     "      .aa (),\n"
-     "      .aaa()\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (),\n"
+     "      .aa  (),\n"
+     "      .aaa ()\n"
      "  );\n"
      "endmodule\n"},
     {// multiple named ports groups separated by blank line
@@ -6930,12 +6953,13 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a(a), .aaa(aaa),\n\n .b(b), .bbbbbb(bbbbb));\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),\n"
-     "      .aaa(aaa),\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),\n"
+     "      .aaa (aaa),\n"
      "\n"
-     "      .b     (b),\n"
-     "      .bbbbbb(bbbbb)\n"
+     "      .b      (b),\n"
+     "      .bbbbbb (bbbbb)\n"
      "  );\n"
      "endmodule\n"},
     {// named ports with concatenation
@@ -6943,9 +6967,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a(a), .aaa({a,b,c}));\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),\n"
-     "      .aaa({a, b, c})\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),\n"
+     "      .aaa ({a, b, c})\n"
      "  );\n"
      "endmodule\n"},
     {// name ports with slices
@@ -6953,9 +6978,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a(a), .aaa(q[r:s]));\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),\n"
-     "      .aaa(q[r:s])\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),\n"
+     "      .aaa (q[r:s])\n"
      "  );\n"
      "endmodule\n"},
     {// named ports with pre-proc directives
@@ -6963,12 +6989,13 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a(a), `ifdef MACRO .aa(aa), `endif .aaa(aaa));\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),\n"
      "`ifdef MACRO\n"
-     "      .aa (aa),\n"
+     "      .aa  (aa),\n"
      "`endif\n"
-     "      .aaa(aaa)\n"
+     "      .aaa (aaa)\n"
      "  );\n"
      "endmodule\n"},
     {// named ports with macros
@@ -6976,20 +7003,22 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a(a), .aa(aa[`RANGE]), .aaa(aaa));\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),\n"
-     "      .aa (aa[`RANGE]),\n"
-     "      .aaa(aaa)\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),\n"
+     "      .aa  (aa[`RANGE]),\n"
+     "      .aaa (aaa)\n"
      "  );\n"
      "endmodule\n"},
     {"module m;\n"
      "foo bar(.a(a), .AA, .aaa(aaa));\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),\n"
      "      .AA,\n"
-     "      .aaa(aaa)\n"
+     "      .aaa (aaa)\n"
      "  );\n"
      "endmodule\n"},
     {// name ports with comments
@@ -6997,19 +7026,21 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a(a), .aa(aa)/*comment*/, .aaa(aaa));\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),\n"
-     "      .aa (aa)  /*comment*/,\n"
-     "      .aaa(aaa)\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),\n"
+     "      .aa  (aa)  /*comment*/,\n"
+     "      .aaa (aaa)\n"
      "  );\n"
      "endmodule\n"},
     {"module m;\n"
      "foo bar(.a(a),//comment1\n .aaa(aaa)//comment2\n);\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),   //comment1\n"
-     "      .aaa(aaa)  //comment2\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),   //comment1\n"
+     "      .aaa (aaa)  //comment2\n"
      "  );\n"
      "endmodule\n"},
     {"module m;\n"
@@ -7018,10 +7049,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      ".aaa(aaa));\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),\n"
      "      //.aa(aa),\n"
-     "      .aaa(aaa)\n"
+     "      .aaa (aaa)\n"
      "  );\n"
      "endmodule\n"},
     {"module m;\n"
@@ -7032,9 +7064,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      ";\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "        .a  (a)    //comment1\n"
-     "      , .aaa(aaa)  //comment2\n"
+     "  foo bar\n"
+     "  (\n"
+     "        .a   (a)    //comment1\n"
+     "      , .aaa (aaa)  //comment2\n"
      "  )  //comment3\n"
      "  ;\n"
      "endmodule\n"},
@@ -7043,7 +7076,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a, .aa, .aaaaa);\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
+     "  foo bar\n"
+     "  (\n"
      "      .a,\n"
      "      .aa,\n"
      "      .aaaaa\n"
@@ -7054,10 +7088,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a(a), .aa, .aaaaa(aaaaa));\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a    (a),\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a     (a),\n"
      "      .aa,\n"
-     "      .aaaaa(aaaaa)\n"
+     "      .aaaaa (aaaaa)\n"
      "  );\n"
      "endmodule\n"},
     {// named ports corssed with wildcard connections
@@ -7065,9 +7100,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a(a), .aaa(aaa), .*);\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),\n"
-     "      .aaa(aaa),\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),\n"
+     "      .aaa (aaa),\n"
      "      .*\n"
      "  );\n"
      "endmodule\n"},
@@ -7075,11 +7111,12 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "foo bar(.a(a), .aa(aa), .* , .aaa(aaa));\n"
      "endmodule\n",
      "module m;\n"
-     "  foo bar (\n"
-     "      .a  (a),\n"
-     "      .aa (aa),\n"
+     "  foo bar\n"
+     "  (\n"
+     "      .a   (a),\n"
+     "      .aa  (aa),\n"
      "      .*,\n"
-     "      .aaa(aaa)\n"
+     "      .aaa (aaa)\n"
      "  );\n"
      "endmodule\n"},
 
@@ -7992,7 +8029,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  import bar::baz;\n"
      "#(\n"
      "    int p = 3\n"
-     ") (\n"
+     ")\n"
+     "(\n"
      "    qux\n"
      ");\n"
      "endmodule\n"},
@@ -8266,7 +8304,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "wire baz;     // C\n"
      "endmodule:foo // D\n",
      "`define BAR 1 // A\n"
-     "module foo ();  // B\n"
+     "module foo\n"
+     "();  // B\n"
      "  wire baz;  // C\n"
      "endmodule : foo  // D\n"},
     {"`define BAR 1 // A\n"
@@ -8280,9 +8319,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "              // D.1\n"
      "              // D.2\n",
      "`define BAR 1 // A\n"
-     "module foo ();  // B\n"
-     "                // B.1\n"
-     "                // B.2\n"
+     "module foo\n"
+     "();  // B\n"
+     "     // B.1\n"
+     "     // B.2\n"
      "  wire baz;  // C\n"
      "             // C.1\n"
      "             // C.2\n"
@@ -8306,9 +8346,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "// W\n"
      "`define BAR 1 // A\n"
      "// X\n"
-     "module foo ();  // B\n"
-     "                // B.1\n"
-     "                // B.2\n"
+     "module foo\n"
+     "();  // B\n"
+     "     // B.1\n"
+     "     // B.2\n"
      "  // Y\n"
      "  wire baz;  // C\n"
      "             // C.1\n"
@@ -8329,8 +8370,9 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "output reg o1 // D\n"
      "              // D.1\n"
      ");endmodule:foo\n",
-     "module foo (  // A\n"
-     "              // A.1\n"
+     "module foo\n"
+     "( // A\n"
+     "  // A.1\n"
      "    // X\n"
      "    input wire       i1[a:b],  // B\n"
      "                               // B.1\n"
@@ -8348,7 +8390,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
         "  logic [5:0][5:0] net_c;\n"
         " messy_type_name [1:0] net_e;\n"
         "endmodule\n",
-        "module foo ();\n"
+        "module foo\n"
+        "();\n"
         "  logic           [5:0][5:0] net_c;\n"
         "  messy_type_name [1:0]      net_e;\n"
         "endmodule\n",
@@ -8368,9 +8411,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule:foo // C\n"       // Starting comment; will be moved right
      "               // C.1\n"    // C's column + 1
      "             // C.2\n",     // C's column - 1
-     "module foo ();  // A\n"
-     "                // A.1\n"
-     "                // A.2\n"
+     "module foo\n"
+     "();  // A\n"
+     "     // A.1\n"
+     "     // A.2\n"
      "  wire baz;  // B\n"
      "             // B.1\n"
      "             // B.2\n"
@@ -8389,7 +8433,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "        baz_t = struct packed {\n"
      "      `BAZ();\n"
      "    }\n"
-     ") ();\n"
+     ")\n"
+     "();\n"
      "endmodule\n"},
     // The same as the previous test case, but without a semicolon at the macro
     // call
@@ -8404,7 +8449,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "        baz_t = struct packed {\n"
      "      `BAZ()\n"
      "    }\n"
-     ") ();\n"
+     ")\n"
+     "();\n"
      "endmodule\n"},
     // Check that comments with too large starting column difference are not
     // aligned as continuation comments.
@@ -8424,7 +8470,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "                // comment7\n"  // C's column + 2
      "              // comment8\n",   // C's column, but not directly under B
      "// comment1\n"
-     "module foo ();  // A\n"
+     "module foo\n"
+     "();  // A\n"
      "  // comment2\n"
      "  // comment3\n"
      "  wire baz;  // B\n"
@@ -8439,7 +8486,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
     {"module foo(output logic very_very_very_very_long_name // A\n"
      "                                                      // A.1\n"
      "); endmodule\n",
-     "module foo (\n"
+     "module foo\n"
+     "(\n"
      "    output logic\n"
      "        very_very_very_very_long_name  // A\n"
      "                                       // A.1\n"
@@ -8730,9 +8778,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "        .first (1)  // c1\n"
-     "      , .second(2)  // c2\n"
+     "  bar foobar\n"
+     "  (\n"
+     "        .first  (1)  // c1\n"
+     "      , .second (2)  // c2\n"
      "  );\n"
      "endmodule\n"},
     {"module foo;\n"
@@ -8742,9 +8791,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "        .first (1)  // c1\n"
-     "      , .second(2)  // c2\n"
+     "  bar foobar\n"
+     "  (\n"
+     "        .first  (1)  // c1\n"
+     "      , .second (2)  // c2\n"
      "  );\n"
      "endmodule\n"},
     {"module foo;\n"
@@ -8757,10 +8807,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "        .first (1)\n"
+     "  bar foobar\n"
+     "  (\n"
+     "        .first  (1)\n"
      "      // c1\n"
-     "      , .second(2)\n"
+     "      , .second (2)\n"
      "      // c2\n"
      "  );\n"
      "endmodule\n"},
@@ -8773,10 +8824,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "        .first (1)\n"
+     "  bar foobar\n"
+     "  (\n"
+     "        .first  (1)\n"
      "      // c1\n"
-     "      , .second(2)\n"
+     "      , .second (2)\n"
      "      // c2\n"
      "  );\n"
      "endmodule\n"},
@@ -8790,11 +8842,12 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "      .first (1)\n"
+     "  bar foobar\n"
+     "  (\n"
+     "      .first  (1)\n"
      "      // c1\n"
      "      ,  // c2\n"
-     "      .second(2)\n"
+     "      .second (2)\n"
      "      // c3\n"
      "  );\n"
      "endmodule\n"},
@@ -8813,15 +8866,16 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
+     "  bar foobar\n"
+     "  (\n"
      "      // c1\n"
      "      // c1+\n"
-     "      .first (1)  // c2\n"
-     "                  // c2+\n"
+     "      .first  (1)  // c2\n"
+     "                   // c2+\n"
      "      ,  // c3\n"
      "         // c3+\n"
-     "      .second(2)  // c4\n"
-     "                  // c4+\n"
+     "      .second (2)  // c4\n"
+     "                   // c4+\n"
      "      // c5\n"
      "      // c5+\n"
      "  );\n"
@@ -8834,9 +8888,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "        .first (1)  /* c1 */\n"
-     "      , .second(2)  /* c2 */\n"
+     "  bar foobar\n"
+     "  (\n"
+     "        .first  (1)  /* c1 */\n"
+     "      , .second (2)  /* c2 */\n"
      "  );\n"
      "endmodule\n"},
     {"module foo;\n"
@@ -8846,9 +8901,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "      /* c1 */.first (1),\n"
-     "      /* c2 */.second(2)\n"
+     "  bar foobar\n"
+     "  (\n"
+     "      /* c1 */.first  (1),\n"
+     "      /* c2 */.second (2)\n"
      "  );\n"
      "endmodule\n"},
     {"module foo;\n"
@@ -8858,9 +8914,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "        .first (1)  /* c1 */\n"
-     "      , .second(2)  /* c2 */\n"
+     "  bar foobar\n"
+     "  (\n"
+     "        .first  (1)  /* c1 */\n"
+     "      , .second (2)  /* c2 */\n"
      "  );\n"
      "endmodule\n"},
     {"module foo;\n"
@@ -8870,9 +8927,10 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "      /* c1 */  .first (1)\n"
-     "      /* c2 */, .second(2)\n"
+     "  bar foobar\n"
+     "  (\n"
+     "      /* c1 */  .first  (1)\n"
+     "      /* c2 */, .second (2)\n"
      "  );\n"
      "endmodule\n"},
     {"module foo;\n"
@@ -8885,10 +8943,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "        .first (1)\n"
+     "  bar foobar\n"
+     "  (\n"
+     "        .first  (1)\n"
      "      /* c1 */\n"
-     "      , .second(2)\n"
+     "      , .second (2)\n"
      "      /* c2 */\n"
      "  );\n"
      "endmodule\n"},
@@ -8901,10 +8960,11 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "        .first (1)\n"
+     "  bar foobar\n"
+     "  (\n"
+     "        .first  (1)\n"
      "      /* c1 */\n"
-     "      , .second(2)\n"
+     "      , .second (2)\n"
      "      /* c2 */\n"
      "  );\n"
      "endmodule\n"},
@@ -8918,11 +8978,12 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "      .first (1)\n"
+     "  bar foobar\n"
+     "  (\n"
+     "      .first  (1)\n"
      "      /* c1 */\n"
      "      ,  /* c2 */\n"
-     "      .second(2)\n"
+     "      .second (2)\n"
      "      /* c3 */\n"
      "  );\n"
      "endmodule\n"},
@@ -8936,11 +8997,12 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
-     "      .first (1)\n"
+     "  bar foobar\n"
+     "  (\n"
+     "      .first  (1)\n"
      "      /* c1 */\n"
      "      ,  /* c2 */\n"
-     "      .second(2)\n"
+     "      .second (2)\n"
      "      /* c3 */\n"
      "  );\n"
      "endmodule\n"},
@@ -8959,14 +9021,15 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  );\n"
      "endmodule\n",
      "module foo;\n"
-     "  bar foobar (\n"
+     "  bar foobar\n"
+     "  (\n"
      "      /* c1  */\n"
      "      /* c1+ */\n"
-     "      .first (1)  /* c2  */\n"
+     "      .first  (1)  /* c2  */\n"
      "      /* c2+ */\n"
      "      ,  /* c3  */\n"
      "      /* c3+ */\n"
-     "      .second(2)  /* c4  */\n"
+     "      .second (2)  /* c4  */\n"
      "      /* c4+ */\n"
      "      /* c5  */\n"
      "      /* c5+ */\n"
@@ -8986,7 +9049,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  bar #(\n"
      "        .first (1)  // c1\n"
      "      , .second(2)  // c2\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -8998,7 +9062,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  bar #(\n"
      "        .first (1)  // c1\n"
      "      , .second(2)  // c2\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9015,7 +9080,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "      // c1\n"
      "      , .second(2)\n"
      "      // c2\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9031,7 +9097,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "      // c1\n"
      "      , .second(2)\n"
      "      // c2\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9049,7 +9116,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "      ,  // c2\n"
      "      .second(2)\n"
      "      // c3\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9077,7 +9145,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "                  // c4+\n"
      "      // c5\n"
      "      // c5+\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9090,7 +9159,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  bar #(\n"
      "        .first (1)  /* c1 */\n"
      "      , .second(2)  /* c2 */\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9102,7 +9172,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  bar #(\n"
      "      /* c1 */.first (1),\n"
      "      /* c2 */.second(2)\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9114,7 +9185,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  bar #(\n"
      "        .first (1)  /* c1 */\n"
      "      , .second(2)  /* c2 */\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9126,7 +9198,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "  bar #(\n"
      "      /* c1 */  .first (1)\n"
      "      /* c2 */, .second(2)\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9143,7 +9216,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "      /* c1 */\n"
      "      , .second(2)\n"
      "      /* c2 */\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9159,7 +9233,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "      /* c1 */\n"
      "      , .second(2)\n"
      "      /* c2 */\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9177,7 +9252,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "      ,  /* c2 */\n"
      "      .second(2)\n"
      "      /* c3 */\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9195,7 +9271,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "      ,  /* c2 */\n"
      "      .second(2)\n"
      "      /* c3 */\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
     {"module foo;\n"
      "  bar#(\n"
@@ -9223,7 +9300,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "      /* c4+ */\n"
      "      /* c5  */\n"
      "      /* c5+ */\n"
-     "  ) baz ();\n"
+     "  ) baz\n"
+     "  ();\n"
      "endmodule\n"},
 
     // ":" and "'{" in a single line
@@ -15456,7 +15534,8 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "   wire    c;\n"
      "   wire    d = e ? kFoo : kBar;\n"
      "endmodule\n",
-     "module indent ();\n"
+     "module indent\n"
+     "();\n"
      "  reg         a;\n"
      "  reg  [32:0] b;\n"
      "  wire        c;\n"
@@ -15583,9 +15662,9 @@ endmodule
     {"module bar(input x,output y,input z,output w);endmodule\n",
      "module bar\n"
      "(\n"
-     "    input x,\n"
+     "    input  x,\n"
      "    output y,\n"
-     "    input z,\n"
+     "    input  z,\n"
      "    output w\n"
      ");\n"
      "endmodule\n"},
@@ -15593,9 +15672,9 @@ endmodule
     {"module bar( input   x,\n  output y ,input z,\n output   w );endmodule\n",
      "module bar\n"
      "(\n"
-     "    input x,\n"
+     "    input  x,\n"
      "    output y,\n"
-     "    input z,\n"
+     "    input  z,\n"
      "    output w\n"
      ");\n"
      "endmodule\n"},
@@ -15651,30 +15730,44 @@ endmodule
      "endtask\n"
      "  wire w;\n"
      "endmodule\n"},
-    // ece2300: Test case for casez...endcase formatting being disabled (original spacing preserved), surrounding code still reformatted
+    // ece2300: Test case for casez...endcase formatting being disabled (original spacing preserved), surrounding code still reformatted.
+    // 'casez' is only legal inside a procedural block; at module level only
+    // plain 'case' parses, as a conditional generate construct.
     {"module mc;\n"
      "     wire   ww ;\n"
-     "casez(s)   a  :   bb   c  ;\n"
-     "      d:ee   f;\n"
+     "always @(*) begin\n"
+     "casez(s)   2'b1?  :   y   = a  ;\n"
+     "      2'b0?:y   = b;\n"
      "endcase\n"
+     "end\n"
      "endmodule\n",
      "module mc;\n"
      "  wire ww;\n"
-     "  casez(s)   a  :   bb   c  ;\n"
-     "      d:ee   f;\n"
+     "  always @(*) begin\n"
+     "    casez(s)   2'b1?  :   y   = a  ;\n"
+     "      2'b0?:y   = b;\n"
      "endcase\n"
+     "  end\n"
      "endmodule\n"},
-    // ece2300: Test case confirming plain 'case' (not 'casez') is NOT exempted and is fully reformatted
+    // ece2300: Test case confirming plain 'case' (not 'casez') is NOT exempted and is fully reformatted.
+    // Identical to the case above apart from the keyword, so the exemption is
+    // the only difference between the two expected outputs.
     {"module mc;\n"
-     "case(s)   a  :   bb   c  ;\n"
-     "      d:ee   f;\n"
+     "     wire   ww ;\n"
+     "always @(*) begin\n"
+     "case(s)   2'b10  :   y   = a  ;\n"
+     "      2'b01:y   = b;\n"
      "endcase\n"
+     "end\n"
      "endmodule\n",
      "module mc;\n"
-     "  case (s)\n"
-     "    a: bb c;\n"
-     "    d: ee f;\n"
-     "  endcase\n"
+     "  wire ww;\n"
+     "  always @(*) begin\n"
+     "    case (s)\n"
+     "      2'b10: y = a;\n"
+     "      2'b01: y = b;\n"
+     "    endcase\n"
+     "  end\n"
      "endmodule\n"},
     // ece2300: Test case confirming 'function' (not 'task') is NOT exempted and is fully reformatted
     {"module m1;\n"
@@ -15726,7 +15819,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "output reg bar\n"
        ");\n"
        "endmodule:pd\n",
-       "module pd (\n"
+       "module pd\n"
+       "(\n"
        "    input  wire foo,\n"  // flush-left vs. align are similar enough,
        "    output reg  bar\n"   // so automatic policy will align.
        ");\n"
@@ -15736,7 +15830,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "output reg  bar\n"
        ");\n"
        "endmodule:pd\n",
-       "module pd (\n"
+       "module pd\n"
+       "(\n"
        "    input foo_pkg::baz_t foo,\n"  // alignment would add too many spaces
        "    output reg bar\n"             // so infer intent to flush-left.
        ");\n"
@@ -15746,7 +15841,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "output     reg  bar\n"  // user injects 4 excess spaces here ...
        ");\n"
        "endmodule:pd\n",
-       "module pd (\n"
+       "module pd\n"
+       "(\n"
        "    input  foo_pkg::baz_t foo,\n"
        "    output reg            bar\n"  // ... and triggers alignment.
        ");\n"
@@ -15758,7 +15854,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "`endif\n"
        ");\n"
        "endmodule:pd\n",
-       "module pd (\n"
+       "module pd\n"
+       "(\n"
        "`ifdef FAA\n"
        "    input  baaaz_t foo,\n"
        "    output reg     bar\n"  // ... and triggers alignment.
@@ -15773,7 +15870,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "`endif\n"
        ");\n"
        "endmodule:pd\n",
-       "module pd (\n"
+       "module pd\n"
+       "(\n"
        "`ifdef FAA\n"
        "    input  baaaz_t foo,\n"  // aligned
        "`else\n"                    // aligned across preprocessing directives
@@ -15793,7 +15891,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "output out_t zout2\n"
        ");\n"
        "endmodule:pd\n",
-       "module pd (\n"
+       "module pd\n"
+       "(\n"
        "    input  logic   [31:0] bus,\n"  // treated as one large group
        "    input  logic   [ 7:0] bus2,\n"
        "`ifdef FAA\n"
@@ -15817,7 +15916,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "output out_t zout2\n"
        ");\n"
        "endmodule:pd\n",
-       "module pd (\n"
+       "module pd\n"
+       "(\n"
        "    input  logic   [ 7:0] bus2,\n"
        "`ifndef FAA\n"
        "    input  logic   [31:0] bus,\n"  // treated as one large group
@@ -15835,7 +15935,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "wire [pp:qq] [e:f]b\n"  // packed dimensions, 2D
        ") ;\n"
        "endmodule\n",
-       "module m (\n"
+       "module m\n"
+       "(\n"
        "    logic [  x:y]      a,\n"
        "    wire  [pp:qq][e:f] b\n"
        ");\n"
@@ -15846,7 +15947,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "c#(d,e) [pp:qq] [e:f]b\n"  // packed dimensions, 2D
        ") ;\n"
        "endmodule\n",
-       "module m (\n"
+       "module m\n"
+       "(\n"
        "    a::bb    [  x:y]      a,\n"
        "    c#(d, e) [pp:qq][e:f] b\n"
        ");\n"
@@ -15863,7 +15965,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "  foo #(\n"
        "      .a (a),\n"  // align doesn't add too many spaces, so align
        "      .bb(bb)\n"
-       "  ) bar ();\n"
+       "  ) bar\n"
+       "  ();\n"
        "endmodule : mm\n"},
       {"module  mm ;\n"
        "foo #(\n"
@@ -15875,7 +15978,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "  foo #(\n"
        "      .a(a),\n"  // align would add too many spaces, so flush-left
        "      .bbcccc(bb)\n"
-       "  ) bar ();\n"
+       "  ) bar\n"
+       "  ();\n"
        "endmodule : mm\n"},
       {"module  mm ;\n"
        "foo #(\n"
@@ -15887,7 +15991,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "  foo #(\n"
        "      .a     (a),\n"  // induced alignment
        "      .bbcccc(bb)\n"
-       "  ) bar ();\n"
+       "  ) bar\n"
+       "  ();\n"
        "endmodule : mm\n"},
       {"module  mm ;\n"
        "foo #(\n"
@@ -15905,7 +16010,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "      //c2\n"
        "      .bbcccc(bb)\n"
        "      //c3\n"
-       "  ) bar ();\n"
+       "  ) bar\n"
+       "  ();\n"
        "endmodule : mm\n"},
       {"module  mm ;\n"
        "foo #(\n"
@@ -15917,7 +16023,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "  foo #(\n"
        "      .a     ((1 + 2)),\n"  // induced alignment
        "      .bbcccc((c * d) + (e * f))\n"
-       "  ) bar ();\n"
+       "  ) bar\n"
+       "  ();\n"
        "endmodule : mm\n"},
 
       // named port connections
@@ -15928,9 +16035,10 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        ");\n"
        "endmodule:mm\n",
        "module mm;\n"
-       "  foo bar (\n"
-       "      .a (a),\n"  // align doesn't add too many spaces, so align
-       "      .bb(bb)\n"
+       "  foo bar\n"
+       "  (\n"
+       "      .a  (a),\n"  // align doesn't add too many spaces, so align
+       "      .bb (bb)\n"
        "  );\n"
        "endmodule : mm\n"},
       {"module  mm ;\n"
@@ -15940,9 +16048,10 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        ");\n"
        "endmodule:mm\n",
        "module mm;\n"
-       "  foo bar (\n"
-       "      .a(a),\n"  // align would add too many spaces, so flush-left
-       "      .bbbbbb(bb)\n"
+       "  foo bar\n"
+       "  (\n"
+       "      .a (a),\n"  // align would add too many spaces, so flush-left
+       "      .bbbbbb (bb)\n"
        "  );\n"
        "endmodule : mm\n"},
       {"module  mm ;\n"
@@ -15952,8 +16061,9 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        ");\n"
        "endmodule:mm\n",
        "module mm;\n"
-       "  foo bar (\n"
-       "      .a     (a),\n"  // alignment fixed
+       "  foo bar\n"
+       "  (\n"
+       "      .a    (a),\n"  // alignment fixed
        "      .bbbbbb(bb)\n"
        "  );\n"
        "endmodule : mm\n"},
@@ -16143,9 +16253,9 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "aa =  b;\n"
        "c = 1'b0;\n"
        "endtask\n",
-       "task ta;\n"
-       "  aa = b;\n"
-       "  c  = 1'b0;\n"  // only one space to align
+       "task  ta ; \n"
+       "aa =  b;\n"
+       "c = 1'b0;\n"  // only one space to align
        "endtask\n"},
       {"module  ma ;\n"
        "always@( posedge clk) begin\n"
@@ -16174,10 +16284,10 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "aa <=  b;\n"
        "c <= 1'b0;\n"
        "endtask\n",
-       "task ta;\n"
-       "  $display(\"hello\");\n"
-       "  aa <= b;\n"
-       "  c  <= 1'b0;\n"  // only one space to align
+       "task  ta ; \n"
+       "$display (\"hello\" );\n"
+       "aa <=  b;\n"
+       "c <= 1'b0;\n"  // only one space to align
        "endtask\n"},
       {// mixed blocking and nonblocking assignments
        "module  ma ;\n"
@@ -16203,22 +16313,22 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "zzaa <=  b;\n"
        "zzc <= 1'b0;\n"
        "endtask\n",
-       "task ta;\n"
-       "  aa <= b;\n"
-       "  c  <= 1'b0;\n"  // only one space to align
-       "  $display(\"hello\");\n"
-       "  zzaa <= b;\n"
-       "  zzc  <= 1'b0;\n"  // only one space to align
+       "task  ta ; \n"
+       "aa <=  b;\n"
+       "c <= 1'b0;\n"  // only one space to align
+       "$display (\"hello\" );\n"
+       "zzaa <=  b;\n"
+       "zzc <= 1'b0;\n"  // only one space to align
        "endtask\n"},
       {"task  ta ; \n"
        "$display (\"hello\" );\n"
        "aaaaa <=  b;\n"
        "c <= 1'b0;\n"  // need too many spaces to align
        "endtask\n",
-       "task ta;\n"
-       "  $display(\"hello\");\n"
-       "  aaaaa <= b;\n"
-       "  c <= 1'b0;\n"  // so keep flush-left
+       "task  ta ; \n"
+       "$display (\"hello\" );\n"
+       "aaaaa <=  b;\n"
+       "c <= 1'b0;\n"  // so keep flush-left
        "endtask\n"},
       {"function void  fa ; \n"
        "$display (\"hello\" );\n"
@@ -16274,9 +16384,9 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "int foo;\n"  // only 2 spaces needed to align
        "bar_t baz;\n"
        "endtask\n",
-       "task tt;\n"
-       "  int   foo;\n"  // aligned
-       "  bar_t baz;\n"
+       "task tt ;\n"
+       "int foo;\n"  // aligned
+       "bar_t baz;\n"
        "endtask\n"},
       {"function ff ;\n"
        "bar_t baz;\n"
@@ -16290,9 +16400,9 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "int  foo;\n"  // too many spaces needed to align
        "baaaar_t baz;\n"
        "endtask\n",
-       "task tt;\n"
-       "  int foo;\n"  // so flush-left
-       "  baaaar_t baz;\n"
+       "task tt ;\n"
+       "int  foo;\n"  // so flush-left
+       "baaaar_t baz;\n"
        "endtask\n"},
       {"function ff ;\n"
        "baaaar_t baz;\n"
@@ -16306,9 +16416,9 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "int        foo;\n"  // injected spaces to induce alignment
        "baaaar_t baz;\n"
        "endtask\n",
-       "task tt;\n"
-       "  int      foo;\n"  // aligned
-       "  baaaar_t baz;\n"
+       "task tt ;\n"
+       "int        foo;\n"  // aligned
+       "baaaar_t baz;\n"
        "endtask\n"},
       {"function ff ;\n"
        "baaaar_t baz    ;\n"  // injected spaces to induce alignment
@@ -16328,7 +16438,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "module pp #(\n"
        "    int  W,\n"  // alignment adds few spaces, so do it
        "    type T\n"
-       ") ();\n"
+       ")\n"
+       "();\n"
        "endmodule : pp\n"},
       {"module pp #(\n"
        "int W,\n"
@@ -16338,7 +16449,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "module pp #(\n"
        "    int W,\n"  // alignment adds many spaces, so flush-left
        "    int [xx:yy] T\n"
-       ") ();\n"
+       ")\n"
+       "();\n"
        "endmodule : pp\n"},
       {"module pp #(\n"
        "int W,\n"
@@ -16348,7 +16460,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "module pp #(\n"
        "    int         W,\n"  // ... trigger alignment
        "    int [xx:yy] T\n"
-       ") ();\n"
+       ")\n"
+       "();\n"
        "endmodule : pp\n"},
 
       // class member variables
@@ -16464,7 +16577,10 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "    kVVV:   cd = 24;\n"  // aligned
        "  endcase\n"
        "endfunction\n"},
-      {// induced alignment, ignore multiline case item in the middle
+      {// induced alignment, ignore multiline case item in the middle.
+       // ece2300: task body preserved verbatim, so no alignment happens here;
+       // the kFormatterTestCasesCaseItems entry above covers the same shape
+       // inside a function, where alignment is still exercised.
        "task t; case (x)"
        "kZ  :if( b )break; "
        "kYY    :return 2;"           // excess spaces induce alignment
@@ -16472,18 +16588,9 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "    kWWWWW: cc = 23;\n"
        "    kVVV: cd = 24;\n"
        "endcase endtask\n",
-       "task t;\n"
-       "  case (x)\n"
-       "    kZ:     if (b) break;\n"
-       "    kYY:    return 2;\n"
-       "    kXXXXXXXXX:\n"  // TODO(fangism): allow this to merge with fork
-                            // else indent the following two lines
-       "    fork\n"         // separates above/below groups
-       "    join\n"
-       "    kWWWWW: cc = 23;\n"
-       "    kVVV:   cd = 24;\n"  // aligned
-       "  endcase\n"
-       "endtask\n"},
+       "task t; case (x)kZ  :if( b )break; kYY    :return 2;    kXXXXXXXXX: fork  join    kWWWWW: cc = 23;\n"
+       "    kVVV: cd = 24;\n"
+       "endcase endtask\n"},
       {// case-inside: small difference between flush-left and align, so align
        "function f; case (x)inside [0:3]  :yy=zzz; [4:11] :yy=zz;"
        "endcase endfunction\n",
@@ -16529,8 +16636,10 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "endcase endmodule\n",
        "module mc;\n"
        "  case (x)\n"
-       "    kZ:   gg h ();\n"  // align
-       "    kXYY: j kk ();\n"
+       "    kZ:   gg h\n"  // align
+       " ();\n"
+       "    kXYY: j kk\n"
+       " ();\n"
        "  endcase\n"
        "endmodule\n"},
       {// case-generate + comment: align would add few spaces, so align
@@ -16538,9 +16647,11 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "endcase endmodule\n",
        "module mc;\n"
        "  case (x)\n"
-       "    kZ:   gg h ();\n"  // align
+       "    kZ:   gg h\n"
+       " ();\n"
        "    //c1\n"
-       "    kXYY: j kk ();\n"
+       "    kXYY: j kk\n"
+       " ();\n"
        "  endcase\n"
        "endmodule\n"},
       {// case-generate: align would add too many space, so flush-left
@@ -16548,8 +16659,12 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "endcase endmodule\n",
        "module mc;\n"
        "  case (x)\n"
-       "    kZ: gg h ();\n"  // flush-left
-       "    kXYYYY: j kk ();\n"
+       "    kZ:\n"  // flush-left
+       "    gg h\n"
+       "    ();\n"
+       "    kXYYYY:\n"
+       "    j kk\n"
+       "    ();\n"
        "  endcase\n"
        "endmodule\n"},
       {// case-generate: inject spaces to induce alignment
@@ -16557,34 +16672,24 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "endcase endmodule\n",
        "module mc;\n"
        "  case (x)\n"
-       "    kZ:     gg h ();\n"  // align
-       "    kXYYYY: j kk ();\n"
+       "    kZ:     gg h\n"  // align
+       " ();\n"
+       "    kXYYYY: j kk\n"
+       " ();\n"
        "  endcase\n"
        "endmodule\n"},
+      // ece2300: all three randcase entries sit inside a task, whose body is
+      // preserved verbatim, so none of the alignment modes below are exercised
+      // any more; they are kept as regression coverage for the exemption.
       {// randcase: align (small difference from flush-left)
        "task trc  ;randcase 10: x = 1; 1: x = 3; endcase endtask",
-       "task trc;\n"
-       "  randcase\n"
-       "    10: x = 1;\n"
-       "    1:  x = 3;\n"  // aligned
-       "  endcase\n"
-       "endtask\n"},
+       "task trc  ;randcase 10: x = 1; 1: x = 3; endcase endtask\n"},
       {// randcase: inferred flush-left
        "task trc  ;randcase 10000: x = 1; 1: x = 3; endcase endtask",
-       "task trc;\n"
-       "  randcase\n"
-       "    10000: x = 1;\n"
-       "    1: x = 3;\n"
-       "  endcase\n"
-       "endtask\n"},
+       "task trc  ;randcase 10000: x = 1; 1: x = 3; endcase endtask\n"},
       {// randcase: induce alignment
        "task trc  ;randcase 10000: x = 1    ; 1: x = 3; endcase endtask",
-       "task trc;\n"
-       "  randcase\n"
-       "    10000: x = 1;\n"
-       "    1:     x = 3;\n"  // aligned
-       "  endcase\n"
-       "endtask\n"},
+       "task trc  ;randcase 10000: x = 1    ; 1: x = 3; endcase endtask\n"},
 
       // distributions
       {"class foo;\n"
@@ -16661,7 +16766,8 @@ TEST(FormatterEndToEndTest, AutoInferAlignment) {
        "    end\n"
        "  end\n"
        "endmodule\n",
-       "module foo ();\n"
+       "module foo\n"
+       "();\n"
        "  always @(posedge bar) begin\n"
        "    if (1 == 1) begin\n"
        "      ham();\n"
@@ -16805,13 +16911,15 @@ TEST(FormatterEndToEndTest, DisableModulePortDeclarations) {
        "endmodule\n"},
       {"module  m(   ) ;\n"
        "  endmodule\n",
-       "module m ();\n"  // empty ports formatted compactly
+       "module m\n"
+       "();\n"  // empty ports formatted compactly
        "endmodule\n"},
       {// for a single port, the alignment handler doesn't even consider it a
        // group so it falls back to standard flush-left behavior.
        "module  m   ( input     clk  )\t;\n"
        "  endmodule\n",
-       "module m (\n"
+       "module m\n"
+       "(\n"
        "    input clk\n"
        ");\n"
        "endmodule\n"},
@@ -16821,7 +16929,8 @@ TEST(FormatterEndToEndTest, DisableModulePortDeclarations) {
        "output bar\n"
        ")\t;\n"
        "  endmodule\n",
-       "module m (\n"
+       "module m\n"
+       "(\n"
        "    input  clk,\n"  // indented, but internal pre-existing spacing
                             // preserved
        "    output bar\n"
@@ -16857,7 +16966,8 @@ TEST(FormatterEndToEndTest, DisableModuleInstantiations) {
        "foo bar();"
        "  endmodule\n",
        "module m;\n"
-       "  foo bar ();\n"  // indentation still takes effect
+       "  foo bar\n"
+       "  ();\n"  // indentation still takes effect
        "endmodule\n"},
       {"module  m  ;\t\n"
        "logic   xyz;"
@@ -16880,14 +16990,15 @@ TEST(FormatterEndToEndTest, DisableModuleInstantiations) {
       {"  task  t  ;\t"
        "foo  bar,baz; "
        " endtask\n",
-       "task t;\n"
-       "  foo bar, baz;\n"
-       "endtask\n"},
+       "task  t  ;\tfoo  bar,baz;  endtask\n"},
       {"module  m  ;\t\n"
        "foo  bar(   .baz(baz)   );"
        "  endmodule\n",
        "module m;\n"
-       "  foo bar (.baz(baz));\n"  // indentation still takes effect
+       "  foo bar\n"
+       "  (\n"
+       "      .baz (baz)\n"
+       "  );\n"  // indentation still takes effect
        "endmodule\n"},
       {"module  m  ;\t\n"
        "foo  bar(\n"
@@ -16896,7 +17007,8 @@ TEST(FormatterEndToEndTest, DisableModuleInstantiations) {
        ");"
        "  endmodule\n",
        "module m;\n"
-       "  foo bar (\n"           // indentation still takes effect
+       "  foo bar\n"
+       "  (\n"           // indentation still takes effect
        "      .baz  (baz  ),\n"  // named port connections preserved
        "      .blaaa(blaaa)\n"   // named port connections preserved
        "  );\n"                  // this indentation is fixed
@@ -16905,7 +17017,10 @@ TEST(FormatterEndToEndTest, DisableModuleInstantiations) {
        "foo  #(   .baz(baz)   ) bar();"  // named parameters
        "  endmodule\n",
        "module m;\n"
-       "  foo #(.baz(baz)) bar ();\n"  // indentation still takes effect
+       "  foo #(\n"
+       "      .baz(baz)\n"
+       "  ) bar\n"
+       "  ();\n"  // indentation still takes effect
        "endmodule\n"},
       {"module  m  ;\t\n"
        "foo  #(\n"
@@ -16917,7 +17032,8 @@ TEST(FormatterEndToEndTest, DisableModuleInstantiations) {
        "  foo #(\n"              // indentation still takes effect
        "      .baz  (baz  ),\n"  // named parameter arguments preserved
        "      .blaaa(blaaa)\n"   // named parameter arguments preserved
-       "  ) bar ();\n"           // this indentation is fixed
+       "  ) bar\n"
+       "  ();\n"           // this indentation is fixed
        "endmodule\n"},
   };
   FormatStyle style;
@@ -16949,19 +17065,22 @@ TEST(FormatterEndToEndTest, DisableTryWrapLongLines) {
        "endmodule\n"},
       {"module  m(   ) ;\n"
        "  endmodule\n",
-       "module m ();\n"
+       "module m\n"
+       "();\n"
        "endmodule\n"},
       {"module  m(   ) ;\n"
        "initial assign a = b;\n"
        "  endmodule\n",
-       "module m ();\n"
+       "module m\n"
+       "();\n"
        "  initial assign a = b;\n"
        "endmodule\n"},
       {"module  m(   ) ;\n"
        "initial assign a = {never +gonna +give +you +up,\n"
        "never + gonna +Let +you +down};\n"
        "  endmodule\n",
-       "module m ();\n"
+       "module m\n"
+       "();\n"
        "  initial\n"
        "    assign a = {\n"
        "      never + gonna + give + you + up,\n"
@@ -16973,7 +17092,8 @@ TEST(FormatterEndToEndTest, DisableTryWrapLongLines) {
                                                              // give up
        "never + gonna +Let +you +down};\n"
        "  endmodule\n",
-       "module m ();\n"
+       "module m\n"
+       "();\n"
        "  initial\n"
        "    assign a = {\n"
        "      never +gonna +give +you +up+\n"  // indented properly, but
@@ -17025,7 +17145,8 @@ TEST(FormatterEndToEndTest, DisableTryWrapLongLines) {
        "out  <=  rst_clk  ?  0 : in  ;\n"
        "end\n"
        "endmodule : simple\n",
-       "module m ();\n"
+       "module m\n"
+       "();\n"
        "  always_ff @(posedge (clk)) begin\n"
        "    out <= rst_clk ? 0 : in;\n"
        "  end\n"
@@ -17058,12 +17179,14 @@ TEST(FormatterEndToEndTest, ModulePortDeclarationsIndentNotWrap) {
        "endmodule\n"},
       {"module  m(   ) ;\n"
        "  endmodule\n",
-       "module m ();\n"  // empty ports formatted compactly
+       "module m\n"
+       "();\n"  // empty ports formatted compactly
        "endmodule\n"},
       {// single port example
        "module  m   ( input     clk  )\t;\n"
        "  endmodule\n",
-       "module m (\n"
+       "module m\n"
+       "(\n"
        "  input clk\n"  // 2 spaces
        ");\n"
        "endmodule\n"},
@@ -17073,7 +17196,8 @@ TEST(FormatterEndToEndTest, ModulePortDeclarationsIndentNotWrap) {
        "output bar\n"
        ")\t;\n"
        "  endmodule\n",
-       "module m (\n"
+       "module m\n"
+       "(\n"
        "  input  clk,\n"  // indented 2 spaces, and aligned
        "  output bar\n"
        ");\n"
@@ -17084,7 +17208,8 @@ TEST(FormatterEndToEndTest, ModulePortDeclarationsIndentNotWrap) {
        "wire ack\n"
        ")\t;\n"
        "  endinterface\n",
-       "interface handshake (\n"
+       "interface handshake\n"
+       "(\n"
        "  wire req,\n"  // indented 2 spaces
        "  wire ack\n"
        ");\n"
@@ -17118,23 +17243,28 @@ TEST(FormatterEndToEndTest, NamedPortConnectionsIndentNotWrap) {
        "endmodule\n"},
       {"module  m(   ) ;\n"
        "  endmodule\n",
-       "module m ();\n"  // empty ports formatted compactly
+       "module m\n"
+       "();\n"  // empty ports formatted compactly
        "endmodule\n"},
       {// single port example
        "module  m ;\n"
        "foo bar( .clk( clk ) )\t;\n"
        "  endmodule\n",
        "module m;\n"
-       "  foo bar (.clk(clk));\n"
+       "  foo bar\n"
+       "  (\n"
+       "    .clk (clk)\n"
+       "  );\n"
        "endmodule\n"},
       {// two port example
        "module  m ;\n"
        "foo bar( .clk2( clk ),.data (data) )\t;\n"
        "  endmodule\n",
        "module m;\n"
-       "  foo bar (\n"
-       "    .clk2(clk),\n"  // indent only +2 spaces
-       "    .data(data)\n"
+       "  foo bar\n"
+       "  (\n"
+       "    .clk2 (clk),\n"  // indent only +2 spaces
+       "    .data (data)\n"
        "  );\n"
        "endmodule\n"},
   };
@@ -17168,7 +17298,8 @@ TEST(FormatterEndToEndTest, WrapEndElseStatements) {
        "    end\n"
        "  end\n"
        "endmodule\n",
-       "module foo ();\n"
+       "module foo\n"
+       "();\n"
        "  always @(posedge bar) begin\n"
        "    if (1 == 1) begin\n"
        "      ham();\n"
@@ -17286,14 +17417,18 @@ TEST(FormatterEndToEndTest, NamedParametersIndentNotWrap) {
        " foo #()bar();\n"
        "  endmodule\n",
        "module m;\n"
-       "  foo #() bar ();\n"
+       "  foo #() bar\n"
+       "  ();\n"
        "endmodule\n"},
       {// one named parameter
        "module  m ;\n"
        "foo #(.W(1)) bar();\n"
        "  endmodule\n",
        "module m;\n"
-       "  foo #(.W(1)) bar ();\n"
+       "  foo #(\n"
+       "    .W(1)\n"
+       "  ) bar\n"
+       "  ();\n"
        "endmodule\n"},
       {// two named parameters
        "module  m ;\n"
@@ -17303,7 +17438,8 @@ TEST(FormatterEndToEndTest, NamedParametersIndentNotWrap) {
        "  foo #(\n"
        "    .W(1),\n"  // indent +2 spaces only
        "    .L(2)\n"
-       "  ) bar ();\n"
+       "  ) bar\n"
+       "  ();\n"
        "endmodule\n"},
       {// class data member with two parameters
        "class  c  ;\n"
@@ -17516,7 +17652,8 @@ TEST(FormatterEndToEndTest, SelectLines) {
        ");\n"
        "endmodule:m\n",
        {},  // format all lines
-       "module m (\n"
+       "module m\n"
+       "(\n"
        "    input wire     f,\n"
        "    input foo::bar ggg\n"
        ");\n"
@@ -17643,7 +17780,8 @@ TEST(FormatterEndToEndTest, PreserveVSpacesOnly) {
           "// item comment 2\n"
           "endmodule\n",
           "// humble module\n"
-          "module foo (  // non-port comment\n"
+          "module foo\n"
+          "( // non-port comment\n"
           "    // port comment 1\n"
           "    // port comment 2\n"
           ");  // header trailing comment\n"
@@ -17665,7 +17803,8 @@ TEST(FormatterEndToEndTest, PreserveVSpacesOnly) {
           "// item comment 2\n"
           "endmodule\n",
           "// humble module\n"
-          "module foo (  // non-port comment\n"
+          "module foo\n"
+          "( // non-port comment\n"
           "    // port comment 1\n"
           "    input logic f\n"
           "    // port comment 2\n"
@@ -17692,10 +17831,7 @@ static constexpr FormatterTestCase kFormatterTestCasesElseStatements[] = {
      "task static t; if (r == t) a.b(c); else d.e(f); endtask;"
      "endmodule",
      "module m;\n"
-     "  task static t;\n"
-     "    if (r == t) a.b(c);\n"
-     "    else d.e(f);\n"
-     "  endtask\n"
+     "  task static t; if (r == t) a.b(c); else d.e(f); endtask\n"
      "  ;\n"  // possibly unintended stray ';'
      "endmodule\n"},
     {"module m;"
@@ -17703,13 +17839,7 @@ static constexpr FormatterTestCase kFormatterTestCasesElseStatements[] = {
      "endtask;"
      "endmodule",
      "module m;\n"
-     "  task static t;\n"
-     "    if (r == t) begin\n"
-     "      a.b(c);\n"
-     "    end else begin\n"
-     "      d.e(f);\n"
-     "    end\n"
-     "  endtask\n"
+     "  task static t; if (r == t) begin a.b(c); end else begin d.e(f); end endtask\n"
      "  ;\n"  // stray ';'
      "endmodule\n"},
     {"module m;initial begin if(a==b)"
@@ -17738,7 +17868,8 @@ static constexpr FormatterTestCase kFormatterTestCasesElseStatements[] = {
      "value = function_name(.long_parameter(8'hA), .parameter_three(foobar));\n"
      "end\n"
      "endmodule : foo\n",
-     "module foo ();\n"
+     "module foo\n"
+     "();\n"
      "  always_comb begin\n"
      "    value = function_name(\n"
      "      .long_parameter(8'hA),\n"
@@ -17751,7 +17882,8 @@ static constexpr FormatterTestCase kFormatterTestCasesElseStatements[] = {
      "value = function_name(.a(1), .b(2));\n"
      "end\n"
      "endmodule : foo\n",
-     "module foo ();\n"
+     "module foo\n"
+     "();\n"
      "  always_comb begin\n"
      "    value = function_name(.a(1), .b(2));\n"
      "  end\n"
@@ -17762,7 +17894,8 @@ static constexpr FormatterTestCase kFormatterTestCasesElseStatements[] = {
      "always_comb begin\n"
      "value = function_name(8'hA, foobar); end\n"
      "endmodule : foo\n",
-     "module foo ();\n"
+     "module foo\n"
+     "();\n"
      "  always_comb begin\n"
      "    value = function_name(8'hA, foobar,\n"
      "                          signal_1234);\n"
@@ -17776,7 +17909,8 @@ static constexpr FormatterTestCase kFormatterTestCasesElseStatements[] = {
      "value = function_name(8'hA, foobar, signal_1234);\n"
      "value = function_name(8'hA, foobar, signal_1234); end\n"
      "endmodule : foo\n",
-     "module foo ();\n"
+     "module foo\n"
+     "();\n"
      "  always_comb begin\n"
      "    value = function_name(8'hA, foobar,\n"
      "                          signal_1234);\n"
@@ -17799,7 +17933,8 @@ static constexpr FormatterTestCase kFormatterTestCasesElseStatements[] = {
      "value = function_name(8'hA, .parameter_three(foobar));\n"
      "end\n"
      "endmodule : foo\n",
-     "module foo ();\n"
+     "module foo\n"
+     "();\n"
      "  always_comb begin\n"
      "    value = function_name(\n"
      "      8'hA,\n"
@@ -17813,7 +17948,8 @@ static constexpr FormatterTestCase kFormatterTestCasesElseStatements[] = {
      ".par_five(bar));\n"
      "end\n"
      "endmodule : foo\n",
-     "module foo ();\n"
+     "module foo\n"
+     "();\n"
      "  always_comb begin\n"
      "    value = function_name(\n"
      "      8'hA,\n"
@@ -18134,9 +18270,13 @@ TEST(FormatterEndToEndTest, DiagnosticShowFullTree) {
     control.show_token_partition_tree = true;
     const auto status = FormatVerilog(test_case.input, "<filename>", style,
                                       stream, kEnableAllLines, control);
-    EXPECT_EQ(status.code(), StatusCode::kCancelled);
+    EXPECT_EQ(status.code(), StatusCode::kCancelled)
+        << "code:\n"
+        << test_case.input << "status: " << status.message();
     EXPECT_TRUE(
-        absl::StartsWith(debug_stream.str(), "Full token partition tree"));
+        absl::StartsWith(debug_stream.str(), "Full token partition tree"))
+        << "code:\n"
+        << test_case.input;
   }
 }
 
@@ -18153,9 +18293,12 @@ TEST(FormatterEndToEndTest, DiagnosticLargestPartitions) {
     control.show_largest_token_partitions = 2;
     const auto status = FormatVerilog(test_case.input, "<filename>", style,
                                       stream, kEnableAllLines, control);
-    EXPECT_EQ(status.code(), StatusCode::kCancelled);
+    EXPECT_EQ(status.code(), StatusCode::kCancelled)
+        << "code:\n"
+        << test_case.input << "status: " << status.message();
     EXPECT_TRUE(absl::StartsWith(debug_stream.str(), "Showing the "))
-        << "got: " << debug_stream.str();
+        << "code:\n"
+        << test_case.input << "got: " << debug_stream.str();
   }
 }
 
@@ -18428,7 +18571,8 @@ static constexpr DimensionsAlignmentTestCase
          "input bit foo\n"
          "); endmodule:m\n",
          {
-             "module m (\n"
+             "module m\n"
+             "(\n"
              "    output bit [   2:0][  2:0][ 2:0] quuz  [  8][16:12],\n"
              "    input  bit [    16]              quux  [8:2][   16][32],\n"
              "    input  bit [FOOBAZ][31:24]       qux   [ 16],\n"
@@ -18439,7 +18583,8 @@ static constexpr DimensionsAlignmentTestCase
              "    input  bit                       foo\n"
              ");\n"
              "endmodule : m\n",
-             "module m (\n"
+             "module m\n"
+             "(\n"
              "    output bit [   2:0][  2:0][ 2:0] quuz       [ 8][16:12],\n"
              "    input  bit [    16]              quux  [8:2][16][   32],\n"
              "    input  bit [FOOBAZ][31:24]       qux            [   16],\n"
@@ -18450,7 +18595,8 @@ static constexpr DimensionsAlignmentTestCase
              "    input  bit                       foo\n"
              ");\n"
              "endmodule : m\n",
-             "module m (\n"
+             "module m\n"
+             "(\n"
              "    output bit [2:0][   2:0][  2:0] quuz  [  8][16:12],\n"
              "    input  bit              [   16] quux  [8:2][   16][32],\n"
              "    input  bit      [FOOBAZ][31:24] qux   [ 16],\n"
@@ -18461,7 +18607,8 @@ static constexpr DimensionsAlignmentTestCase
              "    input  bit                      foo\n"
              ");\n"
              "endmodule : m\n",
-             "module m (\n"
+             "module m\n"
+             "(\n"
              "    output bit [2:0][   2:0][  2:0] quuz       [ 8][16:12],\n"
              "    input  bit              [   16] quux  [8:2][16][   32],\n"
              "    input  bit      [FOOBAZ][31:24] qux            [   16],\n"
@@ -18731,7 +18878,8 @@ static constexpr FormatterTestCase noCompactIndexingAndSelectionsTestCases[]{
      "  assign s1 = msg[1 : 2 + 3];\n"
      "  assign s2 = {<<8{msg[1 : 2 + 3]}};\n"
      "endmodule\n",
-     "module m1 ();\n"
+     "module m1\n"
+     "();\n"
      "  assign s1 = msg[1 : 2 + 3];\n"
      "  assign s2 = {<< 8{msg[1 : 2 + 3]}};\n"
      "endmodule\n"}};
