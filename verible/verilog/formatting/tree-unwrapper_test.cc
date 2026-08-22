@@ -328,6 +328,7 @@ ExpectedUnwrappedLineTree L(int spaces,
 #define Instantiation N
 #define DataDeclaration N
 #define InstanceList N
+#define GateInstance N
 #define PortActualList N
 #define StatementList N
 #define ClassDeclaration N
@@ -372,8 +373,9 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "empty module",
         "module foo ();"
         "endmodule",
-        ModuleDeclaration(0, L(0, {"module", "foo", "(", ")", ";"}),
-                          L(0, {"endmodule"})),
+        ModuleDeclaration(
+            0, ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"(", ")", ";"})),
+            L(0, {"endmodule"})),
     },
     {
         "empty module with one port comment",
@@ -382,9 +384,9 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         ");"
         "endmodule",
         ModuleDeclaration(0,
-                          ModuleHeader(0,                             //
-                                       L(0, {"module", "foo", "("}),  //
-                                       L(2, {"//comment"}),           //
+                          ModuleHeader(0,                                     //
+                                       L(0, {"module", "foo"}), L(0, {"("}),  //
+                                       L(2, {"//comment"}),                   //
                                        L(0, {")", ";"})),
                           L(0, {"endmodule"})),
     },
@@ -393,16 +395,18 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "empty module extra spaces",  // verifying space-insensitivity
         "  module\tfoo   (\t) ;    "
         "endmodule   ",
-        ModuleDeclaration(0, L(0, {"module", "foo", "(", ")", ";"}),
-                          L(0, {"endmodule"})),
+        ModuleDeclaration(
+            0, ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"(", ")", ";"})),
+            L(0, {"endmodule"})),
     },
 
     {
         "empty module extra newlines",  // verifying space-insensitivity
         "module foo (\n\n);\n"
         "endmodule\n",
-        ModuleDeclaration(0, L(0, {"module", "foo", "(", ")", ";"}),
-                          L(0, {"endmodule"})),
+        ModuleDeclaration(
+            0, ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"(", ")", ";"})),
+            L(0, {"endmodule"})),
     },
 
     {
@@ -414,7 +418,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0,
-            ModuleHeader(0, L(0, {"module", "foo", "("}),
+            ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"("}),
                          ModulePortList(2, L(2, {"input", "bar", ","}),
                                         L(2, {"output", "baz"})),
                          L(0, {")", ";"})),
@@ -433,7 +437,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         ModuleDeclaration(
             0,
             ModuleHeader(
-                0, L(0, {"module", "foo", "("}),
+                0, L(0, {"module", "foo"}), L(0, {"("}),
                 ModulePortList(2, L(0, {"`ifndef", "FOO"}),
                                L(2, {"input", "bar", ","}), L(0, {"`endif"}),
                                L(2, {"output", "baz"})),
@@ -454,7 +458,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         ModuleDeclaration(
             0,
             ModuleHeader(
-                0, L(0, {"module", "foo", "("}),
+                0, L(0, {"module", "foo"}), L(0, {"("}),
                 ModulePortList(2, L(0, {"`ifndef", "FOO"}),
                                // conditional and unconditional port
                                // declarations are direct token partition tree
@@ -481,7 +485,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0,
-            ModuleHeader(0, L(0, {"module", "foo", "("}),
+            ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"("}),
                          ModulePortList(2, L(0, {"`ifndef", "FOO"}),
                                         // conditional and unconditional port
                                         // declarations are direct token
@@ -512,7 +516,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0,
-            ModuleHeader(0, L(0, {"module", "foo", "("}),
+            ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"("}),
                          ModulePortList(2, L(0, {"`ifndef", "FOO"}),
                                         // conditional and unconditional port
                                         // declarations are direct token
@@ -542,7 +546,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0,
-            ModuleHeader(0, L(0, {"module", "foo", "("}),
+            ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"("}),
                          ModulePortList(2,                         //
                                         L(0, {"`ifndef", "FOO"}),  //
                                         L(0, {"`ifdef", "ZOO"}),   //
@@ -567,7 +571,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         ModuleDeclaration(
             0,
             ModuleHeader(0,  //
-                         L(0, {"module", "foo", "("}),
+                         L(0, {"module", "foo"}), L(0, {"("}),
                          // TODO(b/149503062): un-indent `include
                          L(2, {"`include", "\"ports.svh\""}), L(0, {")", ";"})),
             L(0, {"endmodule"})),
@@ -627,7 +631,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
                          ModuleParameterList(
                              2, L(2, {"parameter", "bar", "=", "1", ","}),
                              L(2, {"localparam", "baz", "=", "2"})),
-                         L(0, {")", "("}),
+                         L(0, {")"}), L(0, {"("}),
                          ModulePortList(2, L(2, {"input", "yar", ","}),
                                         L(2, {"output", "gar"})),
                          L(0, {")", ";"})),
@@ -647,7 +651,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
                          ModuleParameterList(
                              2, L(2, {"parameter", "bar", "=", "1", ","}),
                              L(2, {"localparam", "baz", "=", "2"})),
-                         L(0, {")", "(", ")", ";"})),
+                         L(0, {")"}), L(0, {"(", ")", ";"})),
             L(0, {"endmodule"})),
     },
 
@@ -664,7 +668,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
                          ModuleParameterList(
                              2, L(2, {"parameter", "bar", "=", "1", ","}),
                              L(2, {"localparam", "baz", "=", "2"})),
-                         L(0, {")", "(", ")", ";"})),
+                         L(0, {")"}), L(0, {"(", ")", ";"})),
             L(0, {"endmodule"})),
     },
 
@@ -682,7 +686,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
                 ModuleParameterList(
                     2, L(2, {"parameter", "bar", "=", "1", ",", "//comment"}),
                     L(2, {"localparam", "baz", "=", "2"})),
-                L(0, {")", "(", ")", ";"})),
+                L(0, {")"}), L(0, {"(", ")", ";"})),
             L(0, {"endmodule"})),
     },
 
@@ -700,7 +704,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
                 ModuleParameterList(
                     2, L(2, {"parameter", "bar", "=", "1", ","}),
                     L(2, {"localparam", "baz", "=", "2", "//comment"})),
-                L(0, {")", "(", ")", ";"})),
+                L(0, {")"}), L(0, {"(", ")", ";"})),
             L(0, {"endmodule"})),
     },
 
@@ -806,7 +810,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
                          L(1, {"import", "p_pkg", "::", "*", ";"}),  //
                          L(0, {"#", "("}),                           //
                          L(2, {"int", "w", "=", "2"}),               //
-                         L(0, {")", "("}),                           //
+                         L(0, {")"}), L(0, {"("}),                   //
                          L(2, {"qux"}),                              //
                          L(0, {")", ";"})),                          //
             L(0, {"endmodule"})),
@@ -818,8 +822,9 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule : foo "
         "module zoo;"
         "endmodule : zoo",
-        ModuleDeclaration(0, L(0, {"module", "foo", "(", ")", ";"}),
-                          L(0, {"endmodule", ":", "foo"})),
+        ModuleDeclaration(
+            0, ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"(", ")", ";"})),
+            L(0, {"endmodule", ":", "foo"})),
         ModuleDeclaration(0, L(0, {"module", "zoo", ";"}),
                           L(0, {"endmodule", ":", "zoo"})),
     },
@@ -837,7 +842,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0,
-            ModuleHeader(0, L(0, {"module", "addf", "("}),
+            ModuleHeader(0, L(0, {"module", "addf"}), L(0, {"("}),
                          N(2,                  //
                            L(2, {"a", ","}),   //
                            L(2, {"b", ","}),   //
@@ -1070,7 +1075,8 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
                                          // fused single instance
                                          L(1, {"foo1", "a", ";"}),
                                          // fused single instance
-                                         L(1, {"foo2", "b", "(", ")", ";"})),
+                                         GateInstance(1, L(1, {"foo2", "b"}),
+                                                      L(1, {"(", ")", ";"}))),
                           L(0, {"endmodule"})),
     },
 
@@ -1081,9 +1087,11 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0, L(0, {"module", "multi_inst", ";"}),
-            Instantiation(1, L(1, {"foo"}),  // instantiation type
-                          InstanceList(3, L(3, {"aa", "(", ")", ","}),
-                                       L(3, {"bb", "(", ")", ";"}))),
+            Instantiation(
+                1, L(1, {"foo"}),  // instantiation type
+                InstanceList(
+                    3, GateInstance(3, L(3, {"aa"}), L(3, {"(", ")", ","})),
+                    GateInstance(3, L(3, {"bb"}), L(3, {"(", ")", ";"})))),
             L(0, {"endmodule"})),
     },
 
@@ -1125,8 +1133,9 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
                 // These are both single instances, fused with type partition.
                 L(1, {"foo", "#", "(", "1", ")",  //
                       "a", ";"}),
-                L(1, {"bar", "#", "(", "2", ",", "3", ")",  //
-                      "b", "(", ")", ";"})),
+                GateInstance(1,
+                             L(1, {"bar", "#", "(", "2", ",", "3", ")", "b"}),
+                             L(1, {"(", ")", ";"}))),
             L(0, {"endmodule"})),
     },
 
@@ -1138,17 +1147,18 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0, L(0, {"module", "tryme", ";"}),
-            ModuleItemList(1,
-                           // single instances fused with instantiation type
-                           Instantiation(1,                                //
-                                         L(1, {"foo", "#", "("}),          //
-                                         L(3, {".", "N", "(", "1", ")"}),  //
-                                         L(1, {")", "a", ";"})),
-                           Instantiation(1,                                //
-                                         L(1, {"bar", "#", "("}),          //
-                                         L(3, {".", "M", "(", "2", ")"}),  //
-                                         L(1, {")", "b", "(", ")", ";"}))  //
-                           ),
+            ModuleItemList(
+                1,
+                // single instances fused with instantiation type
+                Instantiation(1,                                //
+                              L(1, {"foo", "#", "("}),          //
+                              L(3, {".", "N", "(", "1", ")"}),  //
+                              L(1, {")", "a", ";"})),
+                Instantiation(1,                                        //
+                              L(1, {"bar", "#", "("}),                  //
+                              L(3, {".", "M", "(", "2", ")"}),          //
+                              L(1, {")", "b"}), L(1, {"(", ")", ";"}))  //
+                ),
             L(0, {"endmodule"})),
     },
 
@@ -1240,7 +1250,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0, L(0, {"module", "got_ports", ";"}),
-            Instantiation(1, L(1, {"foo", "c", "("}),
+            Instantiation(1, L(1, {"foo", "c"}), L(1, {"("}),
                           PortActualList(3, L(3, {"y", ","}), L(3, {"z"})),
                           L(1, {")", ";"})),
             L(0, {"endmodule"})),
@@ -1257,7 +1267,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
             0, L(0, {"module", "got_ports", ";"}),
             ModuleItemList(
                 1,
-                Instantiation(1, L(1, {"foo", "c", "("}),
+                Instantiation(1, L(1, {"foo", "c"}), L(1, {"("}),
                               PortActualList(3, L(3, {"x", ","}),
                                              L(3, {"y", ","}), L(3, {"z"})),
                               L(1, {")", ";"})  // TODO(fangism): attach to 'z'?
@@ -1286,7 +1296,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         ");"
         "endmodule",
         ModuleDeclaration(0, L(0, {"module", "ifdef_ports", ";"}),
-                          Instantiation(1, L(1, {"foo", "bar", "("}),
+                          Instantiation(1, L(1, {"foo", "bar"}), L(1, {"("}),
                                         PortActualList(3,  //
                                                        L(0, {"`ifdef", "BAZ"}),
                                                        L(0, {"`endif"})),
@@ -1305,7 +1315,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0, L(0, {"module", "ifdef_else_ports", ";"}),
-            Instantiation(1, L(1, {"foo", "bar", "("}),
+            Instantiation(1, L(1, {"foo", "bar"}), L(1, {"("}),
                           PortActualList(3,  //
                                          L(0, {"`ifdef", "BAZ"}),
                                          L(0, {"`else"}), L(0, {"`endif"})),
@@ -1322,7 +1332,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         ");"
         "endmodule",
         ModuleDeclaration(0, L(0, {"module", "ifndef_ports", ";"}),
-                          Instantiation(1, L(1, {"foo", "bar", "("}),
+                          Instantiation(1, L(1, {"foo", "bar"}), L(1, {"("}),
                                         PortActualList(3,  //
                                                        L(0, {"`ifndef", "BAZ"}),
                                                        L(0, {"`endif"})),
@@ -1342,7 +1352,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         ModuleDeclaration(
             0, L(0, {"module", "ifdef_ports", ";"}),
             Instantiation(
-                1, L(1, {"foo", "bar", "("}),
+                1, L(1, {"foo", "bar"}), L(1, {"("}),
                 PortActualList(3,  //
                                L(3, {".", "a", "(", "a", ")", ","}),
                                L(0, {"`ifdef", "BAZ"}), L(0, {"`endif"})),
@@ -1362,7 +1372,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         ModuleDeclaration(
             0, L(0, {"module", "ifdef_ports", ";"}),
             Instantiation(
-                1, L(1, {"foo", "bar", "("}),
+                1, L(1, {"foo", "bar"}), L(1, {"("}),
                 PortActualList(3,  //
                                L(3, {".", "a", "(", "a", ")"}),
                                L(0, {"`ifdef", "BAZ"}), L(0, {"`endif"})),
@@ -1382,7 +1392,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         ModuleDeclaration(
             0, L(0, {"module", "ifdef_ports", ";"}),
             Instantiation(
-                1, L(1, {"foo", "bar", "("}),
+                1, L(1, {"foo", "bar"}), L(1, {"("}),
                 PortActualList(3,  //
                                L(0, {"`ifdef", "BAZ"}), L(0, {"`endif"}),
                                L(3, {".", "a", "(", "a", ")"})),
@@ -1401,7 +1411,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0, L(0, {"module", "ifdef_ports", ";"}),
-            Instantiation(1, L(1, {"foo", "bar", "("}),
+            Instantiation(1, L(1, {"foo", "bar"}), L(1, {"("}),
                           PortActualList(3,  //
                                          L(0, {"`ifdef", "BAZ"}),
                                          L(3, {".", "a", "(", "a", ")"}),
@@ -1421,7 +1431,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0, L(0, {"module", "named_ports", ";"}),
-            Instantiation(1, L(1, {"foo", "bar", "("}),
+            Instantiation(1, L(1, {"foo", "bar"}), L(1, {"("}),
                           PortActualList(3,  //
                                          L(3, {".", "a", "(", "a", ")", ","}),
                                          L(3, {"//.aa(aa),"}),
@@ -1437,7 +1447,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0,
-            ModuleHeader(0, L(0, {"module", "foo", "("}),
+            ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"("}),
                          ModulePortList(2, L(2, {"interface", "bar_if", ","}),
                                         L(2, {"interface", "baz_if"})),
                          L(0, {")", ";"})),
@@ -1456,7 +1466,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
             0, L(0, {"module", "cast_with_constant_functions", ";"}),
             Instantiation(
                 1,  //
-                L(1, {"foo", "dut", "("}),
+                L(1, {"foo", "dut"}), L(1, {"("}),
                 PortActualList(
                     3,  //
                     N(3,
@@ -1484,7 +1494,7 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
         "endmodule",
         ModuleDeclaration(
             0,
-            ModuleHeader(0, L(0, {"module", "addf", "("}),
+            ModuleHeader(0, L(0, {"module", "addf"}), L(0, {"("}),
                          ModulePortList(2, L(2, {"input", "a", ","}),
                                         L(2, {"input", "b", ","}),
                                         L(2, {"input", "ci", ","}),
@@ -2946,10 +2956,11 @@ const TreeUnwrapperTestData kUnwrapCommentsTestCases[] = {
         "module foo (); endmodule\n"
         "// end comment\n",
         L(0, {"// start comment"}),
-        ModuleDeclaration(0,  //
-                          L(0, {"module", "foo", "(", ")", ";"}),
-                          L(0, {"endmodule"})),  //
-        L(0, {"// end comment"}),                // comment on own line
+        ModuleDeclaration(
+            0,  //
+            ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"(", ")", ";"})),
+            L(0, {"endmodule"})),  //
+        L(0, {"// end comment"}),  // comment on own line
     },
 
     {
@@ -2961,12 +2972,13 @@ const TreeUnwrapperTestData kUnwrapCommentsTestCases[] = {
         "module bar (); endmodule\n"
         "// comment4\n",
         L(0, {"// comment1"}),
-        ModuleDeclaration(0,  //
-                          L(0, {"module", "foo", "(", ")", ";"}),
-                          L(0, {"endmodule"})),  //
-        L(0, {"// comment2"}),                   // comment on own line
-        L(0, {"// comment3"}),                   //
-        ModuleDeclaration(0,                     //
+        ModuleDeclaration(
+            0,  //
+            ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"(", ")", ";"})),
+            L(0, {"endmodule"})),  //
+        L(0, {"// comment2"}),     // comment on own line
+        L(0, {"// comment3"}),     //
+        ModuleDeclaration(0,       //
                           L(0, {"module", "bar", "(", ")", ";"}),
                           L(0, {"endmodule"})),  //
         L(0, {"// comment4"}),                   // comment on own line
@@ -2978,12 +2990,13 @@ const TreeUnwrapperTestData kUnwrapCommentsTestCases[] = {
         "// item comment 1\n"
         "// item comment 2\n"
         "endmodule\n",
-        ModuleDeclaration(0,  //
-                          L(0, {"module", "foo", "(", ")", ";"}),
-                          ModuleItemList(1, L(1, {"// item comment 1"}),  //
-                                         L(1, {"// item comment 2"})      //
-                                         ),
-                          L(0, {"endmodule"})),
+        ModuleDeclaration(
+            0,  //
+            ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"(", ")", ";"})),
+            ModuleItemList(1, L(1, {"// item comment 1"}),  //
+                           L(1, {"// item comment 2"})      //
+                           ),
+            L(0, {"endmodule"})),
     },
 
     {
@@ -2999,7 +3012,8 @@ const TreeUnwrapperTestData kUnwrapCommentsTestCases[] = {
         L(0, {"// humble module"}),
         ModuleDeclaration(
             0,
-            ModuleHeader(0, L(0, {"module", "foo", "(", "// non-port comment"}),
+            ModuleHeader(0, L(0, {"module", "foo"}),
+                         L(0, {"(", "// non-port comment"}),
                          ModulePortList(2, L(2, {"// port comment 1"}),
                                         L(2, {"// port comment 2"})),
                          L(0, {")", ";", "// header trailing comment"})),
@@ -3021,8 +3035,8 @@ const TreeUnwrapperTestData kUnwrapCommentsTestCases[] = {
         L(0, {"// start comment"}),
         ModuleDeclaration(
             0,  //
-            L(0,
-              {"module", "foo", "(", ")", ";", "// comment at end of module"}),
+            ModuleHeader(0, L(0, {"module", "foo"}),
+                         L(0, {"(", ")", ";", "// comment at end of module"})),
             L(0, {"endmodule"})),  // comment separated to next line
         L(0, {"// end comment"}),
     },
@@ -3036,8 +3050,9 @@ const TreeUnwrapperTestData kUnwrapCommentsTestCases[] = {
         "endmodule",
         L(0, {"// comment 1"}),  //
         L(0, {"// comment 2"}),
-        ModuleDeclaration(0, L(0, {"module", "foo", "(", ")", ";"}),
-                          L(0, {"endmodule"})),
+        ModuleDeclaration(
+            0, ModuleHeader(0, L(0, {"module", "foo"}), L(0, {"(", ")", ";"})),
+            L(0, {"endmodule"})),
     },
 
     {
@@ -3050,7 +3065,7 @@ const TreeUnwrapperTestData kUnwrapCommentsTestCases[] = {
         ModuleDeclaration(
             0,
             ModuleHeader(
-                0, L(0, {"module", "foo", "(", "// comment1"}),
+                0, L(0, {"module", "foo"}), L(0, {"(", "// comment1"}),
                 ModulePortList(2, L(2, {"// comment2"}), L(2, {"// comment3"})),
                 L(0, {")", ";", "// comment4"})),
             L(0, {"endmodule", "// endmodule comment"})),
@@ -3066,7 +3081,8 @@ const TreeUnwrapperTestData kUnwrapCommentsTestCases[] = {
         ModuleDeclaration(
             0,
             ModuleHeader(
-                0, L(0, {"module", "foo", "(", "// module foo ( comment!"}),
+                0, L(0, {"module", "foo"}),
+                L(0, {"(", "// module foo ( comment!"}),
                 ModulePortList(
                     2, L(2, {"input", "bar", ",", "// input bar, comment"}),
                     L(2, {"output", "baz", "// output baz comment"})),
@@ -3109,7 +3125,7 @@ const TreeUnwrapperTestData kUnwrapCommentsTestCases[] = {
         ModuleDeclaration(
             0,
             ModuleHeader(
-                0, L(0, {"module", "foo", "(", "/* comment1 */"}),
+                0, L(0, {"module", "foo"}), L(0, {"(", "/* comment1 */"}),
                 ModulePortList(2,
                                L(2, {"input", "/* comment2 */", "bar", ",",
                                      "/*comment3 */"}),
@@ -3129,14 +3145,13 @@ const TreeUnwrapperTestData kUnwrapCommentsTestCases[] = {
         "/* comment7 */ endmodule //comment8\n",
         ModuleDeclaration(
             0,
-            ModuleHeader(
-                0,
-                L(0, {"module", "/* comment1 */", "foo", "(", "// comment2"}),
-                ModulePortList(2,
-                               L(2, {"input", "bar", ",", "/* comment3 */",
-                                     "// comment4"}),
-                               L(2, {"output", "baz", "// comment5"})),
-                L(0, {")", ";", "// comment6"})),
+            ModuleHeader(0, L(0, {"module", "/* comment1 */", "foo"}),
+                         L(0, {"(", "// comment2"}),
+                         ModulePortList(2,
+                                        L(2, {"input", "bar", ",",
+                                              "/* comment3 */", "// comment4"}),
+                                        L(2, {"output", "baz", "// comment5"})),
+                         L(0, {")", ";", "// comment6"})),
             L(0, {"/* comment7 */"}), L(0, {"endmodule", "//comment8"})),
     },
 };
@@ -4193,7 +4208,7 @@ const TreeUnwrapperTestData kDescriptionTestCases[] = {
         N(0,  // kBindDeclaration
           L(0, {"bind", "foo", "bar", "#", "("}),
           L(2, {".", "x", "(", "y", ")"}),
-          N(0, L(0, {")", "baz", "("}),           //
+          N(0, L(0, {")", "baz"}), L(0, {"("}),   //
             L(2, {".", "clk", "(", "clk", ")"}),  //
             L(0, {")", ";"}))  // ';' is attached to end of bind directive
           ),
@@ -4202,16 +4217,20 @@ const TreeUnwrapperTestData kDescriptionTestCases[] = {
     {"multiple bind declarations",
      "bind foo bar baz();"
      "bind goo car caz();",
-     L(0, {"bind", "foo", "bar", "baz", "(", ")", ";"}),
-     L(0, {"bind", "goo", "car", "caz", "(", ")", ";"})},
+     GateInstance(0, L(0, {"bind", "foo", "bar", "baz"}),
+                  L(0, {"(", ")", ";"})),
+     GateInstance(0, L(0, {"bind", "goo", "car", "caz"}),
+                  L(0, {"(", ")", ";"}))},
 
     {
         "multi-instance bind declaration",
         "bind foo bar baz1(), baz2();",
         N(0,  // kBindDeclaration
-          L(0, {"bind", "foo", "bar", "baz1", "(", ")", ","}),  //
-          L(0, {"baz2", "(", ")",
-                ";"})  // TODO(fangism): what should be this indentation?
+          GateInstance(0, L(0, {"bind", "foo", "bar", "baz1"}),
+                       L(0, {"(", ")", ","})),  //
+          GateInstance(0, L(0, {"baz2"}),
+                       L(0, {"(", ")", ";"}))  // TODO(fangism): what should be
+                                               // this indentation?
           ),
     },
 };
@@ -4931,7 +4950,9 @@ const TreeUnwrapperTestData kUnwrapInterfaceTestCases[] = {
         "empty interface, empty ports",
         "interface foo_if( );"
         "endinterface",
-        InterfaceDeclaration(0, L(0, {"interface", "foo_if", "(", ")", ";"}),
+        InterfaceDeclaration(0,
+                             ModuleHeader(0, L(0, {"interface", "foo_if"}),
+                                          L(0, {"(", ")", ";"})),
                              L(0, {"endinterface"})),
     },
 
@@ -4941,11 +4962,12 @@ const TreeUnwrapperTestData kUnwrapInterfaceTestCases[] = {
         "//comment\n"
         ")( );"
         "endinterface",
-        InterfaceDeclaration(0,                                          //
-                             N(0,                                        //
-                               L(0, {"interface", "foo_if", "#", "("}),  //
-                               L(2, {"//comment"}), L(0, {")", "(", ")", ";"})),
-                             L(0, {"endinterface"})),
+        InterfaceDeclaration(
+            0,                                          //
+            N(0,                                        //
+              L(0, {"interface", "foo_if", "#", "("}),  //
+              L(2, {"//comment"}), L(0, {")"}), L(0, {"(", ")", ";"})),
+            L(0, {"endinterface"})),
     },
 
     {
@@ -4958,7 +4980,7 @@ const TreeUnwrapperTestData kUnwrapInterfaceTestCases[] = {
                              N(0,                                        //
                                L(0, {"interface", "foo_if", "#", "("}),  //
                                L(2, {"parameter", "type", "T", "=", "bit"}),
-                               L(0, {")", "(", ")", ";"})),
+                               L(0, {")"}), L(0, {"(", ")", ";"})),
                              L(0, {"endinterface"})),
     },
 
