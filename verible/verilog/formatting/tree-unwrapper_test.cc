@@ -1273,13 +1273,13 @@ const TreeUnwrapperTestData kUnwrapModuleTestCases[] = {
                               L(1, {")", ";"})  // TODO(fangism): attach to 'z'?
                               ),
                 Instantiation(
-                    1, L(1, {"foo", "d", "("}),
+                    1, L(1, {"foo", "d"}), L(1, {"("}),
                     PortActualList(3, L(3, {".", "x", "(", "x", ")", ","}),
                                    L(3, {".", "y", "(", "y", ")", ","}),
                                    L(3, {".", "w", "(", "z", ")"})),
                     L(1, {")", ";"})),
                 Instantiation(
-                    1, L(1, {"foo", "e", "("}),
+                    1, L(1, {"foo", "e"}), L(1, {"("}),
                     PortActualList(3, L(3, {"x", ","}), L(3, {"a", ","}),
                                    L(3, {".", "y", "(", "y", ")", ","}),
                                    L(3, {".", "w", "(", "z", ")"})),
@@ -2978,10 +2978,11 @@ const TreeUnwrapperTestData kUnwrapCommentsTestCases[] = {
             L(0, {"endmodule"})),  //
         L(0, {"// comment2"}),     // comment on own line
         L(0, {"// comment3"}),     //
-        ModuleDeclaration(0,       //
-                          L(0, {"module", "bar", "(", ")", ";"}),
-                          L(0, {"endmodule"})),  //
-        L(0, {"// comment4"}),                   // comment on own line
+        ModuleDeclaration(
+            0,  //
+            ModuleHeader(0, L(0, {"module", "bar"}), L(0, {"(", ")", ";"})),
+            L(0, {"endmodule"})),  //
+        L(0, {"// comment4"}),     // comment on own line
     },
 
     {
