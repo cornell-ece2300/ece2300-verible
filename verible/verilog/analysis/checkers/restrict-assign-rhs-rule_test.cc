@@ -38,6 +38,7 @@ TEST(RestrictAssignRhsRuleTests, Various) {
       {"module m; wire [3:0] a, y; assign y = a[3:0]; endmodule"},
       {"module m; wire y; assign y = 1'b0; endmodule"},
       {"module m; wire [3:0] a; wire [7:0] w; assign w = {4'b0, a}; endmodule"},
+      {"module m; wire a, b; wire [3:0] w; assign w = {2{a, b}}; endmodule"},
       {"module m; wire a, b, y; and( y, a, b ); endmodule"},
       {"module m; logic y, a, b; always_comb y = a & b; endmodule"},
       {"module m; wire a, w; wire x = a; endmodule"},

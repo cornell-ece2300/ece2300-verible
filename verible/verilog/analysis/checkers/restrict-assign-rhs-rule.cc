@@ -39,16 +39,15 @@ using verible::SyntaxTreeContext;
 VERILOG_REGISTER_LINT_RULE(RestrictAssignRhsRule);
 
 static constexpr std::string_view kMessage =
-    "RHS of 'assign' must be a signal, bit-select, part-select, literal, or a "
-    "concatenation of those -- no operators. Build logic from gate primitives "
-    "instead.";
+    "Assignment RHS must be a signal, bit-select, part-select, literal, "
+    "concatenation, or replication. Build logic from gate primitives instead.";
 
 const LintRuleDescriptor &RestrictAssignRhsRule::GetDescriptor() {
   static const LintRuleDescriptor d{
       .name = "restrict-assign-rhs",
       .topic = "gate-level-modeling",
-      .desc = "Disallows operators and function calls on the right-hand side "
-              "of a continuous assignment; `assign` is for wiring only.",
+      .desc = "Restricts the right-hand side of continuous assignments and net "
+              "declaration assignments to wiring expressions.",
   };
   return d;
 }
@@ -67,29 +66,35 @@ const LintRuleDescriptor &RestrictAssignRhsRule::GetDescriptor() {
 //       @1 Leaf  '='
 //       @2 kExpression     "b"
 
-// Returns true if given tag is a node that does an operation
-static bool IsOperatorNode(NodeEnum tag) {
+static bool IsAllowedRhsNode(NodeEnum tag) {
   switch (tag) {
-    case NodeEnum::kBinaryExpression:       // a & b, a + b, a ^ b
-    case NodeEnum::kUnaryPrefixExpression:  // ~a, !a, -a
-    case NodeEnum::kConditionExpression:    // sel ? a : b
-    case NodeEnum::kReferenceCallBase:      // f(a)
+    case NodeEnum::kExpression:
+    case NodeEnum::kFunctionCall:
+    case NodeEnum::kReference:
+    case NodeEnum::kLocalRoot:
+    case NodeEnum::kUnqualifiedId:
+    case NodeEnum::kNumber:
+    case NodeEnum::kBaseDigits:
+    case NodeEnum::kDimensionScalar:
+    case NodeEnum::kDimensionRange:
+    case NodeEnum::kExpressionList:
+    case NodeEnum::kConcatenationExpression:
+    case NodeEnum::kOpenRangeList:
       return true;
     default:
       return false;
   }
 }
 
-// Returns the first operator node under symbol
-static const verible::SyntaxTreeNode *FindFirstOperator(
+static const verible::SyntaxTreeNode *FindFirstDisallowedNode(
     const verible::Symbol &symbol) {
   if (symbol.Kind() != verible::SymbolKind::kNode) return nullptr;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
-  if (IsOperatorNode(static_cast<NodeEnum>(node.Tag().tag))) return &node;
+  if (!IsAllowedRhsNode(static_cast<NodeEnum>(node.Tag().tag))) return &node;
 
   for (const auto &child : node.children()) {
     if (child == nullptr) continue;
-    if (const auto *found = FindFirstOperator(*child)) return found;
+    if (const auto *found = FindFirstDisallowedNode(*child)) return found;
   }
   return nullptr;
 }
@@ -99,13 +104,10 @@ void RestrictAssignRhsRule::HandleSymbol(const verible::Symbol &symbol,
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
 
-  // Look for both kNetVariableAssignment and kNetDeclarationAssignment nodes
   const NodeEnum assignment_tag = static_cast<NodeEnum>(node.Tag().tag);
 
   switch (assignment_tag) {
     case NodeEnum::kNetVariableAssignment:
-      // So it doesn't fire in always blocks but only in assign statements 
-      // (always blocks are handled in separate rule)
       if (!context.IsInside(NodeEnum::kContinuousAssignmentStatement)) return;
       break;
     case NodeEnum::kNetDeclarationAssignment:
@@ -117,9 +119,9 @@ void RestrictAssignRhsRule::HandleSymbol(const verible::Symbol &symbol,
   const verible::Symbol *rhs =
       verible::GetSubtreeAsSymbol(node, assignment_tag, 2);
   if (rhs == nullptr) return;
-  const verible::SyntaxTreeNode *op = FindFirstOperator(*rhs);
-  if (op == nullptr) return;
-  violations_.insert(LintViolation(*op, kMessage, context));
+  const verible::SyntaxTreeNode *disallowed = FindFirstDisallowedNode(*rhs);
+  if (disallowed == nullptr) return;
+  violations_.insert(LintViolation(*disallowed, kMessage, context));
 }
 
 LintRuleStatus RestrictAssignRhsRule::Report() const {

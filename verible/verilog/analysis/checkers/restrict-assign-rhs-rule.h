@@ -26,10 +26,10 @@
 namespace verilog {
 namespace analysis {
 
-// RestrictAssignRhsRule flags a continuous-assignment right-hand side that
-// contains an operator or function call. In a gate-level/structural module an
-// `assign` is for wiring only: a signal, a bit/part-select, a literal, or a
-// concatenation of those. Logic must come from instantiated gate primitives.
+// RestrictAssignRhsRule flags continuous-assignment and net-declaration right-
+// hand sides that are not wiring expressions. Allowed expressions are signals,
+// bit/part-selects, literals, concatenations, and replications. Logic must come
+// from instantiated gate primitives.
 class RestrictAssignRhsRule : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;
