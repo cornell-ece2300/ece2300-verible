@@ -3272,15 +3272,17 @@ module bar (
   reg [31:0] o2[8];
   // End of automatics
 
-  qux q (  /*AUTOINST*/
+  qux q
+  ( /*AUTOINST*/
       // Inputs
-      .ii(ii  /*[1:0][7:0]*/),
+      .ii (ii  /*[1:0][7:0]*/),
       // Outputs
-      .oo(oo  /*[3:0].[5][3]*/)
+      .oo (oo  /*[3:0].[5][3]*/)
   );
 endmodule
 
-module foo (  /*AUTOARG*/
+module foo
+( /*AUTOARG*/
     // Inputs
     i1,
     i2,
@@ -3305,15 +3307,16 @@ module foo (  /*AUTOARG*/
   inout [7:0][7:0] io;  // To/From b of bar
   // End of automatics
 
-  bar b (  /*AUTOINST*/
+  bar b
+  ( /*AUTOINST*/
       // Inputs
-      .i1(i1),
-      .i2(i2  /*.[4][8]*/),
+      .i1 (i1),
+      .i2 (i2  /*.[4][8]*/),
       // Inouts
-      .io(io  /*[7:0][7:0]*/),
+      .io (io  /*[7:0][7:0]*/),
       // Outputs
-      .o1(o1[15:0]),
-      .o2(o2  /*[31:0].[8]*/)
+      .o1 (o1[15:0]),
+      .o2 (o2  /*[31:0].[8]*/)
   );
 endmodule
 )",
@@ -3397,7 +3400,7 @@ endmodule
                       BufferTracker *tracker) {
                      return AutoExpandCodeActionToTextEdits(
                          symbol_table_handler, tracker,
-                         {.start = {.line = 0}, .end = {.line = 10}},
+                         {.start = {.line = 0}, .end = {.line = 13}},
                          "Expand all AUTOs in selected range");
                    }}}  // Do not repeat: the range is incorrect
                         // after the first expansion
@@ -3507,7 +3510,7 @@ endmodule
                             BufferTracker *tracker) {
         return AutoExpandCodeActionToTextEdits(
             symbol_table_handler, tracker,
-            {.start = {.line = 1}, .end = {.line = 1}},
+            {.start = {.line = 2}, .end = {.line = 2}},
             "Expand all AUTOs of same kind as this one");
       }}.repeat());
   TestTextEdits(
@@ -3593,7 +3596,7 @@ endmodule
                       BufferTracker *tracker) {
                      return AutoExpandCodeActionToTextEdits(
                          symbol_table_handler, tracker,
-                         {.start = {.line = 1}, .end = {.line = 3}},
+                         {.start = {.line = 2}, .end = {.line = 6}},
                          "Expand all AUTOs of same kinds as selected");
                    }}}  // Do not repeat: the range is incorrect
                         // after the first expansion
@@ -3724,7 +3727,8 @@ module bar (  /*AUTOARG*/);
 endmodule
 )",
       R"(
-module foo (  /*AUTOARG*/
+module foo
+( /*AUTOARG*/
     // Inputs
     clk,
     rst,
@@ -3754,17 +3758,19 @@ clk) $print(
          .o1(out_a[]),
          .o2(out_b[])
      ); */
-  bar b (  /*AUTOINST*/
+  bar b
+  ( /*AUTOINST*/
       // Inputs
-      .clk(clk),
-      .rst(rst),
+      .clk (clk),
+      .rst (rst),
       // Outputs
-      .o1 (out_a[63:0]),
-      .o2 (out_b  /*.[16]*/)
+      .o1  (out_a[63:0]),
+      .o2  (out_b  /*.[16]*/)
   );
 endmodule
 
-module bar (  /*AUTOARG*/
+module bar
+( /*AUTOARG*/
     // Inputs
     clk,
     rst,

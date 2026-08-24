@@ -13,8 +13,7 @@
 // limitations under the License.
 
 #include "verible/verilog/parser/verilog-token-classifications.h"
-
-#include "verible/verilog/parser/verilog-token-enum.h"
+#include "verible/verilog/CST/verilog-nonterminals.h"
 
 namespace verilog {
 
@@ -224,6 +223,22 @@ bool IsIdentifierLike(verilog_tokentype token_type) {
       break;
   }
   return false;
+}
+
+// ece2300: identifies the '(' that opens a module definition's or module
+// instantiation's port list, so the formatter can place it on a new line.
+bool IsModulePortListOpenParen(
+    verilog_tokentype token_type,
+    const verible::SyntaxTreeContext& context) {
+  if (token_type != static_cast<verilog_tokentype>('(')) return false;
+
+  const bool module_declaration = context.DirectParentsAre(
+      {NodeEnum::kParenGroup, NodeEnum::kModuleHeader});
+
+  const bool module_instantiation = context.DirectParentsAre(
+      {NodeEnum::kParenGroup, NodeEnum::kGateInstance});
+
+  return module_declaration || module_instantiation;
 }
 
 }  // namespace verilog

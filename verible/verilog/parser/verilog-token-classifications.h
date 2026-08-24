@@ -15,6 +15,7 @@
 #ifndef VERIBLE_VERILOG_FORMATTING_VERILOG_TOKEN_CLASSIFICATIONS_H_
 #define VERIBLE_VERILOG_FORMATTING_VERILOG_TOKEN_CLASSIFICATIONS_H_
 
+#include "verible/common/text/syntax-tree-context.h"
 #include "verible/verilog/parser/verilog-token-enum.h"
 
 namespace verilog {
@@ -57,6 +58,11 @@ bool IsUnlexed(verilog_tokentype);
 // name.  Includes regular identifiers, system-task identifiers, macro
 // identifiers.
 bool IsIdentifierLike(verilog_tokentype);
+
+// ece2300: added to support ECE2300 module port list formatting.
+// Checks if the token is a module def ex. [module foo (]
+bool IsModulePortListOpenParen(verilog_tokentype,
+                               const verible::SyntaxTreeContext &);
 
 // TODO(fangism): Identify specially lexed tokens that require a newline after.
 // e.g. MacroIdItem, TK_EOL_COMMENT, ...

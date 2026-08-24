@@ -646,7 +646,7 @@ TEST_F(VerilogLanguageServerTest, FormattingTest) {
   EXPECT_EQ(response["id"], 34);
   EXPECT_EQ(response["result"].size(), 1);
   EXPECT_EQ(std::string(response["result"][0]["newText"]),
-            "module fmt ();\n  assign a = 1;\n  assign b = 2;\nendmodule\n");
+            "module fmt\n();\n  assign a = 1;\n  assign b = 2;\nendmodule\n");
   EXPECT_EQ(
       response["result"][0]["range"],
       json::parse(
@@ -672,7 +672,7 @@ TEST_F(VerilogLanguageServerTest, FormattingFileWithEmptyNewline_issue1667) {
 
   // Formatted output now has a newline at end.
   EXPECT_EQ(std::string(response["result"][0]["newText"]),
-            "module fmt ();\n  assign a = 1;\n  assign b = 2;\nendmodule\n");
+            "module fmt\n();\n  assign a = 1;\n  assign b = 2;\nendmodule\n");
 
   // Full range of original file, including the characters of the last line.
   EXPECT_EQ(response["result"][0]["range"], json::parse(R"(

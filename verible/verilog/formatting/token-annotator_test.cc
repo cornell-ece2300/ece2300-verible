@@ -2898,6 +2898,15 @@ TEST(TokenAnnotatorTest, AnnotateFormattingWithContextTest) {
           {/* any context */},
           {1, SpacingOptions::kUndecided},
       },
+      // ECE2300 module declaration port-list '(' must start a new line.
+      {
+          DefaultStyle,
+          {verilog_tokentype::SymbolIdentifier, "foo"},
+          {'(', "("},
+          {NodeEnum::kModuleHeader},
+          {NodeEnum::kModuleHeader, NodeEnum::kParenGroup},
+          {1, SpacingOptions::kMustWrap},
+      },
 
       // "a(" in "foo bar (.a(b));": instantiation with named ports
       {
@@ -2907,6 +2916,15 @@ TEST(TokenAnnotatorTest, AnnotateFormattingWithContextTest) {
           {NodeEnum::kGateInstance},
           {NodeEnum::kGateInstance},
           {1, SpacingOptions::kUndecided},
+      },
+      // ECE2300 module instance port-list '(' must start a new line.
+      {
+          DefaultStyle,
+          {verilog_tokentype::SymbolIdentifier, "bar"},
+          {'(', "("},
+          {NodeEnum::kGateInstance},
+          {NodeEnum::kGateInstance, NodeEnum::kParenGroup},
+          {1, SpacingOptions::kMustWrap},
       },
       {
           DefaultStyle,
@@ -2922,7 +2940,7 @@ TEST(TokenAnnotatorTest, AnnotateFormattingWithContextTest) {
           {'(', "("},
           {/* any context */},
           {NodeEnum::kActualNamedPort},
-          {0, SpacingOptions::kUndecided},
+          {1, SpacingOptions::kUndecided},
       },
       {
           DefaultStyle,
@@ -2930,7 +2948,7 @@ TEST(TokenAnnotatorTest, AnnotateFormattingWithContextTest) {
           {'(', "("},
           {/* any context */},
           {NodeEnum::kGateInstance, NodeEnum::kActualNamedPort},
-          {0, SpacingOptions::kUndecided},
+          {1, SpacingOptions::kUndecided},
       },
       {
           DefaultStyle,
@@ -2940,7 +2958,6 @@ TEST(TokenAnnotatorTest, AnnotateFormattingWithContextTest) {
           {NodeEnum::kModuleHeader, NodeEnum::kPort},
           {0, SpacingOptions::kUndecided},
       },
-
       // cases for the heavily overloaded ':'
 
       // ':' on the right, anything else on the left
