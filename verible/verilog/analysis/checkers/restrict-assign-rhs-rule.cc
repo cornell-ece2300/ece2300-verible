@@ -98,13 +98,24 @@ void RestrictAssignRhsRule::HandleSymbol(const verible::Symbol &symbol,
                                          const SyntaxTreeContext &context) {
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
-  if (!node.MatchesTag(NodeEnum::kNetVariableAssignment)) return;
-  
-  // So it doesn't fire in always blocks but only in assign statements 
-  // (always blocks are handled in separate rule)
-  if (!context.IsInside(NodeEnum::kContinuousAssignmentStatement)) return;
+
+  // Look for both kNetVariableAssignment and kNetDeclarationAssignment nodes
+  const NodeEnum assignment_tag = static_cast<NodeEnum>(node.Tag().tag);
+
+  switch (assignment_tag) {
+    case NodeEnum::kNetVariableAssignment:
+      // So it doesn't fire in always blocks but only in assign statements 
+      // (always blocks are handled in separate rule)
+      if (!context.IsInside(NodeEnum::kContinuousAssignmentStatement)) return;
+      break;
+    case NodeEnum::kNetDeclarationAssignment:
+      break;
+    default:
+      return;
+  }
+
   const verible::Symbol *rhs =
-      verible::GetSubtreeAsSymbol(node, NodeEnum::kNetVariableAssignment, 2);
+      verible::GetSubtreeAsSymbol(node, assignment_tag, 2);
   if (rhs == nullptr) return;
   const verible::SyntaxTreeNode *op = FindFirstOperator(*rhs);
   if (op == nullptr) return;
