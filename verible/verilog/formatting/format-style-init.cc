@@ -105,11 +105,6 @@ ABSL_FLAG(AlignmentPolicy, named_parameter_alignment,
 ABSL_FLAG(AlignmentPolicy, named_port_alignment,
           AlignmentPolicy::kInferUserIntent,
           "Format named port connections: {align,flush-left,preserve,infer}");
-// ece2300
-ABSL_FLAG(AlignmentPolicy, primitive_gate_alignment,
-          AlignmentPolicy::kInferUserIntent,
-          "Format primitive gate arguments (and/or/not/...) so commas line up "
-          "across consecutive gates: {align,flush-left,preserve,infer}");
 ABSL_FLAG(
     AlignmentPolicy, module_net_variable_alignment,  //
     AlignmentPolicy::kInferUserIntent,
@@ -180,7 +175,6 @@ void InitializeFromFlags(FormatStyle *style) {
   STYLE_FROM_FLAG(named_parameter_alignment);
   STYLE_FROM_FLAG(named_port_indentation);
   STYLE_FROM_FLAG(named_port_alignment);
-  STYLE_FROM_FLAG(primitive_gate_alignment);  // ece2300
   STYLE_FROM_FLAG(module_net_variable_alignment);
   STYLE_FROM_FLAG(assignment_statement_alignment);
   STYLE_FROM_FLAG(enum_assignment_statement_alignment);

@@ -25,8 +25,6 @@
 #include "absl/strings/ascii.h"
 #include "verible/common/formatting/align.h"
 #include "verible/common/formatting/format-token.h"
-// ece2300: FitsOnLine, so multi-line gates are excluded from alignment.
-#include "verible/common/formatting/line-wrap-searcher.h"
 #include "verible/common/formatting/token-partition-tree.h"
 #include "verible/common/formatting/unwrapped-line.h"
 #include "verible/common/strings/position.h"
@@ -372,53 +370,6 @@ class ActualNamedPortColumnSchemaScanner : public VerilogColumnSchemaScanner {
   }
 };
 
-// ece2300: This class marks up token-subranges in primitive gate instances
-// for alignment, e.g. "and (row12, in_n[4], in[3]);", so that consecutive
-// gates line up their arguments and commas:
-//   and (row12, in_n[4], in[3],   in[2], in_n[1], in_n[0]);
-//   and (row13, in_n[4], in[3], in_n[2], in_n[1],   in[0]);
-// Columns: the gate keyword, the '(', then one right-flushed column per
-// positional port. A port's cell runs up to the next port, so it carries
-// its trailing ',' (or the closing ');'), which is what lines the commas up.
-class PrimitiveGateColumnSchemaScanner : public VerilogColumnSchemaScanner {
- public:
-  explicit PrimitiveGateColumnSchemaScanner(const FormatStyle &style)
-      : VerilogColumnSchemaScanner(style) {}
-
- protected:
-  void Visit(const SyntaxTreeNode &node) final {
-    auto tag = NodeEnum(node.Tag().tag);
-    VLOG(2) << __FUNCTION__ << ", node: " << tag << " at "
-            << TreePathFormatter(Path());
-    switch (tag) {
-      case NodeEnum::kGateInstantiation: {
-        // First column: the gate keyword (and, or, nand, ...).
-        ReserveNewColumn(node, FlushLeft);
-        break;
-      }
-      case NodeEnum::kParenGroup: {
-        // Second column: the '(' so parens line up across gate kinds.
-        if (Context().DirectParentIs(NodeEnum::kPrimitiveGateInstance)) {
-          ReserveNewColumn(node, FlushLeft);
-        }
-        break;
-      }
-      case NodeEnum::kActualPositionalPort: {
-        // One right-flushed column per argument. Nested commas (inside a
-        // concatenation, index, etc.) live below this node and are not seen.
-        if (Context().DirectParentIs(NodeEnum::kPortActualList)) {
-          ReserveNewColumn(node, FlushRight);
-        }
-        break;
-      }
-      default:
-        break;
-    }
-    TreeContextPathVisitor::Visit(node);
-    VLOG(2) << __FUNCTION__ << ", leaving node: " << tag;
-  }
-};
-
 // This class marks up token-subranges in port declarations for alignment.
 // e.g. "input wire clk,"
 class PortDeclarationColumnSchemaScanner : public VerilogColumnSchemaScanner {
@@ -692,7 +643,6 @@ enum class AlignableSyntaxSubtype {
   kBlockingAssignment,
   kNonBlockingAssignment,
   kDistItem,  // Distribution items.
-  kPrimitiveGateArguments,  // ece2300: positional ports of and/or/not/...
 };
 
 static AlignedPartitionClassification AlignClassify(
@@ -705,12 +655,11 @@ static AlignedPartitionClassification AlignClassify(
 }
 
 static std::vector<TaggedTokenPartitionRange> GetConsecutiveModuleItemGroups(
-    const TokenPartitionRange &partitions, AlignmentGroupBoundary boundary,
-    const FormatStyle &style) {
+    const TokenPartitionRange &partitions, AlignmentGroupBoundary boundary) {
   VLOG(2) << __FUNCTION__;
   return GetPartitionAlignmentSubranges(
       partitions,  //
-      [boundary, &style](const TokenPartitionTree &partition)
+      [boundary](const TokenPartitionTree &partition)
           -> AlignedPartitionClassification {
         const Symbol *origin = partition.Value().Origin();
         if (origin == nullptr) {
@@ -734,16 +683,6 @@ static std::vector<TaggedTokenPartitionRange> GetConsecutiveModuleItemGroups(
         if (node.MatchesTag(NodeEnum::kContinuousAssignmentStatement)) {
           return AlignClassify(AlignmentGroupAction::kMatch,
                                AlignableSyntaxSubtype::kContinuousAssignment);
-        }
-        // ece2300: Align primitive gates, like "and (y, a, b);". A gate too
-        // long for one line has already been wrapped by the tree unwrapper
-        // and is not a table row, so it closes the group instead.
-        if (node.MatchesTag(NodeEnum::kGateInstantiation)) {
-          if (!verible::FitsOnLine(partition.Value(), style).fits) {
-            return AlignClassify(AlignmentGroupAction::kNoMatch);
-          }
-          return AlignClassify(AlignmentGroupAction::kMatch,
-                               AlignableSyntaxSubtype::kPrimitiveGateArguments);
         }
         return AlignClassify(AlignmentGroupAction::kNoMatch);
       });
@@ -1556,12 +1495,6 @@ static const AlignmentHandlerMapType &AlignmentHandlerLibrary() {
        {UnstyledAlignmentCellScannerGenerator<DistItemColumnSchemaScanner>(),
         function_from_pointer_to_member(
             &FormatStyle::distribution_items_alignment)}},
-      // ece2300: primitive gate argument alignment.
-      {AlignableSyntaxSubtype::kPrimitiveGateArguments,
-       {UnstyledAlignmentCellScannerGenerator<
-            PrimitiveGateColumnSchemaScanner>(),
-        function_from_pointer_to_member(
-            &FormatStyle::primitive_gate_alignment)}},
   };
   return *handler_map;
 }
@@ -1668,8 +1601,8 @@ static std::vector<AlignablePartitionGroup> AlignModuleItems(
   // Currently, this only handles data/net/variable declarations.
   // TODO(b/161814377): align continuous assignments
   auto group_extractor = [&vstyle](const TokenPartitionRange &range) {
-    return GetConsecutiveModuleItemGroups(
-        range, vstyle.alignment_group_boundary, vstyle);
+    return GetConsecutiveModuleItemGroups(range,
+                                          vstyle.alignment_group_boundary);
   };
   return ExtractAlignablePartitionGroupsWithBoundary(
       group_extractor, &IgnoreCommentsAndPreprocessingDirectives, full_range,

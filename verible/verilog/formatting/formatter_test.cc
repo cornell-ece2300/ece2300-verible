@@ -5821,7 +5821,7 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule\n",
      "module m;\n"
      "  and x0 (a, b, c);\n"
-     "  or x1  (a, b, d);\n"  // ece2300: gate alignment lines up the '('
+     "  or x1 (a, b, d);\n"
      "endmodule\n"},
     {// ifdef inside port actuals
      "module m;  foo bar   (\n"
@@ -15715,21 +15715,38 @@ endmodule
      "  );\n"
      "endmodule\n"},
 
-    // ece2300: Test case for primitive gate port list packing as many ports per line as fit within column_limit, instead of one port per line
+    // ece2300: Test case for a primitive gate too long for one line: the first ports share the line with "or (", the rest are packed as many per line as fit within column_limit, continuation lines are indented by wrap_spaces, and ");" closes on the last port's line
     {"module m;or(y,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);endmodule\n",
      "module m;\n"
-     "  or (\n"
-     "      y, a, b, c, d, e, f, g, h, i, j,\n"
-     "      k, l, m, n, o, p\n"
-     "  );\n"
+     "  or (y, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l, m, n, o, p);\n"
      "endmodule\n"},
     // ece2300: Test case for primitive gate port list packing (extra spaces permutation, same canonical output)
     {"module m;or   (y,  a,b ,c,d,e,f,g,h,i,j,k,l,m,n,o,p );endmodule\n",
      "module m;\n"
-     "  or (\n"
-     "      y, a, b, c, d, e, f, g, h, i, j,\n"
-     "      k, l, m, n, o, p\n"
-     "  );\n"
+     "  or (y, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l, m, n, o, p);\n"
+     "endmodule\n"},
+    // ece2300: Test case for primitive gate port list packing (already in canonical form, output unchanged)
+    {"module m;\n"
+     "  or (y, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l, m, n, o, p);\n"
+     "endmodule\n",
+     "module m;\n"
+     "  or (y, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l, m, n, o, p);\n"
+     "endmodule\n"},
+    // ece2300: Test case for primitive gate port list packing with an instance name (the name counts toward the first line's width)
+    {"module m;or g1(y,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);endmodule\n",
+     "module m;\n"
+     "  or g1 (y, a, b, c, d, e, f, g, h, i,\n"
+     "      j, k, l, m, n, o, p);\n"
+     "endmodule\n"},
+    // ece2300: Test case for primitive gate port list packing with a trailing comment (comment follows ");" on the last line)
+    {"module m;or(y,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p); // note\nendmodule\n",
+     "module m;\n"
+     "  or (y, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l, m, n, o, p);  // note\n"
      "endmodule\n"},
     // ece2300: Test case for primitive gate with a short port list still collapsing onto one line
     {"module m;or(y,a,b);endmodule\n",
@@ -15739,86 +15756,52 @@ endmodule
     // ece2300: Test case for primitive gate port list packing with indexed ports (packed dimensions count toward the line width)
     {"module m;and(row20,in[4],in_n[3],in[2],in_n[1],in_n[0],in[5],in_n[6]);endmodule\n",
      "module m;\n"
-     "  and (\n"
-     "      row20, in[4], in_n[3], in[2],\n"
-     "      in_n[1], in_n[0], in[5], in_n[6]\n"
-     "  );\n"
+     "  and (row20, in[4], in_n[3], in[2],\n"
+     "      in_n[1], in_n[0], in[5], in_n[6]);\n"
      "endmodule\n"},
     // ece2300: Test case for primitive gate port list packing applying independently to each gate in a module
     {"module m;or(y,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);and(z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);endmodule\n",
      "module m;\n"
-     "  or (\n"
-     "      y, a, b, c, d, e, f, g, h, i, j,\n"
-     "      k, l, m, n, o, p\n"
-     "  );\n"
-     "  and (\n"
-     "      z, a, b, c, d, e, f, g, h, i, j,\n"
-     "      k, l, m, n, o, p\n"
-     "  );\n"
+     "  or (y, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l, m, n, o, p);\n"
+     "  and (z, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l, m, n, o, p);\n"
      "endmodule\n"},
     // ece2300: Test case for primitive gate port list packing leaving a non-leaf port (concatenation) on its own line, packing continues after it
     {"module m;or(y,{a,b},c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r);endmodule\n",
      "module m;\n"
-     "  or (\n"
-     "      y,\n"
+     "  or (y,\n"
      "      {a, b},\n"
      "      c, d, e, f, g, h, i, j, k, l, m,\n"
-     "      n, o, p, q, r\n"
+     "      n, o, p, q, r);\n"
+     "endmodule\n"},
+    // ece2300: Test case for a non-leaf last port (concatenation): ");" is not pulled onto it, so it stays on its own line
+    {"module m;or(y,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,{a,b});endmodule\n",
+     "module m;\n"
+     "  or (y, c, d, e, f, g, h, i, j, k, l,\n"
+     "      m, n, o, p, q, r,\n"
+     "      {a, b}\n"
+     "  );\n"
+     "endmodule\n"},
+    // ece2300: Test case for several primitive gate instances in one statement: each port list is packed in place, parentheses keep their own lines
+    {"module m;or(y,a,b,c,d,e,f,g,h,i,j,k,l),(z,a,b,c,d,e,f,g,h,i,j,k,l);endmodule\n",
+     "module m;\n"
+     "  or (\n"
+     "      y, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l\n"
+     "  ), (\n"
+     "      z, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l\n"
      "  );\n"
      "endmodule\n"},
 
-    // ece2300: Test case for consecutive primitive gates aligning their arguments so the commas line up (each argument column right-flushed)
-    {"module m;and(y,a,bb,c,dd);and(z,aa,b,cc,d);endmodule\n",
-     "module m;\n"
-     "  and (y,  a, bb,  c, dd);\n"
-     "  and (z, aa,  b, cc,  d);\n"
-     "endmodule\n"},
-    // ece2300: Test case for primitive gate alignment (already-aligned spacing permutation, same canonical output)
-    {"module m;and (y,  a, bb,  c, dd);and (z, aa,  b, cc,  d);endmodule\n",
-     "module m;\n"
-     "  and (y,  a, bb,  c, dd);\n"
-     "  and (z, aa,  b, cc,  d);\n"
-     "endmodule\n"},
-    // ece2300: Test case for primitive gate alignment across gate kinds, the keyword column pads so the '(' line up
-    {"module m;and(y,a,bb,c);nand(z,aa,b,cc);endmodule\n",
-     "module m;\n"
-     "  and  (y,  a, bb,  c);\n"
-     "  nand (z, aa,  b, cc);\n"
-     "endmodule\n"},
-    // ece2300: Test case for primitive gate alignment with different argument counts (ragged rows still align the columns they share)
-    {"module m;and(y,a,bb,c,dd);and(z,aa,b);endmodule\n",
-     "module m;\n"
-     "  and (y,  a, bb, c, dd);\n"
-     "  and (z, aa, b);\n"
-     "endmodule\n"},
-    // ece2300: Test case for a single primitive gate not being padded (alignment needs at least two rows)
-    {"module m;and(y,a,bb);endmodule\n",
-     "module m;\n"
-     "  and (y, a, bb);\n"
-     "endmodule\n"},
-    // ece2300: Test case for a non-gate module item between two primitive gates splitting the alignment group
-    {"module m;and(y,a,bb,c);wire w;and(z,aa,b,cc);endmodule\n",
-     "module m;\n"
-     "  and (y, a, bb, c);\n"
-     "  wire w;\n"
-     "  and (z, aa, b, cc);\n"
-     "endmodule\n"},
-    // ece2300: Test case for a primitive gate too long for one line being packed instead, and closing the alignment group on both sides
+    // ece2300: Test case for a primitive gate too long for one line being packed while its short neighbours stay on one line
     {"module m;and(y,a,bb,c);and(z,aa,b,cc,dddddddddddd,eeeeeeeeeeeeee,fffffffffff);and(q,a,bb,c);endmodule\n",
      "module m;\n"
      "  and (y, a, bb, c);\n"
-     "  and (\n"
-     "      z, aa, b, cc, dddddddddddd,\n"
-     "      eeeeeeeeeeeeee, fffffffffff\n"
-     "  );\n"
+     "  and (z, aa, b, cc, dddddddddddd,\n"
+     "      eeeeeeeeeeeeee, fffffffffff);\n"
      "  and (q, a, bb, c);\n"
-     "endmodule\n"},
-    // ece2300: Test case for a blank line between primitive gates not splitting the alignment group (default alignment_group_boundary)
-    {"module m;and(y,a,bb,c);\n\nand(z,aa,b,cc);endmodule\n",
-     "module m;\n"
-     "  and (y,  a, bb,  c);\n"
-     "\n"
-     "  and (z, aa,  b, cc);\n"
      "endmodule\n"},
 
     // ece2300: Test case for task...endtask formatting being disabled (original spacing preserved), surrounding code still reformatted

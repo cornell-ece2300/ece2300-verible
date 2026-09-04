@@ -32,7 +32,7 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "verible/common/formatting/format-token.h"
-// ece2300: FitsOnLine, used by PackGatePortsIntoLines to measure port groups.
+// ece2300: FitsOnLine, used by PackGatePortsIntoLines to measure lines.
 #include "verible/common/formatting/line-wrap-searcher.h"
 #include "verible/common/formatting/token-partition-tree.h"
 #include "verible/common/formatting/tree-unwrapper.h"
@@ -2607,19 +2607,36 @@ static void HandleDataDeclaration(const SyntaxTreeNode &node,
 
 // This phase is strictly concerned with reshaping token partitions,
 // and occurs on the return path of partition tree construction.
-// ece2300: Pack a primitive gate's port list so that as many ports as fit
-// within style.column_limit share a line. Action agains't verible putting
-// ports all on new lines
+// ece2300: Lay out a primitive gate (and/or/not/...) whose port list is too
+// long for one line as
+//
+//   or (tens[0], row10, row11, row12, row13, row14, row15, row16, row17,
+//     row18, row19, row30, row31);
+//
+// The first ports share the line with "or (", continuation lines are
+// indented by wrap_spaces relative to the gate, as many ports as fit within
+// column_limit are packed onto each line, and ");" closes on the last port's
+// line. A gate that fits on one line is left alone so it keeps its original
+// tree shape (it collapses on its own) and stays eligible for primitive gate
+// alignment.
+//
+// On entry the gate partition looks like
+//   [or (]                 <- prefix leaf: gate type, optional name, '('
+//   [<port list>]          <- one leaf per port, commas already attached
+//     [tens[0] ,] [row10 ,] ... [row31]
+//   [) ;]                  <- suffix leaf
+// Ports that are not leaf partitions (e.g. concatenations) keep their own
+// line because MergeConsecutiveSiblings only joins partitions of the same
+// shape; the prefix/suffix are likewise only merged into leaf ports.
+
+// Packs as many consecutive leaf ports of port_list as fit within
+// column_limit onto each line.
 static void PackGatePortsIntoLines(const FormatStyle &style,
                                    TokenPartitionTree *port_list) {
-  // A list that already fits on one line collapses on its own; leave its
-  // partitions alone so short gates keep their original tree shape.
-  if (verible::FitsOnLine(port_list->Value(), style).fits) return;
   auto &ports = port_list->Children();
   size_t i = 0;
   while (i + 1 < ports.size()) {
-    const bool both_leaves =
-        ports[i].Children().empty() && ports[i + 1].Children().empty();
+    const bool both_leaves = is_leaf(ports[i]) && is_leaf(ports[i + 1]);
     // Trial line spanning ports i and i+1 at port i's indentation.
     verible::UnwrappedLine trial(ports[i].Value());
     trial.SpanUpToToken(ports[i + 1].Value().TokensRange().end());
@@ -2629,6 +2646,51 @@ static void PackGatePortsIntoLines(const FormatStyle &style,
       ++i;
     }
   }
+}
+
+static void PackPrimitiveGateIntoLines(const FormatStyle &style,
+                                       TokenPartitionTree *gate) {
+  if (verible::FitsOnLine(gate->Value(), style).fits) return;
+  {
+    const auto &children = gate->Children();
+    const bool simple_shape =
+        children.size() == 3 && is_leaf(children[0]) &&
+        !is_leaf(children[1]) && is_leaf(children[2]) &&
+        PartitionEndsWithOpenParen(children[0]) &&
+        PartitionStartsWithCloseParen(children[2]);
+    if (!simple_shape) {
+      // Anything else, such as several instances in one statement
+      // ("or (y, a, b), (z, c, d);"), just packs each port list in place
+      // and leaves the parentheses on their own lines.
+      for (auto &child : gate->Children()) {
+        if (!is_leaf(child)) PackGatePortsIntoLines(style, &child);
+      }
+      return;
+    }
+  }
+  const int gate_indent = gate->Children()[0].Value().IndentationSpaces();
+
+  // Each merge below erases a child of the gate partition, which shifts the
+  // remaining children, so nothing holds a reference across a merge.
+  size_t list_index = 1;
+
+  // Attach ");" to the last port, so it closes on that port's line.
+  if (is_leaf(gate->Children()[list_index].Children().back())) {
+    verible::MergeLeafIntoPreviousLeaf(&gate->Children()[2]);
+  }
+  // Attach "or (" to the first port and pull that line back out to the
+  // gate's own indentation; the merged leaf inherited the list's wrapped
+  // indentation.
+  if (is_leaf(gate->Children()[list_index].Children().front())) {
+    verible::MergeLeafIntoNextLeaf(&gate->Children()[0]);
+    list_index = 0;
+    gate->Children()[list_index].Children().front().Value().SetIndentationSpaces(
+        gate_indent);
+  }
+
+  // The first port line now carries "or (" and the last carries ");", so
+  // both count toward the width when packing.
+  PackGatePortsIntoLines(style, &gate->Children()[list_index]);
 }
 
 // TODO: this method is long; possibly break out functionality similar to
@@ -3134,13 +3196,21 @@ void TreeUnwrapper::ReshapeTokenPartitions(
 
     case NodeEnum::kPortActualList: {
       AttachSeparatorsToListElementPartitions(&partition);
+      break;
+    }
+
+    case NodeEnum::kGateInstantiation: {
       // ece2300: primitive gates (and/or/not/...) take long positional lists
       // of minterm nets; pack them rather than expanding one per line.
       // Module instantiations are kDataDeclarations, not kGateInstantiations,
       // so their named port connections keep their tabular alignment.
-      if (Context().IsInside(NodeEnum::kGateInstantiation)) {
-        PackGatePortsIntoLines(style, &partition);
-      }
+      // The port list (kPortActualList) has already had its commas attached
+      // by the time this parent node is reshaped.
+      PackPrimitiveGateIntoLines(style, &partition);
+      // Keep the gate as the partition's origin (rather than hoisting the
+      // lone port-list child into its place) so alignment still sees a
+      // kGateInstantiation when deciding whether this gate is a table row.
+      skip_singleton_hoisting = true;
       break;
     }
 
