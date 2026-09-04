@@ -15715,6 +15715,58 @@ endmodule
      "  );\n"
      "endmodule\n"},
 
+    // ece2300: Test case for primitive gate port list packing as many ports per line as fit within column_limit, instead of one port per line
+    {"module m;or(y,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);endmodule\n",
+     "module m;\n"
+     "  or (\n"
+     "      y, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l, m, n, o, p\n"
+     "  );\n"
+     "endmodule\n"},
+    // ece2300: Test case for primitive gate port list packing (extra spaces permutation, same canonical output)
+    {"module m;or   (y,  a,b ,c,d,e,f,g,h,i,j,k,l,m,n,o,p );endmodule\n",
+     "module m;\n"
+     "  or (\n"
+     "      y, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l, m, n, o, p\n"
+     "  );\n"
+     "endmodule\n"},
+    // ece2300: Test case for primitive gate with a short port list still collapsing onto one line
+    {"module m;or(y,a,b);endmodule\n",
+     "module m;\n"
+     "  or (y, a, b);\n"
+     "endmodule\n"},
+    // ece2300: Test case for primitive gate port list packing with indexed ports (packed dimensions count toward the line width)
+    {"module m;and(row20,in[4],in_n[3],in[2],in_n[1],in_n[0],in[5],in_n[6]);endmodule\n",
+     "module m;\n"
+     "  and (\n"
+     "      row20, in[4], in_n[3], in[2],\n"
+     "      in_n[1], in_n[0], in[5], in_n[6]\n"
+     "  );\n"
+     "endmodule\n"},
+    // ece2300: Test case for primitive gate port list packing applying independently to each gate in a module
+    {"module m;or(y,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);and(z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);endmodule\n",
+     "module m;\n"
+     "  or (\n"
+     "      y, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l, m, n, o, p\n"
+     "  );\n"
+     "  and (\n"
+     "      z, a, b, c, d, e, f, g, h, i, j,\n"
+     "      k, l, m, n, o, p\n"
+     "  );\n"
+     "endmodule\n"},
+    // ece2300: Test case for primitive gate port list packing leaving a non-leaf port (concatenation) on its own line, packing continues after it
+    {"module m;or(y,{a,b},c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r);endmodule\n",
+     "module m;\n"
+     "  or (\n"
+     "      y,\n"
+     "      {a, b},\n"
+     "      c, d, e, f, g, h, i, j, k, l, m,\n"
+     "      n, o, p, q, r\n"
+     "  );\n"
+     "endmodule\n"},
+
     // ece2300: Test case for task...endtask formatting being disabled (original spacing preserved), surrounding code still reformatted
     {"module m1;\n"
      "task automatic t1();\n"

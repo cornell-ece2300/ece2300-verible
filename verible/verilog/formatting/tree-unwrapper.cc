@@ -32,6 +32,8 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "verible/common/formatting/format-token.h"
+// ece2300: FitsOnLine, used by PackGatePortsIntoLines to measure port groups.
+#include "verible/common/formatting/line-wrap-searcher.h"
 #include "verible/common/formatting/token-partition-tree.h"
 #include "verible/common/formatting/tree-unwrapper.h"
 #include "verible/common/formatting/unwrapped-line.h"
@@ -2605,6 +2607,33 @@ static void HandleDataDeclaration(const SyntaxTreeNode &node,
 
 // This phase is strictly concerned with reshaping token partitions,
 // and occurs on the return path of partition tree construction.
+// ece2300: Pack a primitive gate's port list so that as many ports as fit
+// within style.column_limit share a line. The list partition itself stays
+// fit-else-expand, so a short gate still collapses onto one line, while a
+// long one expands into these packed groups instead of one port per line.
+// Ports that are not leaf partitions (e.g. concatenations) are left alone
+// because MergeConsecutiveSiblings only joins partitions of the same shape.
+static void PackGatePortsIntoLines(const FormatStyle &style,
+                                   TokenPartitionTree *port_list) {
+  // A list that already fits on one line collapses on its own; leave its
+  // partitions alone so short gates keep their original tree shape.
+  if (verible::FitsOnLine(port_list->Value(), style).fits) return;
+  auto &ports = port_list->Children();
+  size_t i = 0;
+  while (i + 1 < ports.size()) {
+    const bool both_leaves =
+        ports[i].Children().empty() && ports[i + 1].Children().empty();
+    // Trial line spanning ports i and i+1 at port i's indentation.
+    verible::UnwrappedLine trial(ports[i].Value());
+    trial.SpanUpToToken(ports[i + 1].Value().TokensRange().end());
+    if (both_leaves && verible::FitsOnLine(trial, style).fits) {
+      verible::MergeConsecutiveSiblings(port_list, i);
+    } else {
+      ++i;
+    }
+  }
+}
+
 // TODO: this method is long; possibly break out functionality similar to
 // HandleDataDeclaration().
 void TreeUnwrapper::ReshapeTokenPartitions(
@@ -3098,12 +3127,23 @@ void TreeUnwrapper::ReshapeTokenPartitions(
     case NodeEnum::kEnumNameList:
     case NodeEnum::kFormalParameterList:
     case NodeEnum::kOpenRangeList:
-    case NodeEnum::kPortActualList:
     case NodeEnum::kPortDeclarationList:
     case NodeEnum::kPortList:
     case NodeEnum::kVariableDeclarationAssignmentList:
     case NodeEnum::kMacroFormalParameterList: {
       AttachSeparatorsToListElementPartitions(&partition);
+      break;
+    }
+
+    case NodeEnum::kPortActualList: {
+      AttachSeparatorsToListElementPartitions(&partition);
+      // ece2300: primitive gates (and/or/not/...) take long positional lists
+      // of minterm nets; pack them rather than expanding one per line.
+      // Module instantiations are kDataDeclarations, not kGateInstantiations,
+      // so their named port connections keep their tabular alignment.
+      if (Context().IsInside(NodeEnum::kGateInstantiation)) {
+        PackGatePortsIntoLines(style, &partition);
+      }
       break;
     }
 
