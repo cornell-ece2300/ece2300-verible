@@ -2608,11 +2608,8 @@ static void HandleDataDeclaration(const SyntaxTreeNode &node,
 // This phase is strictly concerned with reshaping token partitions,
 // and occurs on the return path of partition tree construction.
 // ece2300: Pack a primitive gate's port list so that as many ports as fit
-// within style.column_limit share a line. The list partition itself stays
-// fit-else-expand, so a short gate still collapses onto one line, while a
-// long one expands into these packed groups instead of one port per line.
-// Ports that are not leaf partitions (e.g. concatenations) are left alone
-// because MergeConsecutiveSiblings only joins partitions of the same shape.
+// within style.column_limit share a line. Action agains't verible putting
+// ports all on new lines
 static void PackGatePortsIntoLines(const FormatStyle &style,
                                    TokenPartitionTree *port_list) {
   // A list that already fits on one line collapses on its own; leave its
