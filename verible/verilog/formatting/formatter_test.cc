@@ -5821,7 +5821,7 @@ static constexpr FormatterTestCase kFormatterTestCases[] = {
      "endmodule\n",
      "module m;\n"
      "  and x0 (a, b, c);\n"
-     "  or x1 (a, b, d);\n"
+     "  or x1  (a, b, d);\n"  // ece2300: gate alignment lines up the '('
      "endmodule\n"},
     {// ifdef inside port actuals
      "module m;  foo bar   (\n"
@@ -15765,6 +15765,60 @@ endmodule
      "      c, d, e, f, g, h, i, j, k, l, m,\n"
      "      n, o, p, q, r\n"
      "  );\n"
+     "endmodule\n"},
+
+    // ece2300: Test case for consecutive primitive gates aligning their arguments so the commas line up (each argument column right-flushed)
+    {"module m;and(y,a,bb,c,dd);and(z,aa,b,cc,d);endmodule\n",
+     "module m;\n"
+     "  and (y,  a, bb,  c, dd);\n"
+     "  and (z, aa,  b, cc,  d);\n"
+     "endmodule\n"},
+    // ece2300: Test case for primitive gate alignment (already-aligned spacing permutation, same canonical output)
+    {"module m;and (y,  a, bb,  c, dd);and (z, aa,  b, cc,  d);endmodule\n",
+     "module m;\n"
+     "  and (y,  a, bb,  c, dd);\n"
+     "  and (z, aa,  b, cc,  d);\n"
+     "endmodule\n"},
+    // ece2300: Test case for primitive gate alignment across gate kinds, the keyword column pads so the '(' line up
+    {"module m;and(y,a,bb,c);nand(z,aa,b,cc);endmodule\n",
+     "module m;\n"
+     "  and  (y,  a, bb,  c);\n"
+     "  nand (z, aa,  b, cc);\n"
+     "endmodule\n"},
+    // ece2300: Test case for primitive gate alignment with different argument counts (ragged rows still align the columns they share)
+    {"module m;and(y,a,bb,c,dd);and(z,aa,b);endmodule\n",
+     "module m;\n"
+     "  and (y,  a, bb, c, dd);\n"
+     "  and (z, aa, b);\n"
+     "endmodule\n"},
+    // ece2300: Test case for a single primitive gate not being padded (alignment needs at least two rows)
+    {"module m;and(y,a,bb);endmodule\n",
+     "module m;\n"
+     "  and (y, a, bb);\n"
+     "endmodule\n"},
+    // ece2300: Test case for a non-gate module item between two primitive gates splitting the alignment group
+    {"module m;and(y,a,bb,c);wire w;and(z,aa,b,cc);endmodule\n",
+     "module m;\n"
+     "  and (y, a, bb, c);\n"
+     "  wire w;\n"
+     "  and (z, aa, b, cc);\n"
+     "endmodule\n"},
+    // ece2300: Test case for a primitive gate too long for one line being packed instead, and closing the alignment group on both sides
+    {"module m;and(y,a,bb,c);and(z,aa,b,cc,dddddddddddd,eeeeeeeeeeeeee,fffffffffff);and(q,a,bb,c);endmodule\n",
+     "module m;\n"
+     "  and (y, a, bb, c);\n"
+     "  and (\n"
+     "      z, aa, b, cc, dddddddddddd,\n"
+     "      eeeeeeeeeeeeee, fffffffffff\n"
+     "  );\n"
+     "  and (q, a, bb, c);\n"
+     "endmodule\n"},
+    // ece2300: Test case for a blank line between primitive gates not splitting the alignment group (default alignment_group_boundary)
+    {"module m;and(y,a,bb,c);\n\nand(z,aa,b,cc);endmodule\n",
+     "module m;\n"
+     "  and (y,  a, bb,  c);\n"
+     "\n"
+     "  and (z, aa,  b, cc);\n"
      "endmodule\n"},
 
     // ece2300: Test case for task...endtask formatting being disabled (original spacing preserved), surrounding code still reformatted

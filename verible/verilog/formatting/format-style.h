@@ -117,6 +117,10 @@ struct FormatStyle : public verible::BasicFormatStyle {
   // Internal tests assume these are forced to kAlign.
   AlignmentPolicy distribution_items_alignment = AlignmentPolicy::kAlign;
 
+  // ece2300: Format primitive gate instances (and/or/not/...) so that the
+  // positional arguments and their commas line up across consecutive gates.
+  AlignmentPolicy primitive_gate_alignment = AlignmentPolicy::kAlign;
+
   bool port_declarations_right_align_packed_dimensions = false;
   bool port_declarations_right_align_unpacked_dimensions = false;
 
@@ -185,6 +189,7 @@ struct FormatStyle : public verible::BasicFormatStyle {
     assignment_statement_alignment = policy;
     enum_assignment_statement_alignment = policy;
     distribution_items_alignment = policy;
+    primitive_gate_alignment = policy;  // ece2300
   }
 };
 

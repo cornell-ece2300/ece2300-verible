@@ -23,6 +23,8 @@ cc_library(
         ":format-style",
         "//verible/common/formatting:align",
         "//verible/common/formatting:format-token",
+        # ece2300: FitsOnLine for primitive gate alignment.
+        "//verible/common/formatting:line-wrap-searcher",
         "//verible/common/formatting:token-partition-tree",
         "//verible/common/formatting:unwrapped-line",
         "//verible/common/strings:position",
