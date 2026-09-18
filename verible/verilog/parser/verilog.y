@@ -4974,17 +4974,29 @@ gatetype
   ;
 switchtype
   : TK_nmos
+    { $$ = std::move($1); }
   | TK_rnmos
+    { $$ = std::move($1); }
   | TK_pmos
+    { $$ = std::move($1); }
   | TK_rpmos
+    { $$ = std::move($1); }
   | TK_cmos
+    { $$ = std::move($1); }
   | TK_rcmos
+    { $$ = std::move($1); }
   | TK_tran
+    { $$ = std::move($1); }
   | TK_rtran
+    { $$ = std::move($1); }
   | TK_tranif0
+    { $$ = std::move($1); }
   | TK_tranif1
+    { $$ = std::move($1); }
   | TK_rtranif0
+    { $$ = std::move($1); }
   | TK_rtranif1
+    { $$ = std::move($1); }
   ;
 
 

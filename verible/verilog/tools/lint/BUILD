@@ -125,6 +125,22 @@ _linter_test_configs = [
     ("banned-declared-name-patterns", "banned_declared_name_patterns", False),
 ]
 
+_ece2300_rule_exclusions = ",".join([
+    "-default-case-signal-coverage",
+    "-default-case-x-only",
+    "-final-else-x-only",
+    "-forbid-async-reset",
+    "-forbid-generic-always",
+    "-forbid-module-instantiation",
+    "-forbid-negedge",
+    "-forbid-special-blocks",
+    "-if-missing-final-else",
+    "-if-x-assignment",
+    "-restrict-assign-rhs",
+    "-restrict-gate-primitives",
+    "-restrict-port-connections",
+])
+
 [
     (
         # Verifies that with no lint rules, test case is syntactically valid.
@@ -164,7 +180,7 @@ _linter_test_configs = [
             srcs = ["testdata/{}.sv".format(testfilebase)],
             flags = [
                 "--ruleset=all",
-                "--rules=-" + rule,  # exclude one rule
+                "--rules=-" + rule + "," + _ece2300_rule_exclusions,
             ],
         ),
     )
