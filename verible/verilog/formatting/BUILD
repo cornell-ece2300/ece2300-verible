@@ -52,6 +52,8 @@ cc_library(
         ":format-style",
         ":verilog-token",
         "//verible/common/formatting:format-token",
+        # ece2300: FitsOnLine for primitive gate port list packing.
+        "//verible/common/formatting:line-wrap-searcher",
         "//verible/common/formatting:token-partition-tree",
         "//verible/common/formatting:tree-unwrapper",
         "//verible/common/formatting:unwrapped-line",
