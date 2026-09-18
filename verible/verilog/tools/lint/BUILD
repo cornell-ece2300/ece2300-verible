@@ -129,6 +129,7 @@ _ece2300_rule_exclusions = ",".join([
     "-default-case-signal-coverage",
     "-default-case-x-only",
     "-final-else-x-only",
+    "-forbid-always-comb",
     "-forbid-always-ff",
     "-forbid-async-reset",
     "-forbid-generic-always",

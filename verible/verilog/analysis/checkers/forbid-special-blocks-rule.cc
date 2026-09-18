@@ -80,18 +80,16 @@ void ForbidSpecialBlocksRule::HandleSymbol(const verible::Symbol &symbol,
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
 
-  
   if (node.MatchesTag(NodeEnum::kAlwaysStatement)) {
-
     const verible::SyntaxTreeLeaf *keyword = verible::GetLeftmostLeaf(symbol);
     if (keyword == nullptr) return;
     // Ignore always_ff and always_comb
     if ((keyword->get().token_enum() == TK_always_ff) ||
         (keyword->get().token_enum() == TK_always_comb)) {
-        return;
-      }
+      return;
     }
-    
+  }
+
   // Match node tag type and get appopriate block name
   const std::string_view name =
       ForbiddenConstructName(static_cast<NodeEnum>(node.Tag().tag));
