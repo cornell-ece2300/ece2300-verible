@@ -39,6 +39,10 @@ TEST(ForbidSpecialBlocksRuleTests, Various) {
       // No violation
       {""},
       {"module m; endmodule"},
+      {"module m; logic q, d, clk, rst; "
+       "always_ff @(posedge clk or negedge rst) q <= d; endmodule"},
+      {"module m; logic a, b, c, d; "
+       "always_comb begin c = a & b; d = a & c; end endmodule"},
       {"module m; logic a, b, c; and(c, a, b); endmodule"},
       {"module m; logic a, b, c, d ; and(c, a, b); and(d, a, c); endmodule"},
       {"module m; logic a, b, c, d ; assign c = a & b; assign d = a & c; endmodule"},
