@@ -39,7 +39,7 @@ using verible::SyntaxTreeContext;
 VERILOG_REGISTER_LINT_RULE(ForbidAlwaysFfRule);
 
 static constexpr std::string_view kMessage =
-    "always_ff is disallowed; use always_comb or gate-level modeling.";
+    "'always_ff' blocks are not allowed.";
 
 const LintRuleDescriptor &ForbidAlwaysFfRule::GetDescriptor() {
   static const LintRuleDescriptor d{
