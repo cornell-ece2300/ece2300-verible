@@ -1,10 +1,10 @@
-// Copyright 2017-2023 The Verible Authors.
+// Copyright 2026 The Verible Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+// https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "verible/verilog/analysis/checkers/forbid-always-ff-rule.h"
+#include "verible/verilog/analysis/checkers/forbid-gate-primitives-rule.h"
 
-#include <set>
 #include <string_view>
 
 #include "verible/common/analysis/lint-rule-status.h"
@@ -26,7 +25,6 @@
 #include "verible/verilog/CST/verilog-nonterminals.h"
 #include "verible/verilog/analysis/descriptions.h"
 #include "verible/verilog/analysis/lint-rule-registry.h"
-#include "verible/verilog/parser/verilog-token-enum.h"
 
 namespace verilog {
 namespace analysis {
@@ -35,39 +33,36 @@ using verible::LintRuleStatus;
 using verible::LintViolation;
 using verible::SyntaxTreeContext;
 
-// Register ForbidAlwaysFfRule so `verible-verilog-lint` can select it by name
-VERILOG_REGISTER_LINT_RULE(ForbidAlwaysFfRule);
+VERILOG_REGISTER_LINT_RULE(ForbidGatePrimitivesRule);
 
 static constexpr std::string_view kMessage =
-    "'always_ff' blocks are not allowed.";
+    "Primitive gates are not allowed. "
+    "Use RTL expressions instead.";
 
-const LintRuleDescriptor &ForbidAlwaysFfRule::GetDescriptor() {
+const LintRuleDescriptor &ForbidGatePrimitivesRule::GetDescriptor() {
   static const LintRuleDescriptor d{
-      .name = "forbid-always-ff",
-      .topic = "sequential-logic",
-      .desc = "Disallows use of the `always_ff` construct.",
+      .name = "forbid-gate-primitives",
+      .topic = "rtl-modeling",
+      .desc =
+          "Disallows all primitive gate instantiations.",
   };
   return d;
 }
 
-void ForbidAlwaysFfRule::HandleSymbol(const verible::Symbol &symbol,
-                                      const SyntaxTreeContext &context) {
-  // Only interested in kAlwaysStatement nodes
+void ForbidGatePrimitivesRule::HandleSymbol(const verible::Symbol &symbol,
+                                            const SyntaxTreeContext &context) {
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
-  if (!node.MatchesTag(NodeEnum::kAlwaysStatement)) return;
+  // The parser uses this tag for logic gates, buffers, pull devices, and
+  // transistor/pass switches
+  if (!node.MatchesTag(NodeEnum::kGateInstantiation)) return;
 
-  // Leaf @0 of a kAlwaysStatement is the keyword:
-  //   always / always_ff / always_comb / always_latch
   const verible::SyntaxTreeLeaf *keyword = verible::GetLeftmostLeaf(symbol);
   if (keyword == nullptr) return;
-
-  if (keyword->get().token_enum() == TK_always_ff) {
-    violations_.insert(LintViolation(keyword->get(), kMessage, context));
-  }
+  violations_.insert(LintViolation(keyword->get(), kMessage, context));
 }
 
-LintRuleStatus ForbidAlwaysFfRule::Report() const {
+LintRuleStatus ForbidGatePrimitivesRule::Report() const {
   return LintRuleStatus(violations_, GetDescriptor());
 }
 

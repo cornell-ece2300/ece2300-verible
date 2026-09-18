@@ -1,10 +1,10 @@
-// Copyright 2017-2023 The Verible Authors.
+// Copyright 2026 The Verible Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+// https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "verible/verilog/analysis/checkers/forbid-always-ff-rule.h"
+#include "verible/verilog/analysis/checkers/forbid-always-comb-rule.h"
 
-#include <set>
 #include <string_view>
 
 #include "verible/common/analysis/lint-rule-status.h"
@@ -35,39 +34,36 @@ using verible::LintRuleStatus;
 using verible::LintViolation;
 using verible::SyntaxTreeContext;
 
-// Register ForbidAlwaysFfRule so `verible-verilog-lint` can select it by name
-VERILOG_REGISTER_LINT_RULE(ForbidAlwaysFfRule);
+VERILOG_REGISTER_LINT_RULE(ForbidAlwaysCombRule);
 
 static constexpr std::string_view kMessage =
-    "'always_ff' blocks are not allowed.";
+    "'always_comb' blocks are not allowed. Use continuous assignments instead.";
 
-const LintRuleDescriptor &ForbidAlwaysFfRule::GetDescriptor() {
+const LintRuleDescriptor &ForbidAlwaysCombRule::GetDescriptor() {
   static const LintRuleDescriptor d{
-      .name = "forbid-always-ff",
-      .topic = "sequential-logic",
-      .desc = "Disallows use of the `always_ff` construct.",
+      .name = "forbid-always-comb",
+      .topic = "combinational-logic",
+      .desc =
+          "Disallows always_comb blocks; use continuous assignments instead.",
   };
   return d;
 }
 
-void ForbidAlwaysFfRule::HandleSymbol(const verible::Symbol &symbol,
-                                      const SyntaxTreeContext &context) {
-  // Only interested in kAlwaysStatement nodes
+void ForbidAlwaysCombRule::HandleSymbol(const verible::Symbol &symbol,
+                                        const SyntaxTreeContext &context) {
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
   if (!node.MatchesTag(NodeEnum::kAlwaysStatement)) return;
 
-  // Leaf @0 of a kAlwaysStatement is the keyword:
-  //   always / always_ff / always_comb / always_latch
   const verible::SyntaxTreeLeaf *keyword = verible::GetLeftmostLeaf(symbol);
   if (keyword == nullptr) return;
 
-  if (keyword->get().token_enum() == TK_always_ff) {
+  if (keyword->get().token_enum() == TK_always_comb) {
     violations_.insert(LintViolation(keyword->get(), kMessage, context));
   }
 }
 
-LintRuleStatus ForbidAlwaysFfRule::Report() const {
+LintRuleStatus ForbidAlwaysCombRule::Report() const {
   return LintRuleStatus(violations_, GetDescriptor());
 }
 

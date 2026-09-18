@@ -39,15 +39,16 @@ using verible::SyntaxTreeContext;
 VERILOG_REGISTER_LINT_RULE(ForbidSpecialBlocksRule);
 
 static constexpr std::string_view kMessage =
-    "RTL construct is not allowed in a gate-level/structural module. Use gate "
-    "primitives and continuous assignments only.";
+    "construct is not allowed by this ruleset.";
 
 const LintRuleDescriptor &ForbidSpecialBlocksRule::GetDescriptor() {
   static const LintRuleDescriptor d{
       .name = "forbid-special-blocks",
-      .topic = "gate-level-modeling",
-      .desc = "Disallows always, initial, function, task, generate, and system "
-              "task calls in gate-level and structural modules.",
+      .topic = "modeling-restrictions",
+      .desc = "Disallows generic always and always_latch blocks, initial blocks, "
+              "function and task declarations, explicit generate regions, and "
+              "system task/function calls. Allows always_comb and always_ff "
+              "blocks; separate rules can prohibit them.",
   };
   return d;
 }
@@ -78,6 +79,16 @@ void ForbidSpecialBlocksRule::HandleSymbol(const verible::Symbol &symbol,
                                            const SyntaxTreeContext &context) {
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
+
+  if (node.MatchesTag(NodeEnum::kAlwaysStatement)) {
+    const verible::SyntaxTreeLeaf *keyword = verible::GetLeftmostLeaf(symbol);
+    if (keyword == nullptr) return;
+    // Ignore always_ff and always_comb
+    if ((keyword->get().token_enum() == TK_always_ff) ||
+        (keyword->get().token_enum() == TK_always_comb)) {
+      return;
+    }
+  }
 
   // Match node tag type and get appopriate block name
   const std::string_view name =

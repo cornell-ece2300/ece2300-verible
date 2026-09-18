@@ -32,9 +32,12 @@ cc_library(
         ":explicit-function-task-parameter-type-rule",
         ":explicit-parameter-storage-type-rule",
         ":explicit-task-lifetime-rule",
+        ":forbid-always-comb-rule",
+        ":forbid-always-ff-rule",
         ":forbid-async-reset-rule",
         ":forbid-consecutive-null-statements-rule",
         ":forbid-defparam-rule",
+        ":forbid-gate-primitives-rule",
         ":forbid-generic-always-rule",
         ":forbid-line-continuations-rule",
         ":forbid-module-instantiation-rule",
@@ -44,6 +47,8 @@ cc_library(
         ":restrict-gate-primitives-rule",
         ":restrict-assign-rhs-rule",
         ":restrict-port-connections-rule",
+        ":default-case-signal-coverage-rule",
+        ":default-case-x-only-rule",
         ":final-else-x-only-rule",
         ":forbidden-anonymous-enums-rule",
         ":forbidden-anonymous-structs-unions-rule",
@@ -1053,6 +1058,107 @@ cc_test(
 )
 
 cc_library(
+    name = "forbid-always-comb-rule",
+    srcs = ["forbid-always-comb-rule.cc"],
+    hdrs = ["forbid-always-comb-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+        "//verible/verilog/parser:verilog-token-enum",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-always-comb-rule_test",
+    srcs = ["forbid-always-comb-rule_test.cc"],
+    deps = [
+        ":forbid-always-comb-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "forbid-always-ff-rule",
+    srcs = ["forbid-always-ff-rule.cc"],
+    hdrs = ["forbid-always-ff-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+        "//verible/verilog/parser:verilog-token-enum",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-always-ff-rule_test",
+    srcs = ["forbid-always-ff-rule_test.cc"],
+    deps = [
+        ":forbid-always-ff-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "forbid-gate-primitives-rule",
+    srcs = ["forbid-gate-primitives-rule.cc"],
+    hdrs = ["forbid-gate-primitives-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-gate-primitives-rule_test",
+    srcs = ["forbid-gate-primitives-rule_test.cc"],
+    deps = [
+        ":forbid-gate-primitives-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "forbid-generic-always-rule",
     srcs = ["forbid-generic-always-rule.cc"],
     hdrs = ["forbid-generic-always-rule.h"],
@@ -1180,6 +1286,77 @@ cc_test(
     srcs = ["if-missing-final-else-rule_test.cc"],
     deps = [
         ":if-missing-final-else-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "default-case-signal-coverage-rule",
+    srcs = ["default-case-signal-coverage-rule.cc"],
+    hdrs = ["default-case-signal-coverage-rule.h"],
+    deps = [
+        "@abseil-cpp//absl/strings",
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:statement",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+        "//verible/verilog/parser:verilog-token-enum",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "default-case-signal-coverage-rule_test",
+    srcs = ["default-case-signal-coverage-rule_test.cc"],
+    deps = [
+        ":default-case-signal-coverage-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "default-case-x-only-rule",
+    srcs = ["default-case-x-only-rule.cc"],
+    hdrs = ["default-case-x-only-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:statement",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+        "//verible/verilog/parser:verilog-token-enum",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "default-case-x-only-rule_test",
+    srcs = ["default-case-x-only-rule_test.cc"],
+    deps = [
+        ":default-case-x-only-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",

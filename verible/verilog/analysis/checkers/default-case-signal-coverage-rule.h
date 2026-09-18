@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VERIBLE_VERILOG_ANALYSIS_CHECKERS_RESTRICT_ASSIGN_RHS_RULE_H_
-#define VERIBLE_VERILOG_ANALYSIS_CHECKERS_RESTRICT_ASSIGN_RHS_RULE_H_
+#ifndef VERIBLE_VERILOG_ANALYSIS_CHECKERS_DEFAULT_CASE_SIGNAL_COVERAGE_RULE_H_
+#define VERIBLE_VERILOG_ANALYSIS_CHECKERS_DEFAULT_CASE_SIGNAL_COVERAGE_RULE_H_
 
 #include <set>
 
@@ -26,11 +26,10 @@
 namespace verilog {
 namespace analysis {
 
-// RestrictAssignRhsRule flags continuous-assignment and net-declaration right-
-// hand sides that are not wiring expressions. Allowed expressions are signals,
-// bit/part-selects, literals, concatenations, and replications. Logic must come
-// from instantiated gate primitives.
-class RestrictAssignRhsRule : public verible::SyntaxTreeLintRule {
+// DefaultCaseSignalCoverageRule flags a signal that is assigned in some case
+// item but never assigned in the `default` case. This kind of signals keep their old
+// value when the selector is x, instead of propagating the x
+class DefaultCaseSignalCoverageRule : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;
 
@@ -48,4 +47,4 @@ class RestrictAssignRhsRule : public verible::SyntaxTreeLintRule {
 }  // namespace analysis
 }  // namespace verilog
 
-#endif  // VERIBLE_VERILOG_ANALYSIS_CHECKERS_RESTRICT_ASSIGN_RHS_RULE_H_
+#endif  // VERIBLE_VERILOG_ANALYSIS_CHECKERS_DEFAULT_CASE_SIGNAL_COVERAGE_RULE_H_

@@ -32,13 +32,17 @@ using verible::RunLintTestCases;
 TEST(ForbidSpecialBlocksRuleTests, Various) {
   // Each violation anchors on its construct's leftmost leaf, the keyword.
   //
-  //     {TK_always_comb, "always_comb"}   {TK_initial,  "initial"}
+  //     {TK_initial,  "initial"}
   //     {TK_function,    "function"}      {TK_task,     "task"}
   //     {TK_generate,    "generate"}
   const std::initializer_list<LintTestCase> kTestCases = {
       // No violation
       {""},
       {"module m; endmodule"},
+      {"module m; logic q, d, clk, rst; "
+       "always_ff @(posedge clk or negedge rst) q <= d; endmodule"},
+      {"module m; logic a, b, c, d; "
+       "always_comb begin c = a & b; d = a & c; end endmodule"},
       {"module m; logic a, b, c; and(c, a, b); endmodule"},
       {"module m; logic a, b, c, d ; and(c, a, b); and(d, a, c); endmodule"},
       {"module m; logic a, b, c, d ; assign c = a & b; assign d = a & c; endmodule"},
@@ -46,19 +50,10 @@ TEST(ForbidSpecialBlocksRuleTests, Various) {
       {"module m; logic clk, rst, en, d, q; DFFR_RTL dffr (.clk (clk),.rst (rst),.en  (en),.d   (d),.q   (q)); endmodule"},
       {"module m; wire a, y1, y2; Foo_GL u1 ( .in(a), .out(y1) ); Foo_GL u2 ( .in(a), .out(y2) ); endmodule"},
 
-      // Violations -- there is no single shared kToken because each 
-      // disallowed construct fails with its own token
+      // Violations
       {"module m; logic q, d, clk, rst; ",
        {TK_always, "always"},
        " @(posedge clk or negedge rst) q <= d; endmodule"},
-
-      {"module m; logic q, d, clk, rst; ",
-       {TK_always_ff, "always_ff"},
-       " @(posedge clk or negedge rst) q <= d; endmodule"},
-
-      {"module m; logic a, b, c, d; ",
-       {TK_always_comb, "always_comb"},
-       " begin c = a & b; d = a & c; end endmodule"},
 
       {"module m; logic q; ",
        {TK_initial, "initial"},

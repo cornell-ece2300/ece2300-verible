@@ -1,10 +1,10 @@
-// Copyright 2017-2020 The Verible Authors.
+// Copyright 2026 The Verible Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+// https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VERIBLE_VERILOG_ANALYSIS_CHECKERS_RESTRICT_ASSIGN_RHS_RULE_H_
-#define VERIBLE_VERILOG_ANALYSIS_CHECKERS_RESTRICT_ASSIGN_RHS_RULE_H_
+#ifndef VERIBLE_VERILOG_ANALYSIS_CHECKERS_FORBID_GATE_PRIMITIVES_RULE_H_
+#define VERIBLE_VERILOG_ANALYSIS_CHECKERS_FORBID_GATE_PRIMITIVES_RULE_H_
 
 #include <set>
 
@@ -26,11 +26,9 @@
 namespace verilog {
 namespace analysis {
 
-// RestrictAssignRhsRule flags continuous-assignment and net-declaration right-
-// hand sides that are not wiring expressions. Allowed expressions are signals,
-// bit/part-selects, literals, concatenations, and replications. Logic must come
-// from instantiated gate primitives.
-class RestrictAssignRhsRule : public verible::SyntaxTreeLintRule {
+// Disallows built-in gate and switch primitive instantiations.
+// Module instantiations are handled by forbid-module-instantiation.
+class ForbidGatePrimitivesRule : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;
 
@@ -48,4 +46,4 @@ class RestrictAssignRhsRule : public verible::SyntaxTreeLintRule {
 }  // namespace analysis
 }  // namespace verilog
 
-#endif  // VERIBLE_VERILOG_ANALYSIS_CHECKERS_RESTRICT_ASSIGN_RHS_RULE_H_
+#endif  // VERIBLE_VERILOG_ANALYSIS_CHECKERS_FORBID_GATE_PRIMITIVES_RULE_H_

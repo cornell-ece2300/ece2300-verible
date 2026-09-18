@@ -26,9 +26,9 @@
 namespace verilog {
 namespace analysis {
 
-// ForbidSpecialBlocksRule flags RTL/behavioral constructs that have no place in
-// a gate-level or structural module: always, initial, function, task, generate,
-// and system task calls
+// Disallows generic always and always_latch blocks, initial blocks, function
+// and task declarations, explicit generate regions, and system task/function
+// calls. The always_comb and always_ff blocks are handled by separate rules.
 class ForbidSpecialBlocksRule : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;
