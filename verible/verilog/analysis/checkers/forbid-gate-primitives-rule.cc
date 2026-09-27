@@ -37,12 +37,13 @@ VERILOG_REGISTER_LINT_RULE(ForbidGatePrimitivesRule);
 
 static constexpr std::string_view kMessage =
     "Primitive gates are not allowed. "
-    "Use RTL expressions instead.";
+    "Use module instantiations in structural modules or RTL expressions "
+    "in RTL modules.";
 
 const LintRuleDescriptor &ForbidGatePrimitivesRule::GetDescriptor() {
   static const LintRuleDescriptor d{
       .name = "forbid-gate-primitives",
-      .topic = "rtl-modeling",
+      .topic = "modeling-style",
       .desc =
           "Disallows all primitive gate instantiations.",
   };
