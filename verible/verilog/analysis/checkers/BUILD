@@ -38,6 +38,7 @@ cc_library(
         ":forbid-consecutive-null-statements-rule",
         ":forbid-defparam-rule",
         ":forbid-gate-primitives-rule",
+        ":forbid-ternary-rule",
         ":forbid-generic-always-rule",
         ":forbid-line-continuations-rule",
         ":forbid-module-instantiation-rule",
@@ -1153,6 +1154,38 @@ cc_test(
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",
         "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "forbid-ternary-rule",
+    srcs = ["forbid-ternary-rule.cc"],
+    hdrs = ["forbid-ternary-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-ternary-rule_test",
+    srcs = ["forbid-ternary-rule_test.cc"],
+    deps = [
+        ":forbid-ternary-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
