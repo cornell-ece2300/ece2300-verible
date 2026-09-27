@@ -31,7 +31,7 @@ using verible::RunLintTestCases;
 TEST(ForbidTernaryRuleTests, Various) {
   const std::initializer_list<LintTestCase> kTestCases = {
       // No violations: other forms of combinational logic.
-      {""},s
+      {""},
       {"module m; endmodule"},
       {"module m; assign y = a & b; endmodule"},
       {"module m; always_comb if (sel) y = a; else y = b; endmodule"},
