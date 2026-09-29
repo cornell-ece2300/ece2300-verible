@@ -26,8 +26,8 @@
 namespace verilog {
 namespace analysis {
 
-// DefaultCaseXOnlyRule flags assignments in a `default` case item whose
-// right-hand side is not an x literal
+// Flags assignments and helper-call arguments in a `default` case item
+// that do not use explicit X literals.
 class DefaultCaseXOnlyRule : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;
