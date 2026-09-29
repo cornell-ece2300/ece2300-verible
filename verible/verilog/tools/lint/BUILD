@@ -143,6 +143,7 @@ _ece2300_rule_exclusions = ",".join([
     "-forbid-ternary",
     "-if-missing-final-else",
     "-if-x-assignment",
+    "-only-case-in-always-comb",
     "-restrict-assign-rhs",
     "-restrict-gate-primitives",
     "-restrict-port-connections",

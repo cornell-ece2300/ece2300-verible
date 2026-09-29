@@ -78,6 +78,7 @@ cc_library(
         ":no-trailing-spaces-rule",
         ":numeric-format-string-style-rule",
         ":one-module-per-file-rule",
+        ":only-case-in-always-comb-rule",
         ":package-filename-rule",
         ":packed-dimensions-rule",
         ":parameter-name-style-rule",
@@ -576,6 +577,7 @@ cc_test(
     srcs = ["one-module-per-file-rule_test.cc"],
     deps = [
         ":one-module-per-file-rule",
+        ":only-case-in-always-comb-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:text-structure-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",
@@ -1087,6 +1089,40 @@ cc_test(
     srcs = ["forbid-always-comb-rule_test.cc"],
     deps = [
         ":forbid-always-comb-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "only-case-in-always-comb-rule",
+    srcs = ["only-case-in-always-comb-rule.cc"],
+    hdrs = ["only-case-in-always-comb-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+        "//verible/verilog/parser:verilog-token-enum",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "only-case-in-always-comb-rule_test",
+    srcs = ["only-case-in-always-comb-rule_test.cc"],
+    deps = [
+        ":only-case-in-always-comb-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",
