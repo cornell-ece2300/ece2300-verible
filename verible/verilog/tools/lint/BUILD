@@ -138,6 +138,7 @@ _ece2300_rule_exclusions = ",".join([
     "-forbid-module-instantiation",
     "-forbid-negedge",
     "-forbid-nested-ternary",
+    "-forbid-nested-if-statements",
     "-forbid-special-blocks",
     "-forbid-ternary",
     "-if-missing-final-else",
