@@ -46,6 +46,7 @@ cc_library(
         ":forbid-module-instantiation-rule",
         ":forbid-negative-array-dim",
         ":forbid-negedge-rule",
+        ":forbid-nested-ternary-rule",
         ":forbid-special-blocks-rule",
         ":restrict-gate-primitives-rule",
         ":restrict-assign-rhs-rule",
@@ -1185,6 +1186,38 @@ cc_test(
     srcs = ["forbid-ternary-rule_test.cc"],
     deps = [
         ":forbid-ternary-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "forbid-nested-ternary-rule",
+    srcs = ["forbid-nested-ternary-rule.cc"],
+    hdrs = ["forbid-nested-ternary-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-nested-ternary-rule_test",
+    srcs = ["forbid-nested-ternary-rule_test.cc"],
+    deps = [
+        ":forbid-nested-ternary-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",
