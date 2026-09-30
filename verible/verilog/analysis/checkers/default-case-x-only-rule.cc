@@ -42,11 +42,16 @@ static constexpr std::string_view kMessage =
     "Non-'x assignment in the 'default' case. The default case must assign "
     "only 'x (write: signal = 'x;).";
 
+static constexpr std::string_view kArgumentMessage =
+    "Call arguments in the 'default' case must be explicit 'x literals.";
+
 const LintRuleDescriptor &DefaultCaseXOnlyRule::GetDescriptor() {
   static const LintRuleDescriptor d{
       .name = "default-case-x-only",
       .topic = "x-propagation",
-      .desc = "Checks that a `default` case item assigns only `'x` values.",
+      .desc =
+          "Checks that assignments and helper-call arguments in a `default` "
+          "case item use only explicit `'x` literals.",
   };
   return d;
 }
@@ -122,9 +127,25 @@ static bool IsXLiteral(const verible::SyntaxTreeNode &expression) {
 
 void DefaultCaseXOnlyRule::HandleSymbol(const verible::Symbol &symbol,
                                         const SyntaxTreeContext &context) {
-
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const verible::SyntaxTreeNode &node = verible::SymbolCastToNode(symbol);
+
+  // Check it's a kArgumentList in a default block and in a task/function call
+  if (node.MatchesTag(NodeEnum::kArgumentList) &&
+      context.IsInside(NodeEnum::kDefaultItem) &&
+      context.IsInside(NodeEnum::kFunctionCall)) {
+    for (const auto &child : node.children()) {
+      if (child == nullptr || child->Kind() != verible::SymbolKind::kNode) {
+        continue;
+      }
+
+      const auto &argument = verible::SymbolCastToNode(*child);
+      if (!argument.MatchesTag(NodeEnum::kExpression) || !IsXLiteral(argument)) {
+        violations_.insert(LintViolation(argument, kArgumentMessage, context));
+      }
+    }
+    return;
+  }
 
   if (!node.MatchesTag(NodeEnum::kDefaultItem)) return;
 

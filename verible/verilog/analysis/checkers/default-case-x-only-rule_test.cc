@@ -71,6 +71,59 @@ TEST(DefaultCaseXOnlyRuleTests, Various) {
        "case (sel) 2'd0: q <= a; default: ",
        {kToken, "q"},
        " <= 1'b0; endcase endmodule"},
+
+      // Helper calls, all arguments in default must be explicit X literals
+      {"module m; always_comb case (s) "
+       "0: set_outputs(0, 1); default: set_outputs('x, 'x); endcase endmodule"},
+      {"module m; always_comb case (s) "
+       "default: set_outputs('X, 1'bx, 4'bxxxx, 8'hxx, 6'oxx, 4'dx); "
+       "endcase endmodule"},
+      {"module m; always_comb case (s) default: begin "
+       "y = 'x; set_outputs('x); other_outputs(8'hx_x); end endcase endmodule"},
+      {"module m; task automatic set_outputs(input logic a, b); "
+       "y = a; z = b; endtask always_comb case (s) "
+       "0: set_outputs(0, 1); default: set_outputs('x, 'x); endcase endmodule"},
+
+      {"module m; always_comb case (s) default: set_outputs('x, ",
+       {TK_DecNumber, "0"},
+       "); endcase endmodule"},
+      {"module m; always_comb case (s) default: set_outputs(",
+       {TK_DecNumber, "1"},
+       "'b0, 'x); endcase endmodule"},
+      {"module m; always_comb case (s) default: set_outputs(",
+       {TK_UnBasedNumber, "'z"},
+       "); endcase endmodule"},
+
+      {"module m; always_comb case (s) default: set_outputs('x, ",
+       {kToken, "signal"},
+       "); endcase endmodule"},
+      {"module m; localparam X = 'x; always_comb case (s) "
+       "default: set_outputs(",
+       {kToken, "X"},
+       "); endcase endmodule"},
+      {"module m; always_comb case (s) default: set_outputs(",
+       {TK_UnBasedNumber, "'x"},
+       " & mask); endcase endmodule"},
+
+      {"module m; always_comb case (s) default: set_outputs(",
+       {TK_DecNumber, "0"},
+       ", 'x, ",
+       {kToken, "signal"},
+       "); endcase endmodule"},
+      {"module m; always_comb case (s) default: begin ",
+       {kToken, "y"},
+       " = 0; set_outputs(",
+       {TK_DecNumber, "1"},
+       "); end endcase endmodule"},
+
+      // Omitted arguments are ignored; supplied arguments are still checked.
+      {"module m; always_comb case (s) "
+       "default: set_outputs(, 'x); endcase endmodule"},
+      {"module m; always_comb case (s) "
+       "default: set_outputs('x, , 'x,); endcase endmodule"},
+      {"module m; always_comb case (s) default: set_outputs(, ",
+       {TK_DecNumber, "0"},
+       "); endcase endmodule"},
   };
 
   RunLintTestCases<VerilogAnalyzer, DefaultCaseXOnlyRule>(kTestCases);

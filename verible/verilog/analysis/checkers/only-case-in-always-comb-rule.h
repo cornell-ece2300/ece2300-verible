@@ -1,10 +1,10 @@
-// Copyright 2017-2020 The Verible Authors.
+// Copyright 2026 The Verible Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+// https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VERIBLE_VERILOG_ANALYSIS_CHECKERS_DEFAULT_CASE_X_ONLY_RULE_H_
-#define VERIBLE_VERILOG_ANALYSIS_CHECKERS_DEFAULT_CASE_X_ONLY_RULE_H_
+#ifndef VERIBLE_VERILOG_ANALYSIS_CHECKERS_ONLY_CASE_IN_ALWAYS_COMB_RULE_H_
+#define VERIBLE_VERILOG_ANALYSIS_CHECKERS_ONLY_CASE_IN_ALWAYS_COMB_RULE_H_
 
 #include <set>
 
@@ -26,9 +26,8 @@
 namespace verilog {
 namespace analysis {
 
-// Flags assignments and helper-call arguments in a `default` case item
-// that do not use explicit X literals.
-class DefaultCaseXOnlyRule : public verible::SyntaxTreeLintRule {
+// Checks if the only element in an always_comb body is a case statement
+class OnlyCaseInAlwaysCombRule : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;
 
@@ -46,4 +45,4 @@ class DefaultCaseXOnlyRule : public verible::SyntaxTreeLintRule {
 }  // namespace analysis
 }  // namespace verilog
 
-#endif  // VERIBLE_VERILOG_ANALYSIS_CHECKERS_DEFAULT_CASE_X_ONLY_RULE_H_
+#endif  // VERIBLE_VERILOG_ANALYSIS_CHECKERS_ONLY_CASE_IN_ALWAYS_COMB_RULE_H_
