@@ -44,6 +44,7 @@ cc_library(
         ":forbid-logic-initialization-rule",
         ":forbid-line-continuations-rule",
         ":forbid-module-instantiation-rule",
+        ":forbid-module-instantiations-except-registers-rule",
         ":forbid-negative-array-dim",
         ":forbid-negedge-rule",
         ":forbid-nested-ternary-rule",
@@ -1663,6 +1664,40 @@ cc_test(
     srcs = ["forbid-module-instantiation-rule_test.cc"],
     deps = [
         ":forbid-module-instantiation-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "forbid-module-instantiations-except-registers-rule",
+    srcs = ["forbid-module-instantiations-except-registers-rule.cc"],
+    hdrs = ["forbid-module-instantiations-except-registers-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:declaration",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-module-instantiations-except-registers-rule_test",
+    srcs = ["forbid-module-instantiations-except-registers-rule_test.cc"],
+    deps = [
+        ":forbid-module-instantiations-except-registers-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",
