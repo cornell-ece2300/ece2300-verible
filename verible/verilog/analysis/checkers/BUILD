@@ -39,6 +39,7 @@ cc_library(
         ":forbid-defparam-rule",
         ":forbid-gate-primitives-rule",
         ":forbid-ternary-rule",
+        ":forbid-one-bit-literal-ternary-rule",
         ":forbid-generic-always-rule",
         ":forbid-if-statements-rule",
         ":forbid-logic-initialization-rule",
@@ -1224,6 +1225,38 @@ cc_test(
     srcs = ["forbid-ternary-rule_test.cc"],
     deps = [
         ":forbid-ternary-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "forbid-one-bit-literal-ternary-rule",
+    srcs = ["forbid-one-bit-literal-ternary-rule.cc"],
+    hdrs = ["forbid-one-bit-literal-ternary-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-one-bit-literal-ternary-rule_test",
+    srcs = ["forbid-one-bit-literal-ternary-rule_test.cc"],
+    deps = [
+        ":forbid-one-bit-literal-ternary-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",
