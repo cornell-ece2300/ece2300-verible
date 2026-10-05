@@ -37,7 +37,7 @@ VERILOG_REGISTER_LINT_RULE(ForbidOneBitLiteralTernaryRule);
 
 static constexpr std::string_view kMessage =
     "Ternary expressions with one-bit literals in both result branches "
-    "are not allowed.";
+    "are not allowed. Directly assign to select expression or its complement.";
 
 const LintRuleDescriptor &ForbidOneBitLiteralTernaryRule::GetDescriptor() {
   static const LintRuleDescriptor d{
