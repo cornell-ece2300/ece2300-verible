@@ -39,11 +39,13 @@ cc_library(
         ":forbid-defparam-rule",
         ":forbid-gate-primitives-rule",
         ":forbid-ternary-rule",
+        ":forbid-one-bit-literal-ternary-rule",
         ":forbid-generic-always-rule",
         ":forbid-if-statements-rule",
         ":forbid-logic-initialization-rule",
         ":forbid-line-continuations-rule",
         ":forbid-module-instantiation-rule",
+        ":forbid-module-instantiation-except-registers-rule",
         ":forbid-negative-array-dim",
         ":forbid-negedge-rule",
         ":forbid-nested-ternary-rule",
@@ -1232,6 +1234,38 @@ cc_test(
 )
 
 cc_library(
+    name = "forbid-one-bit-literal-ternary-rule",
+    srcs = ["forbid-one-bit-literal-ternary-rule.cc"],
+    hdrs = ["forbid-one-bit-literal-ternary-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-one-bit-literal-ternary-rule_test",
+    srcs = ["forbid-one-bit-literal-ternary-rule_test.cc"],
+    deps = [
+        ":forbid-one-bit-literal-ternary-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "forbid-nested-ternary-rule",
     srcs = ["forbid-nested-ternary-rule.cc"],
     hdrs = ["forbid-nested-ternary-rule.h"],
@@ -1663,6 +1697,40 @@ cc_test(
     srcs = ["forbid-module-instantiation-rule_test.cc"],
     deps = [
         ":forbid-module-instantiation-rule",
+        "//verible/common/analysis:linter-test-utils",
+        "//verible/common/analysis:syntax-tree-linter-test-utils",
+        "//verible/verilog/analysis:verilog-analyzer",
+        "//verible/verilog/parser:verilog-token-enum",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "forbid-module-instantiation-except-registers-rule",
+    srcs = ["forbid-module-instantiation-except-registers-rule.cc"],
+    hdrs = ["forbid-module-instantiation-except-registers-rule.h"],
+    deps = [
+        "//verible/common/analysis:lint-rule-status",
+        "//verible/common/analysis:syntax-tree-lint-rule",
+        "//verible/common/text:concrete-syntax-leaf",
+        "//verible/common/text:concrete-syntax-tree",
+        "//verible/common/text:symbol",
+        "//verible/common/text:syntax-tree-context",
+        "//verible/common/text:tree-utils",
+        "//verible/verilog/CST:declaration",
+        "//verible/verilog/CST:verilog-nonterminals",
+        "//verible/verilog/analysis:descriptions",
+        "//verible/verilog/analysis:lint-rule-registry",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "forbid-module-instantiation-except-registers-rule_test",
+    srcs = ["forbid-module-instantiation-except-registers-rule_test.cc"],
+    deps = [
+        ":forbid-module-instantiation-except-registers-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",
