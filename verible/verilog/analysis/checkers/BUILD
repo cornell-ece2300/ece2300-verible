@@ -45,7 +45,7 @@ cc_library(
         ":forbid-logic-initialization-rule",
         ":forbid-line-continuations-rule",
         ":forbid-module-instantiation-rule",
-        ":forbid-module-instantiations-except-registers-rule",
+        ":forbid-module-instantiation-except-registers-rule",
         ":forbid-negative-array-dim",
         ":forbid-negedge-rule",
         ":forbid-nested-ternary-rule",
@@ -1707,9 +1707,9 @@ cc_test(
 )
 
 cc_library(
-    name = "forbid-module-instantiations-except-registers-rule",
-    srcs = ["forbid-module-instantiations-except-registers-rule.cc"],
-    hdrs = ["forbid-module-instantiations-except-registers-rule.h"],
+    name = "forbid-module-instantiation-except-registers-rule",
+    srcs = ["forbid-module-instantiation-except-registers-rule.cc"],
+    hdrs = ["forbid-module-instantiation-except-registers-rule.h"],
     deps = [
         "//verible/common/analysis:lint-rule-status",
         "//verible/common/analysis:syntax-tree-lint-rule",
@@ -1727,10 +1727,10 @@ cc_library(
 )
 
 cc_test(
-    name = "forbid-module-instantiations-except-registers-rule_test",
-    srcs = ["forbid-module-instantiations-except-registers-rule_test.cc"],
+    name = "forbid-module-instantiation-except-registers-rule_test",
+    srcs = ["forbid-module-instantiation-except-registers-rule_test.cc"],
     deps = [
-        ":forbid-module-instantiations-except-registers-rule",
+        ":forbid-module-instantiation-except-registers-rule",
         "//verible/common/analysis:linter-test-utils",
         "//verible/common/analysis:syntax-tree-linter-test-utils",
         "//verible/verilog/analysis:verilog-analyzer",

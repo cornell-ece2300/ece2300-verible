@@ -136,7 +136,7 @@ _ece2300_rule_exclusions = ",".join([
     "-forbid-if-statements",
     "-forbid-logic-initialization",
     "-forbid-module-instantiation",
-    "-forbid-module-instantiations-except-registers",
+    "-forbid-module-instantiation-except-registers",
     "-forbid-negedge",
     "-forbid-nested-ternary",
     "-forbid-nested-if-statements",

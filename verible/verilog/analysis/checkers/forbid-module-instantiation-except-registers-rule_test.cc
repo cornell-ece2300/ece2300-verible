@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "verible/verilog/analysis/checkers/forbid-module-instantiations-except-registers-rule.h"
+#include "verible/verilog/analysis/checkers/forbid-module-instantiation-except-registers-rule.h"
 
 #include <initializer_list>
 
@@ -29,7 +29,7 @@ namespace {
 using verible::LintTestCase;
 using verible::RunLintTestCases;
 
-TEST(ForbidModuleInstantiationsExceptRegistersRuleTests, Various) {
+TEST(ForbidModuleInstantiationExceptRegistersRuleTests, Various) {
   constexpr int kToken = SymbolIdentifier;
   const std::initializer_list<LintTestCase> kTestCases = {
       // No violations
@@ -74,7 +74,7 @@ TEST(ForbidModuleInstantiationsExceptRegistersRuleTests, Various) {
 
   };
   RunLintTestCases<VerilogAnalyzer,
-                   ForbidModuleInstantiationsExceptRegistersRule>(kTestCases);
+                   ForbidModuleInstantiationExceptRegistersRule>(kTestCases);
 }
 
 }  // namespace

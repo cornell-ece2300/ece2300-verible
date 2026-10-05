@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "verible/verilog/analysis/checkers/forbid-module-instantiations-except-registers-rule.h"
+#include "verible/verilog/analysis/checkers/forbid-module-instantiation-except-registers-rule.h"
 
 #include <string_view>
 
@@ -34,16 +34,16 @@ using verible::LintRuleStatus;
 using verible::LintViolation;
 using verible::SyntaxTreeContext;
 
-VERILOG_REGISTER_LINT_RULE(ForbidModuleInstantiationsExceptRegistersRule);
+VERILOG_REGISTER_LINT_RULE(ForbidModuleInstantiationExceptRegistersRule);
 
 static constexpr std::string_view kMessage =
     "Module instantiation is not allowed here unless it is an approved "
     "register module.";
 
 const LintRuleDescriptor &
-ForbidModuleInstantiationsExceptRegistersRule::GetDescriptor() {
+ForbidModuleInstantiationExceptRegistersRule::GetDescriptor() {
   static const LintRuleDescriptor d{
-      .name = "forbid-module-instantiations-except-registers",
+      .name = "forbid-module-instantiation-except-registers",
       .topic = "module-instantiation",
       .desc =
           "Allows only flip-flop and register module instantiations.",
@@ -59,7 +59,7 @@ static bool IsAllowedRegister(std::string_view name) {
          name == "ShiftRegister_44b_RTL";
 }
 
-void ForbidModuleInstantiationsExceptRegistersRule::HandleSymbol(
+void ForbidModuleInstantiationExceptRegistersRule::HandleSymbol(
     const verible::Symbol &symbol, const SyntaxTreeContext &context) {
   if (symbol.Kind() != verible::SymbolKind::kNode) return;
   const auto &node = verible::SymbolCastToNode(symbol);
@@ -80,7 +80,7 @@ void ForbidModuleInstantiationsExceptRegistersRule::HandleSymbol(
   violations_.insert(LintViolation(node, kMessage, context));
 }
 
-LintRuleStatus ForbidModuleInstantiationsExceptRegistersRule::Report() const {
+LintRuleStatus ForbidModuleInstantiationExceptRegistersRule::Report() const {
   return LintRuleStatus(violations_, GetDescriptor());
 }
 

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VERIBLE_VERILOG_ANALYSIS_CHECKERS_FORBID_MODULE_INSTANTIATIONS_EXCEPT_REGISTERS_RULE_H_
-#define VERIBLE_VERILOG_ANALYSIS_CHECKERS_FORBID_MODULE_INSTANTIATIONS_EXCEPT_REGISTERS_RULE_H_
+#ifndef VERIBLE_VERILOG_ANALYSIS_CHECKERS_FORBID_MODULE_INSTANTIATION_EXCEPT_REGISTERS_RULE_H_
+#define VERIBLE_VERILOG_ANALYSIS_CHECKERS_FORBID_MODULE_INSTANTIATION_EXCEPT_REGISTERS_RULE_H_
 
 #include <set>
 
@@ -27,7 +27,7 @@ namespace verilog {
 namespace analysis {
 
 // Allows only the explicitly listed course register modules to be instantiated
-class ForbidModuleInstantiationsExceptRegistersRule
+class ForbidModuleInstantiationExceptRegistersRule
     : public verible::SyntaxTreeLintRule {
  public:
   using rule_type = verible::SyntaxTreeLintRule;
@@ -46,4 +46,4 @@ class ForbidModuleInstantiationsExceptRegistersRule
 }  // namespace analysis
 }  // namespace verilog
 
-#endif  // VERIBLE_VERILOG_ANALYSIS_CHECKERS_FORBID_MODULE_INSTANTIATIONS_EXCEPT_REGISTERS_RULE_H_
+#endif  // VERIBLE_VERILOG_ANALYSIS_CHECKERS_FORBID_MODULE_INSTANTIATION_EXCEPT_REGISTERS_RULE_H_
