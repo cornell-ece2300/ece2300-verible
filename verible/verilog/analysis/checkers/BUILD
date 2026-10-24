@@ -1711,6 +1711,7 @@ cc_library(
     srcs = ["forbid-module-instantiation-except-registers-rule.cc"],
     hdrs = ["forbid-module-instantiation-except-registers-rule.h"],
     deps = [
+        "@abseil-cpp//absl/strings",
         "//verible/common/analysis:lint-rule-status",
         "//verible/common/analysis:syntax-tree-lint-rule",
         "//verible/common/text:concrete-syntax-leaf",
