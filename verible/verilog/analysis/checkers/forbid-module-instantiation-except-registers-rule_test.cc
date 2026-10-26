@@ -58,6 +58,13 @@ TEST(ForbidModuleInstantiationExceptRegistersRuleTests, Various) {
       {"module m; DFF_RTL r[3:0](); endmodule"},
       {"module m; DFF_RTL r0(), r1(); endmodule"},
 
+      {"module m; Register_2b_RTL r(); endmodule"},
+      {"module m; Register_2b_GL r(); endmodule"},
+      {"module m; Register_1b_RTL r(); endmodule"},
+      {"module m; Register_128b_GL r(); endmodule"},
+      {"module m; Register_11b_RTL r(); endmodule"},
+      {"module m; Register_1298b_GL r(); endmodule"},
+
       // Violations
       {"module m; Adder_16b_RTL ", {kToken, "adder"}, "(); endmodule"},
       {"module m; Other ", {kToken, "DFF_RTL"}, "(); endmodule"},
@@ -71,6 +78,18 @@ TEST(ForbidModuleInstantiationExceptRegistersRuleTests, Various) {
        {kToken, "r1"},
        "(); endmodule"},
       {"module m; DFF_RTL r(); Other ", {kToken, "u"}, "(); endmodule"},
+
+      {"module m; Register_b_RTL ", {kToken, "r"}, "(); endmodule"},
+      {"module m; Register_b_GL ", {kToken, "r"}, "(); endmodule"},
+      {"module m; Register_Nb_RTL ", {kToken, "r"}, "(); endmodule"},
+      {"module m; Register_2_2b_RTL ", {kToken, "r"}, "(); endmodule"},
+      {"module m; Register_2_RTL ", {kToken, "r"}, "(); endmodule"},
+      {"module m; Register_2b ", {kToken, "r"}, "(); endmodule"},
+      {"module m; Register_2b_rtl ", {kToken, "r"}, "(); endmodule"},
+      {"module m; register_2b_RTL ", {kToken, "r"}, "(); endmodule"},
+      {"module m; XRegister_2b_RTL ", {kToken, "r"}, "(); endmodule"},
+      {"module m; Register_2b_RTL_x ", {kToken, "r"}, "(); endmodule"},
+      {"module m; Register_2b_RTL_GL ", {kToken, "r"}, "(); endmodule"},
 
   };
   RunLintTestCases<VerilogAnalyzer,

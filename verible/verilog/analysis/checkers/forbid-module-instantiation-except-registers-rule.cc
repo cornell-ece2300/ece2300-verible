@@ -16,6 +16,8 @@
 
 #include <string_view>
 
+#include "absl/strings/ascii.h"
+#include "absl/strings/strip.h"
 #include "verible/common/analysis/lint-rule-status.h"
 #include "verible/common/text/concrete-syntax-leaf.h"
 #include "verible/common/text/concrete-syntax-tree.h"
@@ -51,11 +53,22 @@ ForbidModuleInstantiationExceptRegistersRule::GetDescriptor() {
   return d;
 }
 
+// Matches Register_xb_RTL or Register_xb_GL, where x is one or more decimal digits
+static bool IsRegisterNb(std::string_view name) {
+  if (!absl::ConsumePrefix(&name, "Register_")) return false;
+  if ((!absl::ConsumeSuffix(&name, "b_RTL")) && (!absl::ConsumeSuffix(&name, "b_GL"))) return false;
+  if (name.empty()) return false;  // rejects "Register_b_RTL"
+  for (char c : name) {
+    if (!absl::ascii_isdigit(static_cast<unsigned char>(c))) return false;
+  }
+  return true;
+}
+
 static bool IsAllowedRegister(std::string_view name) {
-  return name == "DFF_GL" || name == "DFF_RTL" || name == "DFFR_GL" ||
+  return IsRegisterNb(name) ||
+         name == "DFF_GL" || name == "DFF_RTL" || name == "DFFR_GL" ||
          name == "DFFR_RTL" || name == "DFFRE_GL" || name == "DFFRE_RTL" ||
-         name == "Register_16b_GL" || name == "Register_16b_RTL" ||
-         name == "RegfileZ2r1w_32x32b_RTL" || name == "Register_32b_RTL" ||
+         name == "RegfileZ2r1w_32x32b_RTL" ||
          name == "ShiftRegister_44b_RTL";
 }
 
