@@ -147,6 +147,7 @@ _ece2300_rule_exclusions = ",".join([
     "-if-x-assignment",
     "-only-case-in-always-comb",
     "-restrict-assign-rhs",
+    "-restrict-assign-rhs-except-boolean",
     "-restrict-gate-primitives",
     "-restrict-port-connections",
 ])
